@@ -17,7 +17,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.drop_constraint("approvals_approval_id_key", "approvals", type_="unique")
+    op.execute("ALTER TABLE approvals DROP CONSTRAINT IF EXISTS approvals_approval_id_key")
     op.create_unique_constraint("uq_approvals_project_approval_id", "approvals", ["project_id", "approval_id"])
 
 
