@@ -67,7 +67,7 @@ def create_org(body: OrgCreate, db: Session = Depends(get_db)):
 @router.post("/projects", response_model=ProjectOut)
 def create_project(body: ProjectCreate, db: Session = Depends(get_db)):
     if not db.get(Organization, body.organization_id):
-        raise HTTPException(status_code=404, detail="Organización no encontrada")
+        raise HTTPException(status_code=404, detail="Organization not found")
     p = Project(organization_id=body.organization_id, name=body.name)
     db.add(p)
     db.commit()
@@ -83,7 +83,7 @@ def list_projects(db: Session = Depends(get_db)):
 @router.post("/api-keys", response_model=ApiKeyOut)
 def create_api_key(body: ApiKeyCreate, db: Session = Depends(get_db)):
     if not db.get(Project, body.project_id):
-        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+        raise HTTPException(status_code=404, detail="Project not found")
     public, secret, hashed = generate_api_key()
     key = ApiKey(
         project_id=body.project_id,

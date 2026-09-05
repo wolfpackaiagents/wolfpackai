@@ -55,7 +55,7 @@ def resolve_project_id(
         # admin-only mode: requires the X-Wolfpack-Project-Id header
         project = request.headers.get("X-Wolfpack-Project-Id")
         if not project:
-            raise HTTPException(status_code=401, detail="Admin key requiere X-Wolfpack-Project-Id")
+            raise HTTPException(status_code=401, detail="Admin key requires X-Wolfpack-Project-Id")
         _enforce_rate_limit(request, "admin")
         return AuthContext(project, db, "admin", "admin")
     public_key, _, provided_secret = x_api_key.partition(":")
@@ -64,9 +64,9 @@ def resolve_project_id(
         provided_secret = x_api_key.split(":", 1)[1]
     key_record = db.query(ApiKey).filter(ApiKey.public_key == public_key).filter(ApiKey.status == "active").first()
     if not key_record:
-        raise HTTPException(status_code=401, detail="API key inválida")
+        raise HTTPException(status_code=401, detail="Invalid API key")
     if not secrets.compare_digest(key_record.hashed_secret_key, hash_secret(provided_secret.strip())):
-        raise HTTPException(status_code=401, detail="API key inválida")
+        raise HTTPException(status_code=401, detail="Invalid API key")
     _enforce_rate_limit(request, key_record.id)
     return AuthContext(key_record.project_id, db, key_record.role, key_record.id)
 
@@ -95,4 +95,4 @@ def require_role(required_role: str) -> Callable:
 
 def require_admin(x_admin_key: str = Header(None, alias="X-Admin-Key")):
     if x_admin_key != get_settings().admin_api_key:
-        raise HTTPException(status_code=401, detail="Admin key inválida")
+        raise HTTPException(status_code=401, detail="Invalid admin key")
