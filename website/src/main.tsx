@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
 import FrameworkSection from "./pages/FrameworkSection";
 import ControlPlaneSection from "./pages/ControlPlaneSection";
 import ExamplePage from "./pages/ExamplePage";
@@ -21,8 +22,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
+          <Route path="/docs" element={<Home />} />
           <Route path="/installation" element={<InstallationPage />} />
           <Route path="/framework/:sectionId" element={<FrameworkSection />} />
           <Route path="/control-plane/:sectionId" element={<ControlPlaneSection />} />

@@ -16,7 +16,7 @@ const conceptPages = [
 ];
 
 const navItems = [
-  { label: "Home", path: "/" },
+  { label: "Documentation", path: "/docs" },
   {
     label: "Getting Started",
     path: "/installation",
@@ -77,14 +77,14 @@ export default function Layout() {
         }`}
       >
         <div className="p-4 border-b border-gray-800">
-          <Link to="/" className="flex items-center gap-3">
+            <Link to="/docs" className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-600 rounded-lg flex items-center justify-center font-bold text-sm">
               W
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">Wolfpack AI</h1>
               <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full ml-1">BETA</span>
-              <p className="text-xs text-gray-400">Documentation</p>
+              <p className="text-xs text-gray-400">Developer documentation</p>
             </div>
           </Link>
         </div>

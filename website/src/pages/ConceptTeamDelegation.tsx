@@ -8,7 +8,7 @@ export default function ConceptTeamDelegation() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -17,7 +17,7 @@ export default function ConceptTeamDelegation() {
         <h1 className="text-4xl font-bold text-white mb-4">Team Delegation Architecture</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
           How the Team leader decomposes tasks and delegates them to specialist agents, with result
-          aggregation and shared memory across all members.
+          aggregation from independent specialist agents.
         </p>
       </header>
 
@@ -50,11 +50,10 @@ export default function ConceptTeamDelegation() {
             subtasks, and delegates each subtask to the most qualified member.
           </p>
           <ol className="space-y-3 list-decimal list-inside">
-            <li><strong className="text-white">Task Decomposition</strong> &mdash; The leader analyzes the request and breaks it into discrete subtasks.</li>
-            <li><strong className="text-white">Agent Selection</strong> &mdash; The leader selects the best member for each subtask based on their tools and instructions.</li>
-            <li><strong className="text-white">Delegation</strong> &mdash; Each member receives their subtask with relevant context from shared memory.</li>
-            <li><strong className="text-white">Execution</strong> &mdash; Members execute their assigned work, using their specialized tools and knowledge.</li>
-            <li><strong className="text-white">Result Aggregation</strong> &mdash; The leader collects all outputs and synthesizes them into a final response.</li>
+            <li><strong className="text-white">Describe members</strong>: each member exposes its name, description, and available tools.</li>
+            <li><strong className="text-white">Delegate</strong>: the leader model uses an internal delegation tool to select a specialist.</li>
+            <li><strong className="text-white">Execute</strong>: the selected member runs as a complete Agent with its own model, tools, and knowledge.</li>
+            <li><strong className="text-white">Collect</strong>: Team returns member outputs and the final content for the selected mode.</li>
           </ol>
         </div>
       </section>
@@ -63,10 +62,10 @@ export default function ConceptTeamDelegation() {
         <h2 className="text-2xl font-bold text-white mb-4">Delegation Modes</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { title: "Auto", desc: "The leader dynamically decides which member handles each subtask based on capabilities." },
-            { title: "Round Robin", desc: "Subtasks are assigned sequentially to members in a fixed order." },
-            { title: "Broadcast", desc: "All members receive the same task simultaneously. Used for consensus and voting." },
-            { title: "Consensus", desc: "Members debate and reach agreement over multiple rounds before producing a final answer." },
+            { title: "Coordinate", desc: "A leader model delegates tasks to members through the internal tool." },
+            { title: "Route", desc: "The team routes a request to one member." },
+            { title: "Broadcast", desc: "Every member receives the same request and the outputs are returned together." },
+            { title: "Tasks", desc: "The team runs a list of member-targeted tasks." },
           ].map((mode) => (
             <div key={mode.title} className="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <h3 className="font-semibold text-white mb-1">{mode.title}</h3>

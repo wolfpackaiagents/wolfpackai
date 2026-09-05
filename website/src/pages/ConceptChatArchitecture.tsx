@@ -8,7 +8,7 @@ export default function ConceptChatArchitecture() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -16,8 +16,8 @@ export default function ConceptChatArchitecture() {
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">Chat Architecture</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          End-to-end chat architecture showing how frontend applications connect through AMP Gateway
-          to agent runtimes via the Chat API and SSE channels.
+          End-to-end chat architecture showing how the AMP web interface dispatches persistent conversations
+          to registered runtimes through the Chat API.
         </p>
       </header>
 
@@ -45,16 +45,14 @@ export default function ConceptChatArchitecture() {
         <h2 className="text-2xl font-bold text-white mb-4">Architecture Overview</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
-            The Chat Architecture connects multiple frontend channels (web UI, Slack, Discord, mobile apps)
-            to agent runtimes through the AMP Gateway. The Gateway handles authentication, rate limiting,
-            session management, and message routing.
+            AMP Chat stores conversations and targets an enabled Mesh registration with a configured chat endpoint.
+            It authenticates requests with a project API key and keeps a stable session identifier across turns.
           </p>
           <ol className="space-y-3 list-decimal list-inside">
-            <li><strong className="text-white">Frontend Channels</strong> &mdash; Users interact through web chat, Slack, Discord, Telegram, or custom UIs.</li>
-            <li><strong className="text-white">AMP Gateway</strong> &mdash; Central entry point that authenticates requests, manages sessions, and routes messages.</li>
-            <li><strong className="text-white">Chat API</strong> &mdash; REST and SSE interface for sending messages and receiving streaming responses.</li>
-            <li><strong className="text-white">Agent Runtime</strong> &mdash; Executes agent reasoning loops, tool calls, and memory operations.</li>
-            <li><strong className="text-white">Response Stream</strong> &mdash; Tokens are streamed back in real-time via SSE.</li>
+            <li><strong className="text-white">Conversation</strong>: the web client creates or selects a persistent conversation.</li>
+            <li><strong className="text-white">Registration</strong>: AMP verifies the selected runtime is enabled and has a chat endpoint.</li>
+            <li><strong className="text-white">Dispatch</strong>: the backend posts the request to that endpoint.</li>
+            <li><strong className="text-white">Run events</strong>: Server-Sent Events expose lifecycle and final-result events for the chat run.</li>
           </ol>
         </div>
       </section>
@@ -63,10 +61,10 @@ export default function ConceptChatArchitecture() {
         <h2 className="text-2xl font-bold text-white mb-4">Key Features</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { title: "Streaming Responses", desc: "Tokens arrive in real-time as the model generates them for instant user feedback." },
+            { title: "Run events", desc: "The interface consumes Server-Sent Events for run state and the completed result." },
             { title: "Session Management", desc: "Multi-turn conversations with context persistence across messages." },
-            { title: "Multi-Channel", desc: "Unified agent accessible from web, Slack, Discord, and Telegram." },
-            { title: "Agent Handoff", desc: "Seamless transfer between specialized agents mid-conversation." },
+            { title: "Registered runtimes", desc: "Conversations target enabled agent or team registrations with a chat endpoint." },
+            { title: "Trace links", desc: "The run inspector links conversation activity to its trace context." },
           ].map((feat) => (
             <div key={feat.title} className="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <h3 className="font-semibold text-white mb-1">{feat.title}</h3>

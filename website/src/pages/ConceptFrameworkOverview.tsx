@@ -8,7 +8,7 @@ export default function ConceptFrameworkOverview() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -45,14 +45,14 @@ export default function ConceptFrameworkOverview() {
         <h2 className="text-2xl font-bold text-white mb-4">Framework Components</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { title: "Agent", desc: "Core reasoning loop that wraps an LLM with tools, memory, guardrails, and observers. The primary building block." },
-            { title: "Tools", desc: "Extensible function system for agent-environment interaction. Built-in tools for web, code, data, file I/O, and communication." },
-            { title: "Team", desc: "Hierarchical multi-agent orchestration. A leader agent delegates subtasks to specialist members with shared memory." },
-            { title: "Memory", desc: "Context persistence across turns and sessions. Supports short-term buffers, long-term vector stores, and summarization." },
-            { title: "Knowledge", desc: "RAG system for grounding agent responses in indexed documents, code, and data. Multi-source loading support." },
-            { title: "Guardrails", desc: "Input/output safety constraints, PII filtering, topic restrictions, and human-in-the-loop approval gates." },
-            { title: "Workflow", desc: "Structured multi-step processes with branching, parallel execution, and human review gates." },
-            { title: "Observability", desc: "OpenTelemetry-compatible tracing, metrics collection, and logging with AMP dashboard integration." },
+            { title: "Agent", desc: "Core execution loop that combines a model, typed tools, optional knowledge, session memory, guardrails, and telemetry." },
+            { title: "Tools", desc: "Typed Python functions exposed with @tool and reusable Toolkit groups." },
+            { title: "Team", desc: "Leader-driven or deterministic multi-agent orchestration with coordinate, route, broadcast, and tasks modes." },
+            { title: "Memory", desc: "Session context persisted through in-memory or SQLite session stores." },
+            { title: "Knowledge", desc: "Document and text retrieval through Knowledge, embeddings, and a configured vector database." },
+            { title: "Guardrails", desc: "PII masking, prompt injection checks, tool allowlists, custom hooks, and durable approvals." },
+            { title: "Workflow", desc: "Deterministic dependency-aware steps with retry and conditional execution." },
+            { title: "Observability", desc: "OpenTelemetry-style tracing and WolfpackObserver ingestion into AMP." },
           ].map((comp) => (
             <div key={comp.title} className="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <h3 className="font-semibold text-white mb-1">{comp.title}</h3>
@@ -70,7 +70,7 @@ export default function ConceptFrameworkOverview() {
           </p>
           <ul className="space-y-3">
             <li>
-              <strong className="text-white">Framework</strong> &mdash; The Python library (<code className="text-amber-400">pip install wolfpack</code>) that provides Agent, Tools, Team, Memory, Knowledge, Guardrails, and Workflow. Runs standalone or connects to AMP.
+              <strong className="text-white">Framework</strong>: the Python library (<code className="text-amber-400">pip install wolfpackai</code>) that provides agents, typed tools, teams, memory, knowledge, guardrails, workflows, and AMP telemetry.
             </li>
             <li>
               <strong className="text-white">Control Plane (AMP)</strong> &mdash; The management platform deployed via Docker Compose that adds Mesh Registry, Chat API, Channels, Scheduler, Secrets, and Observability on top of the framework.

@@ -11,7 +11,7 @@ export default function ExamplePage() {
       <div className="text-center py-20">
         <h2 className="text-2xl font-bold text-white mb-4">Example Not Found</h2>
         <p className="text-gray-400 mb-6">The example "{exampleId}" does not exist.</p>
-        <Link to="/" className="text-amber-400 hover:text-amber-300">Return Home</Link>
+        <Link to="/docs" className="text-amber-400 hover:text-amber-300">Return to documentation</Link>
       </div>
     );
   }
@@ -24,7 +24,7 @@ export default function ExamplePage() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Examples</span>
           <span>/</span>

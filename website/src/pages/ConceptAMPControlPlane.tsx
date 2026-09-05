@@ -8,7 +8,7 @@ export default function ConceptAMPControlPlane() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -16,8 +16,8 @@ export default function ConceptAMPControlPlane() {
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">AMP Control Plane</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          The Agent Management Platform architecture showing Mesh Registry, Chat API, Channel integrations,
-          Scheduler, and Observability services working together.
+          The Agent Management Platform architecture connecting traces, registered runtimes, human approvals,
+          quality scores, schedules, provider channels, and governance controls.
         </p>
       </header>
 
@@ -46,8 +46,7 @@ export default function ConceptAMPControlPlane() {
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             The AMP Control Plane is the centralized management layer for Wolfpack AI agents. It provides
-            service discovery, chat infrastructure, channel integrations, scheduling, secrets management,
-            and full observability across all deployed agents.
+            trace ingestion and query APIs, runtime registrations, chat dispatch, approvals, schedules, encrypted provider secrets, privacy controls, and operational dashboards.
           </p>
         </div>
       </section>
@@ -56,12 +55,12 @@ export default function ConceptAMPControlPlane() {
         <h2 className="text-2xl font-bold text-white mb-4">Core Services</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { title: "Mesh Registry", desc: "Service discovery and agent registry. Agents register with capabilities and find each other dynamically." },
-            { title: "Chat API", desc: "REST and SSE interface for multi-turn conversations with streaming responses." },
+            { title: "Mesh registry", desc: "Versioned agent and team definitions, environment registrations, heartbeats, and observed interactions." },
+            { title: "Chat API", desc: "Persistent conversations dispatched to enabled registrations with lifecycle and final-result events." },
             { title: "Channels", desc: "Bidirectional bridges to Slack, Discord, and Telegram." },
             { title: "Scheduler", desc: "Cron-based and interval-based autonomous agent execution for monitoring and reporting." },
-            { title: "Observability", desc: "Distributed tracing, metrics aggregation, logging, and alerting for all agents." },
-            { title: "Secrets Manager", desc: "Encrypted storage for API keys and credentials with rotation policies and audit logging." },
+            { title: "Observability", desc: "Asynchronous trace ingestion, trace exploration, usage and cost metrics, alert rules, and Prometheus metrics." },
+            { title: "Provider secrets", desc: "Encrypted project-scoped credentials for provider integrations, including rotation and deletion." },
           ].map((service) => (
             <div key={service.title} className="p-4 bg-gray-800/50 rounded-xl border border-gray-700">
               <h3 className="font-semibold text-white mb-1">{service.title}</h3>

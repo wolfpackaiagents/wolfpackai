@@ -16,6 +16,7 @@ test-results/
 # Env
 .env
 !**/.env.example
+.netlify/
 
 # Infra
 *.log

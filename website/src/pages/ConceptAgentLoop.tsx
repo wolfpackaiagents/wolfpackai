@@ -8,7 +8,7 @@ export default function ConceptAgentLoop() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -16,8 +16,8 @@ export default function ConceptAgentLoop() {
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">Agent Loop Architecture</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          The core agent reasoning loop showing how the Model interacts with Tools, Memory, Guardrails,
-          and the Observer to process inputs and generate responses.
+          The core execution loop showing how a model uses typed tools, optional knowledge, session memory,
+          guardrails, and telemetry to process a request.
         </p>
       </header>
 
@@ -46,19 +46,17 @@ export default function ConceptAgentLoop() {
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             The Agent Loop is the fundamental execution model in Wolfpack AI. When an agent receives input,
-            it enters a reasoning loop that continues until it produces a final answer or reaches
-            <code className="text-amber-400"> max_turns</code>.
+            it continues until it produces a final answer or reaches
+            <code className="text-amber-400"> max_iterations</code>.
           </p>
           <ol className="space-y-3 list-decimal list-inside">
-            <li><strong className="text-white">Observe</strong> &mdash; The agent receives the user input along with context from Memory and Knowledge.</li>
-            <li><strong className="text-white">Reason</strong> &mdash; The Model processes the input, considering available Tools and Guardrails.</li>
-            <li><strong className="text-white">Act</strong> &mdash; If the model decides to call tools, they execute in parallel or sequence.</li>
-            <li><strong className="text-white">Observe Results</strong> &mdash; Tool outputs are fed back into the reasoning loop.</li>
-            <li><strong className="text-white">Repeat or Answer</strong> &mdash; The agent continues until it has enough information to respond.</li>
+            <li><strong className="text-white">Prepare</strong>: the agent applies configured input hooks and resolves optional session context.</li>
+            <li><strong className="text-white">Invoke</strong>: the model receives the request and available tool schemas.</li>
+            <li><strong className="text-white">Execute</strong>: requested tools run and their results are added to the conversation.</li>
+            <li><strong className="text-white">Repeat or answer</strong>: the loop continues until the model returns content or reaches the configured limit.</li>
           </ol>
           <p>
-            The Observer monitors every step, collecting traces and metrics for the AMP observability pipeline.
-            Guardrails validate inputs and outputs at each stage to enforce safety and compliance.
+            A Tracker can monitor every step. WolfpackObserver sends the resulting trace data to AMP, while the built-in guardrails can mask personally identifiable information, block prompt injection, and restrict tools.
           </p>
         </div>
       </section>
@@ -68,10 +66,10 @@ export default function ConceptAgentLoop() {
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Model", desc: "The LLM that drives reasoning. Supports OpenAI, Anthropic, Google, and any OpenAI-compatible endpoint." },
-            { title: "Tools", desc: "Callable functions that extend agent capabilities — web search, code execution, API calls, file I/O, and more." },
-            { title: "Memory", desc: "Conversation history and user context that persists across turns and sessions." },
-            { title: "Guardrails", desc: "Safety constraints that validate inputs, outputs, and tool calls at each stage of the loop." },
-            { title: "Observer", desc: "Telemetry collector that captures traces, metrics, and logs for the AMP observability pipeline." },
+            { title: "Tools", desc: "Callable Python functions exposed through @tool or Toolkit." },
+            { title: "Memory", desc: "SessionMemory persists multi-turn history through a configured session store." },
+            { title: "Guardrails", desc: "PII masking, prompt injection checks, tool allowlists, and custom hooks." },
+            { title: "Telemetry", desc: "Tracker implementations capture spans; WolfpackObserver forwards them to AMP." },
             { title: "Knowledge", desc: "RAG system that retrieves relevant documents to ground the model's responses in factual data." },
           ].map((comp) => (
             <div key={comp.title} className="p-4 bg-gray-800/50 rounded-xl border border-gray-700">

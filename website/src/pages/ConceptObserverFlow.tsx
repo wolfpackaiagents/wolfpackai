@@ -8,7 +8,7 @@ export default function ConceptObserverFlow() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/" className="hover:text-white">Home</Link>
+          <Link to="/docs" className="hover:text-white">Documentation</Link>
           <span>/</span>
           <span className="text-amber-400">Concepts</span>
           <span>/</span>
@@ -16,8 +16,7 @@ export default function ConceptObserverFlow() {
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">Observer Data Flow</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          How the Observer collects telemetry from agent execution and forwards it to the AMP ingestion
-          pipeline for tracing, metrics, and alerting.
+          How WolfpackObserver collects agent telemetry and forwards buffered trace data to the AMP ingestion pipeline.
         </p>
       </header>
 
@@ -45,17 +44,15 @@ export default function ConceptObserverFlow() {
         <h2 className="text-2xl font-bold text-white mb-4">Data Flow Pipeline</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
-            The Observer is embedded in the agent runtime and captures telemetry at every stage of the
-            agent loop. This data flows through the AMP ingestion pipeline and becomes available for
-            visualization, alerting, and debugging.
+            WolfpackObserver implements the framework Tracker contract. It records agent, model, and tool activity,
+            optionally redacts personally identifiable information, and batches events for AMP ingestion.
           </p>
           <ol className="space-y-3 list-decimal list-inside">
-            <li><strong className="text-white">Instrumentation</strong> &mdash; The Observer hooks into agent lifecycle events: model calls, tool executions, guardrail evaluations, and memory operations.</li>
-            <li><strong className="text-white">Span Creation</strong> &mdash; Each event becomes a span with timing, attributes, and status. Spans are hierarchically structured into traces.</li>
-            <li><strong className="text-white">Export</strong> &mdash; Spans are exported via OTLP (OpenTelemetry Protocol) to the AMP ingestion endpoint or any OTLP-compatible backend.</li>
-            <li><strong className="text-white">Storage & Indexing</strong> &mdash; AMP stores traces in a time-series database and indexes them for fast querying.</li>
-            <li><strong className="text-white">Visualization</strong> &mdash; The AMP dashboard renders traces, metrics, and logs with drill-down capability.</li>
-            <li><strong className="text-white">Alerting</strong> &mdash; Alerting rules evaluate metrics in real-time and trigger notifications when thresholds are breached.</li>
+            <li><strong className="text-white">Instrumentation</strong>: the tracker receives run, model, tool, and approval events from the framework.</li>
+            <li><strong className="text-white">Trace creation</strong>: those events form nested trace and span payloads with timing, inputs, outputs, usage, and cost.</li>
+            <li><strong className="text-white">Ingestion</strong>: WolfpackObserver sends its buffered payload to AMP over the public ingestion API.</li>
+            <li><strong className="text-white">Storage</strong>: AMP persists traces and related observations in PostgreSQL, with retention and redaction controls.</li>
+            <li><strong className="text-white">Operations</strong>: dashboards, trace detail, scores, and alert rules expose the stored evidence.</li>
           </ol>
         </div>
       </section>
@@ -65,7 +62,7 @@ export default function ConceptObserverFlow() {
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Traces", desc: "End-to-end execution traces showing every step of agent reasoning, with hierarchical span structure." },
-            { title: "Latency Metrics", desc: "p50, p95, p99 latency for model calls, tool executions, and total agent response time." },
+            { title: "Latency metrics", desc: "Run and span timing support aggregate p50 and p95 views." },
             { title: "Token Usage", desc: "Prompt and completion token counts per model call, aggregated over time." },
             { title: "Error Rates", desc: "Error tracking for model failures, tool exceptions, and guardrail violations." },
             { title: "Tool Usage", desc: "Which tools are called, how often, and their success/failure rates." },
