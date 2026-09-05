@@ -1,10 +1,68 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const externalLinks = {
   github: "https://github.com/wolfpackaiagents/wolfpackai",
   pypi: "https://pypi.org/project/wolfpackai/",
   docker: "https://hub.docker.com/u/wolfpackaiagents",
 };
+
+const useCases = [
+  {
+    id: "support",
+    label: "01 / Customer support",
+    title: "Support that keeps context.",
+    description: "Build a support agent that carries a session across turns, calls approved business tools, and gives operators a trace for every answer.",
+    framework: ["Agent", "SessionMemory", "@tool", "Web chat adapters"],
+    operate: ["Sessions", "Traces", "Channels", "Scores"],
+    flow: ["Customer message", "Session-aware agent", "Support tools", "Trace and score"],
+  },
+  {
+    id: "knowledge",
+    label: "02 / Knowledge operations",
+    title: "Make internal knowledge usable.",
+    description: "Index approved material in a vector database, expose retrieval as an agent tool, and inspect the resulting runs before expanding access.",
+    framework: ["Knowledge", "Embeddings", "Qdrant or PGVector", "Typed search tool"],
+    operate: ["Trace Explorer", "Privacy", "Retention", "Cost"],
+    flow: ["Source material", "Vector retrieval", "Grounded response", "Governed trace"],
+  },
+  {
+    id: "compliance",
+    label: "03 / Sensitive operations",
+    title: "Put humans where risk matters.",
+    description: "Use guardrails and durable approvals when an agent handles sensitive inputs or requires confirmation before it takes an action.",
+    framework: ["PII guardrail", "Prompt injection guardrail", "Tool allowlist", "Approvals"],
+    operate: ["Approval queue", "Privacy controls", "Audit context", "Alerts"],
+    flow: ["Sensitive request", "Guardrail check", "Human decision", "Auditable outcome"],
+  },
+  {
+    id: "scheduled",
+    label: "04 / Scheduled operations",
+    title: "Run the work on a clock.",
+    description: "Schedule recurring agent work for reporting, monitoring, and operational follow-ups with execution history and retry-aware policies.",
+    framework: ["Workflow", "Schedule toolkit", "HTTP runtime runner", "Agent tools"],
+    operate: ["Schedules", "Run history", "Policies", "Resilience"],
+    flow: ["Schedule trigger", "Registered runtime", "Task execution", "Run history"],
+  },
+  {
+    id: "research",
+    label: "05 / Research teams",
+    title: "Delegate specialist work.",
+    description: "Coordinate specialist agents for research, editing, routing, or broadcast tasks while retaining the execution tree for review.",
+    framework: ["Team", "Coordinate mode", "Route mode", "Member tools"],
+    operate: ["Nested traces", "Mesh interactions", "Usage", "Cost"],
+    flow: ["Research request", "Team delegation", "Member outputs", "Reviewed result"],
+  },
+  {
+    id: "quality",
+    label: "06 / Agent quality",
+    title: "Improve with evidence.",
+    description: "Attach evaluations and scores to real traces so quality, latency, token usage, and cost are visible in the same operating surface.",
+    framework: ["EvalRunner", "Callable evaluators", "AmpScorePublisher", "Telemetry"],
+    operate: ["Scores", "Evals", "Metrics", "Alert rules"],
+    flow: ["Agent run", "Evaluation", "Score evidence", "Operational decision"],
+  },
+];
 
 function Arrow() {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-4 h-4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>;
@@ -15,6 +73,9 @@ function ExternalArrow() {
 }
 
 export default function LandingPage() {
+  const [activeUseCaseId, setActiveUseCaseId] = useState(useCases[0].id);
+  const activeUseCase = useCases.find((useCase) => useCase.id === activeUseCaseId) ?? useCases[0];
+
   return (
     <div className="min-h-screen bg-[#080a0f] text-zinc-100 overflow-hidden selection:bg-amber-300 selection:text-zinc-950">
       <div className="fixed inset-0 pointer-events-none opacity-40 [background-image:linear-gradient(rgba(255,255,255,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.035)_1px,transparent_1px)] [background-size:48px_48px] [mask-image:linear-gradient(to_bottom,black,transparent_62%)]" />
@@ -68,6 +129,52 @@ export default function LandingPage() {
           <section className="py-24 grid lg:grid-cols-[.8fr_1.2fr] gap-10 items-start">
             <div><p className="text-sm font-medium text-amber-200">THE DEVELOPMENT SURFACE</p><h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-[-.05em] leading-tight text-white">Start with a function. Ship an operator-ready agent.</h2></div>
             <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden"><div className="flex gap-2 px-5 py-4 border-b border-white/10"><span className="w-2.5 h-2.5 rounded-full bg-rose-300/70" /><span className="w-2.5 h-2.5 rounded-full bg-amber-300/70" /><span className="w-2.5 h-2.5 rounded-full bg-emerald-300/70" /></div><pre className="overflow-x-auto p-6 text-sm leading-7 text-zinc-300"><code><span className="text-violet-300">from</span> wolfpack <span className="text-violet-300">import</span> Agent, get_model_from_env, tool{`\n\n`}<span className="text-amber-200">@tool</span>{`\n`}<span className="text-sky-300">def</span> get_weather(city: <span className="text-emerald-300">str</span>) -&gt; <span className="text-emerald-300">str</span>:{`\n`}    <span className="text-zinc-500">"""Return a weather summary."""</span>{`\n`}    <span className="text-violet-300">return</span> <span className="text-emerald-300">f"{`{city}`}: 22 C, cloudy."</span>{`\n\n`}agent = Agent({`\n`}    name=<span className="text-emerald-300">"weather-assistant"</span>,{`\n`}    model=get_model_from_env(),{`\n`}    tools=[get_weather],{`\n`})</code></pre></div>
+          </section>
+
+          <section className="pb-24" aria-labelledby="use-cases-heading">
+            <div className="grid lg:grid-cols-[.78fr_1.22fr] gap-10 items-end">
+              <div>
+                <p className="text-sm font-medium text-amber-200">REAL-WORLD USE CASES</p>
+                <h2 id="use-cases-heading" className="mt-4 text-4xl md:text-5xl font-semibold tracking-[-.05em] leading-tight text-white">Agents that fit real operations.</h2>
+              </div>
+              <p className="max-w-xl text-zinc-400 leading-relaxed">Wolfpack AI is designed for teams that need more than a prompt and a response. Each pattern connects runtime capabilities with the evidence operators need to run it responsibly.</p>
+            </div>
+
+            <div className="mt-10 grid lg:grid-cols-[.9fr_1.1fr] gap-5">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-1 gap-2" role="tablist" aria-label="Wolfpack AI use cases">
+                {useCases.map((useCase) => {
+                  const isActive = useCase.id === activeUseCase.id;
+                  return (
+                    <button
+                      key={useCase.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isActive}
+                      aria-controls="use-case-detail"
+                      onClick={() => setActiveUseCaseId(useCase.id)}
+                      className={`text-left rounded-xl border p-4 transition-all ${isActive ? "border-amber-300/55 bg-amber-300/10" : "border-white/10 bg-white/[.02] hover:border-white/25 hover:bg-white/[.045]"}`}
+                    >
+                      <span className={`block text-[11px] uppercase tracking-[.16em] ${isActive ? "text-amber-200" : "text-zinc-500"}`}>{useCase.label}</span>
+                      <span className="mt-2 block font-medium text-white">{useCase.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div id="use-case-detail" role="tabpanel" className="rounded-2xl border border-white/10 bg-[#10131b] p-6 md:p-8">
+                <div className="flex items-start justify-between gap-4"><div><span className="text-xs uppercase tracking-[.16em] text-amber-200">{activeUseCase.label}</span><h3 className="mt-3 text-3xl md:text-4xl font-semibold tracking-[-.045em] text-white">{activeUseCase.title}</h3></div><span className="hidden sm:flex h-10 w-10 rounded-full border border-amber-300/25 bg-amber-300/10 items-center justify-center text-amber-200"><Arrow /></span></div>
+                <p className="mt-5 max-w-2xl leading-relaxed text-zinc-400">{activeUseCase.description}</p>
+
+                <div className="mt-8 grid md:grid-cols-2 gap-4">
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-4"><p className="text-xs font-medium uppercase tracking-[.14em] text-zinc-500">Build with</p><div className="mt-4 flex flex-wrap gap-2">{activeUseCase.framework.map((item) => <span key={item} className="rounded-full bg-white/[.06] px-2.5 py-1 text-xs text-zinc-300">{item}</span>)}</div></div>
+                  <div className="rounded-xl border border-white/10 bg-black/20 p-4"><p className="text-xs font-medium uppercase tracking-[.14em] text-zinc-500">Operate with</p><div className="mt-4 flex flex-wrap gap-2">{activeUseCase.operate.map((item) => <span key={item} className="rounded-full bg-white/[.06] px-2.5 py-1 text-xs text-zinc-300">{item}</span>)}</div></div>
+                </div>
+
+                <div className="mt-5 rounded-xl border border-emerald-300/15 bg-emerald-300/[.045] p-4"><p className="text-xs font-medium uppercase tracking-[.14em] text-emerald-300">Operational flow</p><div className="mt-4 flex flex-wrap items-center gap-2 text-sm">{activeUseCase.flow.map((step, index) => <span key={step} className="contents"><span className="rounded-md border border-emerald-300/15 bg-emerald-300/[.06] px-3 py-2 text-zinc-200">{step}</span>{index < activeUseCase.flow.length - 1 && <Arrow />}</span>)}</div></div>
+
+                <div className="mt-6 flex flex-wrap gap-4 text-sm"><Link to="/docs" className="inline-flex items-center gap-2 font-medium text-amber-200 hover:text-amber-100">Explore documentation <Arrow /></Link><Link to="/examples" className="inline-flex items-center gap-2 font-medium text-zinc-300 hover:text-white">View runnable examples <Arrow /></Link></div>
+              </div>
+            </div>
           </section>
 
           <section id="run-anywhere" className="pb-24">
