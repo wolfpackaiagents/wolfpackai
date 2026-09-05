@@ -2109,7 +2109,7 @@ wheels = [
 
 [[package]]
 name = "wolfpack-amp"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
@@ -2179,7 +2179,7 @@ dev = [
 
 [[package]]
 name = "wolfpackai"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "../../framework" }
 dependencies = [
     { name = "anthropic" },

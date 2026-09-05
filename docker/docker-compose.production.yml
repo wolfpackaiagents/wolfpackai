@@ -12,6 +12,19 @@ services:
       timeout: 5s
       retries: 10
 
+  inngest-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: wolfpack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: inngest
+    volumes: [inngestpgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "wolfpack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   redis:
     image: redis:7
     healthcheck:
@@ -52,18 +65,26 @@ services:
 
   inngest:
     image: inngest/inngest
+    command:
+      - inngest
+      - start
+      - --signing-key
+      - ${INNGEST_SIGNING_KEY:?Set INNGEST_SIGNING_KEY}
+      - --event-key
+      - ${INNGEST_EVENT_KEY:?Set INNGEST_EVENT_KEY}
+      - --postgres-uri
+      - postgresql://wolfpack:${POSTGRES_PASSWORD}@inngest-postgres:5432/inngest
+      - --redis-uri
+      - redis://redis:6379/0
     ports: ["8289:8288"]
-    environment:
-      DATABASE_URL: postgresql://wolfpack:${POSTGRES_PASSWORD}@postgres:5432/wolfpack
-      REDIS_URL: redis://redis:6379/0
     depends_on:
-      postgres:
+      inngest-postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
 
   backend:
-    image: wolfpackaiagents/wolfpack-amp-backend:0.1.0
+    image: wolfpackaiagents/wolfpack-amp-backend:0.1.1
     environment:
       ENVIRONMENT: production
       DATABASE_URL: postgresql+psycopg://wolfpack:${POSTGRES_PASSWORD}@postgres:5432/wolfpack
@@ -96,5 +117,6 @@ services:
 
 volumes:
   pgdata:
+  inngestpgdata:
   miniodata:
   qdrantdata:

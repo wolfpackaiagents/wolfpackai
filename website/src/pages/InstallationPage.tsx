@@ -78,7 +78,7 @@ docker compose -f docker/docker-compose.production.yml up -d`}
             title="Deploy AMP"
           />
           <div className="mt-4 grid md:grid-cols-2 gap-4 text-sm text-gray-400">
-            <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700"><strong className="text-gray-200 block mb-2">Published images</strong><code>wolfpackaiagents/wolfpack-amp-backend:0.1.0</code><br /><code>wolfpackaiagents/wolfpack-amp-frontend:0.1.0</code></div>
+            <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700"><strong className="text-gray-200 block mb-2">Published images</strong><code>wolfpackaiagents/wolfpack-amp-backend:0.1.1</code><br /><code>wolfpackaiagents/wolfpack-amp-frontend:0.1.0</code></div>
             <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700"><strong className="text-gray-200 block mb-2">Included services</strong>PostgreSQL, Redis, Redis Exporter, Prometheus, MinIO, Qdrant, Inngest, AMP backend, and AMP frontend.</div>
           </div>
         </div>
