@@ -103,6 +103,10 @@ pytest
 
 Examples are organized by capability in `framework/examples/`.
 
+## Author
+
+Created by [Álvaro Brito](https://www.linkedin.com/in/alvarogomes/).
+
 ## License
 
 Wolfpack AI is released under the MIT License.

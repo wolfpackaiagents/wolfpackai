@@ -115,6 +115,10 @@ Examples are organized by capability in `examples/`, including basic agents,
 tools, knowledge retrieval, observability, human approval, workflows, teams,
 and Model Context Protocol integrations.
 
+## Author
+
+Created by [Álvaro Brito](https://www.linkedin.com/in/alvarogomes/).
+
 ## License
 
 Wolfpack AI is released under the MIT License.

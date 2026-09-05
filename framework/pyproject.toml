@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wolfpackai"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python framework for AI agents with observability, governance, and a production control plane."
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "Wolfpack AI" }]
+authors = [{ name = "Álvaro Brito" }]
 keywords = ["agents", "ai", "llm", "observability", "rag", "workflow"]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -51,6 +51,7 @@ package = true
 Homepage = "https://github.com/wolfpackaiagents/wolfpackai"
 Repository = "https://github.com/wolfpackaiagents/wolfpackai"
 Issues = "https://github.com/wolfpackaiagents/wolfpackai/issues"
+Author = "https://www.linkedin.com/in/alvarogomes/"
 
 [tool.setuptools.packages.find]
 include = ["wolfpack*"]
