@@ -17,7 +17,7 @@ const conceptPages = [
 
 const navItems = [
   { label: "Documentation", path: "/docs" },
-  { label: "Sobre o Autor", path: "/sobre-o-autor" },
+  { label: "About the Author", path: "/sobre-o-autor" },
   {
     label: "Getting Started",
     path: "/installation",
