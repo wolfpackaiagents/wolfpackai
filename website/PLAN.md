@@ -5,19 +5,15 @@
 - **TailwindCSS** for styling
 - **react-router-dom** for navigation
 - **fal.ai** (`nano-banana-pro`) for professional architecture diagrams
-- Static site, no backend — just docs
+- Static site with no backend
 
 ## Site Structure
 
 ```
 wolfpack-ai/
-├── index.html              → Landing page
-├── docs/
-│   ├── getting-started/    → Installation, first agent, configuration
-│   ├── framework/          → Agent, Tools, Team, Workflow, Memory, Guardrails
-│   ├── control-plane/      → AMP, Mesh, Chat, Channels, Schedules, Observability
-│   ├── examples/           → All 38 examples with step-by-step walkthroughs
-│   └── architecture/       → System diagrams, data flow, deployment
+├── src/                    → Pages, components, and documentation content
+├── public/                 → Static diagrams and screenshots
+└── scripts/                → Documentation data generation
 ```
 
 ## Navigation

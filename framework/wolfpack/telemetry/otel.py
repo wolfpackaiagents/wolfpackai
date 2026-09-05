@@ -9,7 +9,7 @@ Default implementation: OTel SDK with a `TracerProvider` whose `SpanExporter`
 points to a pluggable exporter (the console by default).
 
 For the MVP a `NoopTracker` (zero overhead) and a basic OTel are added when the SDK
-is present. We document in `docs/` how to wire your own exporter.
+is present. The framework README describes how to wire your own exporter.
 """
 
 from __future__ import annotations

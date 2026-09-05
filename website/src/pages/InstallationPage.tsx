@@ -172,8 +172,7 @@ pre-commit install`}
 │   └── examples/         # Team agent server, time test demo
 │
 ├── docker/              # Docker Compose (Postgres, Redis, Inngest)
-├── website/             # Documentation site (Vite + React + Tailwind)
-└── docs/                # Additional documentation`}</pre>
+└── website/             # Documentation site (Vite + React + Tailwind)`}</pre>
           </div>
         </div>
       </section>
