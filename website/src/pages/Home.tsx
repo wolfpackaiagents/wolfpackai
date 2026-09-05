@@ -141,19 +141,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-800 bg-gray-900 p-6">
-        <p className="text-xs font-semibold tracking-[.14em] text-amber-400">PROJECT</p>
-        <h2 className="mt-2 text-2xl font-bold text-white">Built by Álvaro Brito</h2>
-        <p className="mt-2 text-gray-400">Wolfpack AI is an open-source project created and maintained by Álvaro Brito.</p>
-        <a
-          href="https://www.linkedin.com/in/alvarogomes/"
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 inline-flex text-sm font-medium text-amber-400 hover:text-amber-300"
-        >
-          Connect on LinkedIn
-        </a>
-      </section>
     </div>
   );
 }

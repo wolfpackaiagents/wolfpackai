@@ -17,6 +17,7 @@ import ConceptChatArchitecture from "./pages/ConceptChatArchitecture";
 import ConceptObserverFlow from "./pages/ConceptObserverFlow";
 import ConceptAMPControlPlane from "./pages/ConceptAMPControlPlane";
 import ConceptFrameworkOverview from "./pages/ConceptFrameworkOverview";
+import AuthorPage from "./pages/AuthorPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -25,6 +26,7 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/" element={<LandingPage />} />
         <Route element={<Layout />}>
           <Route path="/docs" element={<Home />} />
+          <Route path="/sobre-o-autor" element={<AuthorPage />} />
           <Route path="/installation" element={<InstallationPage />} />
           <Route path="/framework/:sectionId" element={<FrameworkSection />} />
           <Route path="/control-plane/:sectionId" element={<ControlPlaneSection />} />
