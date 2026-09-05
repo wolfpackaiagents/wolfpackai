@@ -1,4 +1,7 @@
 import { useState } from "react";
+import Prism from "prismjs";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-python";
 
 interface CodeBlockProps {
   code: string;
@@ -8,6 +11,11 @@ interface CodeBlockProps {
 
 export default function CodeBlock({ code, language = "python", title }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
+  const prismLanguage = language === "shell" ? "bash" : language;
+  const grammar = Prism.languages[prismLanguage];
+  const highlightedCode = grammar
+    ? Prism.highlight(code, grammar, prismLanguage)
+    : Prism.util.encode(code);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(code);
@@ -33,10 +41,10 @@ export default function CodeBlock({ code, language = "python", title }: CodeBloc
         </div>
       )}
       <pre
-        className="p-4 overflow-x-auto text-sm leading-relaxed"
+        className={`language-${prismLanguage} p-4 overflow-x-auto text-sm leading-relaxed`}
         style={{ color: "#e5e7eb", whiteSpace: "pre", fontFamily: "'Fira Code', 'JetBrains Mono', 'Cascadia Code', ui-monospace, SFMono-Regular, monospace", fontSize: "13px", lineHeight: "1.6" }}
       >
-        <code>{code}</code>
+        <code className={`language-${prismLanguage}`} dangerouslySetInnerHTML={{ __html: highlightedCode }} />
       </pre>
     </div>
   );
