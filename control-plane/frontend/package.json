@@ -1,0 +1,39 @@
+{
+  "name": "wolfpack-amp-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint .",
+    "e2e:seed": "uv --directory ../backend run amp reset-demo",
+    "e2e": "npm run e2e:seed && playwright test",
+    "e2e:run": "playwright test"
+  },
+  "dependencies": {
+    "axios": "^1.7",
+    "i18next": "^23.15",
+    "react": "^18.3",
+    "react-dom": "^18.3",
+    "react-i18next": "^15.0",
+    "react-router-dom": "^6.26",
+    "recharts": "^2.12",
+    "zod": "^3.23",
+    "zustand": "^4.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/react": "^18.3",
+    "@types/react-dom": "^18.3",
+    "@vitejs/plugin-react": "^4.3",
+    "autoprefixer": "^10.4",
+    "eslint": "^9",
+    "postcss": "^8.4",
+    "tailwindcss": "^3.4",
+    "typescript": "^5.5",
+    "typescript-eslint": "^8",
+    "vite": "^5.4"
+  }
+}

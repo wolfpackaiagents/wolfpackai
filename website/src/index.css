@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Prism.js dark theme for Python syntax highlighting */
+pre[class*="language-"],
+code[class*="language-"] {
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  tab-size: 2;
+  hyphens: none;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #6b7280;
+}
+
+.token.punctuation {
+  color: #d1d5db;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #f59e0b;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #34d399;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #f472b6;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #60a5fa;
+}
+
+.token.function,
+.token.class-name {
+  color: #fbbf24;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #f87171;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+.token.entity {
+  cursor: help;
+}

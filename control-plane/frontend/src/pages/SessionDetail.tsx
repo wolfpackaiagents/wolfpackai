@@ -1,0 +1,8 @@
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link, useParams } from 'react-router-dom'
+import { formatDateTime } from '../i18n/format'
+import { fetchSession } from '../lib/api'
+import type { SessionDetail as Detail } from '../lib/types'
+
+export default function SessionDetail() { const { t } = useTranslation(); const { id = '' } = useParams(); const [session, setSession] = useState<Detail | null>(null); useEffect(() => { void fetchSession(id).then(setSession) }, [id]); if (!session) return <div className="ops-empty">{t('sessions.loadingTimeline')}</div>; return <section className="session-console"><Link className="ops-open" to="/sessions">← {t('sessions.sessionIndex')}</Link><header><p>{t('sessions.detailEyebrow')}</p><h1>{t('sessions.timeline')}</h1><code>{session.session_id}</code><span>{t('sessions.subjectLabel', { subject: session.user_id || t('sessions.anonymous') })}</span></header><ol>{session.traces.map((trace) => <li key={trace.id} className={trace.error ? 'is-error' : ''}><i /><article><div><Link to={`/traces/${trace.id}`}><h2>{trace.name || t('sessions.runtimeExecution')}</h2></Link><time>{formatDateTime(trace.timestamp)}</time></div>{trace.error && <p className="session-error">{trace.error}</p>}<details open><summary>{t('sessions.inputOutput')}</summary><div className="session-payload"><section><b>{t('sessions.input').toUpperCase()}</b><pre>{JSON.stringify(trace.input, null, 2)}</pre></section><section><b>{t('sessions.output').toUpperCase()}</b><pre>{JSON.stringify(trace.output, null, 2)}</pre></section></div></details></article></li>)}</ol></section> }

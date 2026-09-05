@@ -1,0 +1,8 @@
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
+import { formatDateTime, formatNumber } from '../i18n/format'
+import { fetchSessions } from '../lib/api'
+import type { SessionSummary } from '../lib/types'
+
+export default function Sessions() { const { t } = useTranslation(); const [sessions, setSessions] = useState<SessionSummary[]>([]); const [loading, setLoading] = useState(true); useEffect(() => { void fetchSessions().then(setSessions).finally(() => setLoading(false)) }, []); return <section className="ops-console"><header className="ops-header"><div><p>{t('sessions.eyebrow')}</p><h1>{t('sessions.title')}</h1><span>{t('sessions.subtitle')}</span></div><strong>{formatNumber(sessions.length)} {t('sessions.threads')}</strong></header><section className="ops-table">{loading ? <div className="ops-empty">{t('sessions.loading')}</div> : sessions.length ? <table><thead><tr><th>{t('sessions.session')}</th><th>{t('sessions.subject')}</th><th>{t('sessions.runs')}</th><th>{t('sessions.lastActivity')}</th><th /></tr></thead><tbody>{sessions.map((session) => <tr key={session.session_id}><td><Link to={`/sessions/${encodeURIComponent(session.session_id)}`}><b>{session.session_id}</b><small>{t('sessions.traceLinkedConversation')}</small></Link></td><td>{session.user_id || t('sessions.anonymousSubject')}</td><td><span className="ops-count">{formatNumber(session.trace_count)}</span></td><td>{formatDateTime(session.last_trace_at)}</td><td><Link className="ops-open" to={`/sessions/${encodeURIComponent(session.session_id)}`}>{t('sessions.open')} ↗</Link></td></tr>)}</tbody></table> : <div className="ops-empty">{t('sessions.empty')}</div>}</section></section> }
