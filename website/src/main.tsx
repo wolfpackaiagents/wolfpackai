@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
 import FrameworkSection from "./pages/FrameworkSection";
 import ControlPlaneSection from "./pages/ControlPlaneSection";
+import ControlPlaneFirstSteps from "./pages/ControlPlaneFirstSteps";
 import ExamplePage from "./pages/ExamplePage";
 import CategoryPage from "./pages/CategoryPage";
 import AllExamples from "./pages/AllExamples";
@@ -31,6 +32,7 @@ createRoot(document.getElementById("root")!).render(
             <Route path="/sobre-o-autor" element={<AuthorPage />} />
             <Route path="/installation" element={<InstallationPage />} />
             <Route path="/framework/:sectionId" element={<FrameworkSection />} />
+            <Route path="/control-plane/first-steps" element={<ControlPlaneFirstSteps />} />
             <Route path="/control-plane/:sectionId" element={<ControlPlaneSection />} />
             <Route path="/examples" element={<AllExamples />} />
             <Route path="/examples/category/:categoryName" element={<CategoryPage />} />

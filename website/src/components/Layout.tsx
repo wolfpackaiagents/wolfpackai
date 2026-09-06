@@ -80,7 +80,7 @@ export default function Layout() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+        <div className="p-4 border-b border-gray-800">
           <Link to="/docs" className="flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-600 rounded-lg flex items-center justify-center font-bold text-sm">
               W
@@ -91,7 +91,9 @@ export default function Layout() {
               <p className="text-xs text-gray-400">{t.layout.developerDoc}</p>
             </div>
           </Link>
-          <LangToggle />
+          <div className="mt-3 ml-11">
+            <LangToggle />
+          </div>
         </div>
 
         <nav className="p-3 space-y-1">

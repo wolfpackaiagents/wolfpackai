@@ -5,6 +5,7 @@ export interface SectionContent {
 }
 
 export const controlPlaneSections: SectionContent[] = [
+  { id: "first-steps", title: "First Steps", description: "Deploy the production AMP stack with Docker Compose, then connect a Wolfpack agent and inspect its traces in the Control Plane." },
   { id: "overview", title: "Dashboard", description: "The AMP dashboard summarizes trace volume, latency, token usage, cost, alerts, and recent activity within the selected environment and runtime scope." },
   { id: "traces", title: "Traces and Sessions", description: "Trace Explorer stores agent runs, nested spans, tool calls, model usage, cost, and errors. Sessions group related traces with a stable session identifier." },
   { id: "mesh", title: "Mesh", description: "Mesh registers versioned agent and team definitions in environments. It tracks registrations, runtime heartbeats, observed interactions, and trace context." },

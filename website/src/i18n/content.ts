@@ -56,6 +56,7 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
 };
 
 const controlPlanePt: Record<string, Partial<ControlPlaneSection>> = {
+  "first-steps": { title: "Primeiros passos", description: "Implante a pilha AMP de produção com Docker Compose, conecte um agente Wolfpack e inspecione seus traces no Control Plane." },
   overview: { title: "Painel", description: "O painel do AMP resume o volume de traces, a latencia, o uso de tokens, o custo, os alertas e a atividade recente no escopo de ambiente e runtime selecionado." },
   traces: { title: "Traces e sessoes", description: "Trace Explorer armazena execucoes de agentes, spans aninhados, chamadas de ferramentas, uso de modelo, custo e erros. Sessoes agrupam traces relacionados por um identificador de sessao estavel." },
   mesh: { title: "Mesh", description: "Mesh registra definicoes versionadas de agentes e times nos ambientes. Ele acompanha registros, heartbeats de runtime, interacoes observadas e contexto de trace." },
