@@ -118,6 +118,35 @@ export WOLFPACK_AMP_URL="http://localhost:8000"
 export WOLFPACK_AMP_API_KEY="pk-wp-dev:dev-secret"
 uv run python examples/05_observability/02_amp_observer.py`} />
       </section>
+
+      <section>
+        <h2 className="mb-3 text-2xl font-bold text-white">{pt ? "3. Abra o Control Plane" : "3. Open the Control Plane"}</h2>
+        <p className="mb-4 leading-relaxed text-gray-400">
+          {pt ? "Abra a interface depois que a pilha estiver saudável. O trace enviado pelo exemplo aparece em Traces; use Agent Mesh para ver registros, runtimes e interações observadas." : "Open the interface after the stack is healthy. The trace sent by the example appears in Traces; use Agent Mesh to view registrations, runtimes, and observed interactions."}
+        </p>
+        <div className="grid gap-4 md:grid-cols-2">
+          <a href="http://localhost" target="_blank" rel="noreferrer" className="rounded-xl border border-gray-800 bg-gray-900 p-5 transition-colors hover:border-amber-500/50">
+            <h3 className="font-semibold text-white">AMP Control Plane</h3>
+            <p className="mt-2 text-sm text-gray-400">http://localhost</p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-400">{pt ? "Explore Traces, Agent Mesh, aprovações, scores, agendamentos, canais, privacidade e configurações." : "Explore Traces, Agent Mesh, approvals, scores, schedules, channels, privacy, and settings."}</p>
+          </a>
+          <a href="http://localhost:9090" target="_blank" rel="noreferrer" className="rounded-xl border border-gray-800 bg-gray-900 p-5 transition-colors hover:border-amber-500/50">
+            <h3 className="font-semibold text-white">Prometheus</h3>
+            <p className="mt-2 text-sm text-gray-400">http://localhost:9090</p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-400">{pt ? "Consulte métricas da infraestrutura e da ingestão de telemetria." : "Inspect infrastructure and telemetry ingestion metrics."}</p>
+          </a>
+          <a href="http://localhost:9001" target="_blank" rel="noreferrer" className="rounded-xl border border-gray-800 bg-gray-900 p-5 transition-colors hover:border-amber-500/50">
+            <h3 className="font-semibold text-white">MinIO Console</h3>
+            <p className="mt-2 text-sm text-gray-400">http://localhost:9001</p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-400">{pt ? "Acesse o armazenamento de objetos usado pela plataforma." : "Access the object storage used by the platform."}</p>
+          </a>
+          <a href="http://localhost:8289" target="_blank" rel="noreferrer" className="rounded-xl border border-gray-800 bg-gray-900 p-5 transition-colors hover:border-amber-500/50">
+            <h3 className="font-semibold text-white">Inngest</h3>
+            <p className="mt-2 text-sm text-gray-400">http://localhost:8289</p>
+            <p className="mt-3 text-sm leading-relaxed text-gray-400">{pt ? "Acompanhe tarefas assíncronas e execuções agendadas." : "Monitor asynchronous tasks and scheduled executions."}</p>
+          </a>
+        </div>
+      </section>
     </article>
   );
 }
