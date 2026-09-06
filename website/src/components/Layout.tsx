@@ -3,65 +3,67 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { frameworkSections } from "../data/framework";
 import { controlPlaneSections } from "../data/control-plane";
 import { examples } from "../data/examples.generated";
+import { useI18n, LangToggle } from "../i18n/context";
 
 const categories = [...new Set(examples.map((e) => e.category))].sort();
 
 const conceptPages = [
-  { label: "Agent Loop", path: "/concepts/agent-loop" },
-  { label: "Team Delegation", path: "/concepts/team-delegation" },
-  { label: "Chat Architecture", path: "/concepts/chat-architecture" },
-  { label: "Observer Flow", path: "/concepts/observer-flow" },
-  { label: "AMP Control Plane", path: "/concepts/amp-control-plane" },
-  { label: "Framework Overview", path: "/concepts/framework-overview" },
-];
-
-const navItems = [
-  { label: "Documentation", path: "/docs" },
-  { label: "About the Author", path: "/sobre-o-autor" },
-  {
-    label: "Getting Started",
-    path: "/installation",
-    children: [
-      { label: "Installation", path: "/installation" },
-    ],
-  },
-  {
-    label: "Framework",
-    path: "/framework/agent",
-    children: frameworkSections.map((s) => ({ label: s.title, path: `/framework/${s.id}` })),
-  },
-  {
-    label: "Concepts",
-    path: "/concepts/framework-overview",
-    children: conceptPages,
-  },
-  {
-    label: "Control Plane (AMP)",
-    path: "/control-plane/overview",
-    children: controlPlaneSections.map((s) => ({ label: s.title, path: `/control-plane/${s.id}` })),
-  },
-  {
-    label: "Examples",
-    path: "/examples",
-    children: categories.map((cat) => ({
-      label: `${cat} (${examples.filter((e) => e.category === cat).length})`,
-      path: `/examples/category/${encodeURIComponent(cat)}`,
-    })),
-  },
+  { labelKey: "agentLoop" as const, path: "/concepts/agent-loop" },
+  { labelKey: "teamDelegation" as const, path: "/concepts/team-delegation" },
+  { labelKey: "chatArchitecture" as const, path: "/concepts/chat-architecture" },
+  { labelKey: "observerFlow" as const, path: "/concepts/observer-flow" },
+  { labelKey: "ampControlPlane" as const, path: "/concepts/amp-control-plane" },
+  { labelKey: "frameworkOverview" as const, path: "/concepts/framework-overview" },
 ];
 
 export default function Layout() {
+  const { t } = useI18n();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    { label: t.layout.documentation, path: "/docs" },
+    { label: t.layout.aboutAuthor, path: "/sobre-o-autor" },
+    {
+      label: t.layout.gettingStarted,
+      path: "/installation",
+      children: [
+        { label: t.layout.installation, path: "/installation" },
+      ],
+    },
+    {
+      label: t.layout.framework,
+      path: "/framework/agent",
+      children: frameworkSections.map((s) => ({ label: s.title, path: `/framework/${s.id}` })),
+    },
+    {
+      label: t.layout.concepts,
+      path: "/concepts/framework-overview",
+      children: conceptPages.map((p) => ({ label: t.concepts[p.labelKey], path: p.path })),
+    },
+    {
+      label: t.layout.controlPlane,
+      path: "/control-plane/overview",
+      children: controlPlaneSections.map((s) => ({ label: s.title, path: `/control-plane/${s.id}` })),
+    },
+    {
+      label: t.layout.examples,
+      path: "/examples",
+      children: categories.map((cat) => ({
+        label: `${cat} (${examples.filter((e) => e.category === cat).length})`,
+        path: `/examples/category/${encodeURIComponent(cat)}`,
+      })),
+    },
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-950 text-gray-100">
       <button
         className="fixed top-4 left-4 z-50 md:hidden p-2 bg-gray-800 rounded-lg"
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        aria-label="Toggle sidebar"
+        aria-label={t.layout.toggleSidebar}
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {sidebarOpen ? (
@@ -77,17 +79,18 @@ export default function Layout() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div className="p-4 border-b border-gray-800">
-            <Link to="/docs" className="flex items-center gap-3">
+        <div className="p-4 border-b border-gray-800 flex items-center justify-between">
+          <Link to="/docs" className="flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-orange-600 rounded-lg flex items-center justify-center font-bold text-sm">
               W
             </div>
             <div>
               <h1 className="text-lg font-bold text-white">Wolfpack AI</h1>
               <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-full ml-1">BETA</span>
-              <p className="text-xs text-gray-400">Developer documentation</p>
+              <p className="text-xs text-gray-400">{t.layout.developerDoc}</p>
             </div>
           </Link>
+          <LangToggle />
         </div>
 
         <nav className="p-3 space-y-1">

@@ -1,8 +1,12 @@
+import { Link } from "react-router-dom";
+import { useI18n } from "../i18n/context";
+
 export default function AuthorPage() {
+  const { t } = useI18n();
   return (
     <article className="max-w-3xl space-y-8">
       <header className="border-b border-gray-800 pb-8">
-        <p className="text-xs font-semibold tracking-[.14em] text-amber-400">PROJECT AUTHOR</p>
+        <p className="text-xs font-semibold tracking-[.14em] text-amber-400">{t.author.projectAuthor}</p>
         <h1 className="mt-3 text-4xl font-bold tracking-tight text-white">Álvaro Brito</h1>
         <a
           href="https://www.linkedin.com/in/alvarogomes/"
@@ -10,7 +14,7 @@ export default function AuthorPage() {
           rel="noreferrer"
           className="mt-4 inline-flex text-sm font-medium text-amber-400 hover:text-amber-300"
         >
-          Connect on LinkedIn
+          {t.author.connectLinkedin}
         </a>
       </header>
 

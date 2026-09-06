@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { examples } from "../data/examples.generated";
+import { useI18n } from "../i18n/context";
 
 const categories = [...new Set(examples.map((e) => e.category))].sort();
 

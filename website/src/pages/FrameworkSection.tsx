@@ -1,17 +1,19 @@
 import { useParams, Link } from "react-router-dom";
 import { frameworkSections } from "../data/framework";
 import CodeBlock from "../components/CodeBlock";
+import { useI18n } from "../i18n/context";
 
 export default function FrameworkSection() {
+  const { t } = useI18n();
   const { sectionId } = useParams<{ sectionId: string }>();
   const section = frameworkSections.find((s) => s.id === sectionId);
 
   if (!section) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-white mb-4">Section Not Found</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{t.common.notFound}</h2>
         <p className="text-gray-400 mb-6">The framework section "{sectionId}" does not exist.</p>
-        <Link to="/docs" className="text-amber-400 hover:text-amber-300">Return to documentation</Link>
+        <Link to="/docs" className="text-amber-400 hover:text-amber-300">{t.common.returnToDocs}</Link>
       </div>
     );
   }
@@ -20,9 +22,9 @@ export default function FrameworkSection() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/docs" className="hover:text-white">Documentation</Link>
+          <Link to="/docs" className="hover:text-white">{t.common.documentation}</Link>
           <span>/</span>
-          <span className="text-amber-400">Framework</span>
+          <span className="text-amber-400">{t.layout.framework}</span>
           <span>/</span>
           <span className="text-white">{section.title}</span>
         </div>

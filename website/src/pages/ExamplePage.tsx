@@ -1,17 +1,19 @@
 import { useParams, Link } from "react-router-dom";
 import { examples } from "../data/examples.generated";
 import CodeBlock from "../components/CodeBlock";
+import { useI18n } from "../i18n/context";
 
 export default function ExamplePage() {
+  const { t } = useI18n();
   const { exampleId } = useParams<{ exampleId: string }>();
   const example = examples.find((e) => e.id === exampleId);
 
   if (!example) {
     return (
       <div className="text-center py-20">
-        <h2 className="text-2xl font-bold text-white mb-4">Example Not Found</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{t.common.notFound}</h2>
         <p className="text-gray-400 mb-6">The example "{exampleId}" does not exist.</p>
-        <Link to="/docs" className="text-amber-400 hover:text-amber-300">Return to documentation</Link>
+        <Link to="/docs" className="text-amber-400 hover:text-amber-300">{t.common.returnToDocs}</Link>
       </div>
     );
   }
@@ -24,9 +26,9 @@ export default function ExamplePage() {
     <article className="space-y-8">
       <header>
         <div className="flex items-center gap-2 text-sm text-gray-400 mb-4">
-          <Link to="/docs" className="hover:text-white">Documentation</Link>
+          <Link to="/docs" className="hover:text-white">{t.common.documentation}</Link>
           <span>/</span>
-          <span className="text-amber-400">Examples</span>
+          <span className="text-amber-400">{t.common.examples}</span>
           <span>/</span>
           <span className="text-white">{example.title}</span>
         </div>

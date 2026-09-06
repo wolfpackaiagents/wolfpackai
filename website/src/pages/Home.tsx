@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { frameworkSections } from "../data/framework";
 import { controlPlaneSections } from "../data/control-plane";
 import { examples } from "../data/examples.generated";
+import { useI18n } from "../i18n/context";
 
 const categoryNames = [
   "Basic", "Tools", "RAG", "Observability", "Guardrails", "Workflows", "Teams",
@@ -29,7 +30,8 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function Home() {
-  const categories = [...new Set(examples.map((e) => e.category))].sort().map((name) => ({
+  const { t } = useI18n();
+  const cats = [...new Set(examples.map((e) => e.category))].sort().map((name) => ({
     name,
     count: examples.filter((e) => e.category === name).length,
     color: categoryColors[name] || "from-gray-500 to-gray-600",
@@ -42,30 +44,29 @@ export default function Home() {
         </div>
         <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
           Wolfpack AI
-          <span className="ml-3 text-base font-semibold text-amber-400 bg-amber-500/15 px-2.5 py-1 rounded-full align-middle">BETA</span>
+          <span className="ml-3 text-base font-semibold text-amber-400 bg-amber-500/15 px-2.5 py-1 rounded-full align-middle">{t.home.beta}</span>
         </h1>
         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-          The open-source framework and control plane for building, deploying, and managing
-          autonomous AI agents at scale.
+          {t.home.tagline}
         </p>
         <div className="flex justify-center gap-4 mt-8">
           <Link
             to="/installation"
             className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium rounded-xl hover:from-amber-400 hover:to-orange-500 transition-all"
           >
-            Get Started
+            {t.home.getStarted}
           </Link>
           <Link
             to="/concepts/framework-overview"
             className="px-6 py-3 bg-gray-800 text-gray-200 font-medium rounded-xl hover:bg-gray-700 transition-all border border-gray-700"
           >
-            Architecture
+            {t.home.architecture}
           </Link>
         </div>
       </header>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-6">Framework</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{t.home.framework}</h2>
         <div className="grid md:grid-cols-3 gap-4">
           {frameworkSections.map((section) => (
             <Link
@@ -85,7 +86,7 @@ export default function Home() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-6">Control Plane (AMP)</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">{t.home.controlPlane}</h2>
         <div className="grid md:grid-cols-3 gap-4">
           {controlPlaneSections.map((section) => (
             <Link
@@ -106,11 +107,11 @@ export default function Home() {
 
       <section>
         <h2 className="text-2xl font-bold text-white mb-6">
-          Examples
-          <span className="text-sm font-normal text-gray-400 ml-3">{examples.length} examples across all categories</span>
+          {t.home.examples}
+          <span className="text-sm font-normal text-gray-400 ml-3">{examples.length} {t.home.examplesAcross}</span>
         </h2>
         <div className="flex flex-wrap gap-3 mb-8">
-          {categories.map((cat) => (
+          {cats.map((cat) => (
             <span
               key={cat.name}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r ${cat.color} text-white`}
@@ -140,7 +141,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
     </div>
   );
 }

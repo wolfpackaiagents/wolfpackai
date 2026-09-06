@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./index.css";
+import { I18nProvider } from "./i18n/context";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import LandingPage from "./pages/LandingPage";
@@ -21,26 +22,28 @@ import AuthorPage from "./pages/AuthorPage";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route element={<Layout />}>
-          <Route path="/docs" element={<Home />} />
-          <Route path="/sobre-o-autor" element={<AuthorPage />} />
-          <Route path="/installation" element={<InstallationPage />} />
-          <Route path="/framework/:sectionId" element={<FrameworkSection />} />
-          <Route path="/control-plane/:sectionId" element={<ControlPlaneSection />} />
-          <Route path="/examples" element={<AllExamples />} />
-          <Route path="/examples/category/:categoryName" element={<CategoryPage />} />
-          <Route path="/examples/:exampleId" element={<ExamplePage />} />
-          <Route path="/concepts/agent-loop" element={<ConceptAgentLoop />} />
-          <Route path="/concepts/team-delegation" element={<ConceptTeamDelegation />} />
-          <Route path="/concepts/chat-architecture" element={<ConceptChatArchitecture />} />
-          <Route path="/concepts/observer-flow" element={<ConceptObserverFlow />} />
-          <Route path="/concepts/amp-control-plane" element={<ConceptAMPControlPlane />} />
-          <Route path="/concepts/framework-overview" element={<ConceptFrameworkOverview />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <I18nProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route element={<Layout />}>
+            <Route path="/docs" element={<Home />} />
+            <Route path="/sobre-o-autor" element={<AuthorPage />} />
+            <Route path="/installation" element={<InstallationPage />} />
+            <Route path="/framework/:sectionId" element={<FrameworkSection />} />
+            <Route path="/control-plane/:sectionId" element={<ControlPlaneSection />} />
+            <Route path="/examples" element={<AllExamples />} />
+            <Route path="/examples/category/:categoryName" element={<CategoryPage />} />
+            <Route path="/examples/:exampleId" element={<ExamplePage />} />
+            <Route path="/concepts/agent-loop" element={<ConceptAgentLoop />} />
+            <Route path="/concepts/team-delegation" element={<ConceptTeamDelegation />} />
+            <Route path="/concepts/chat-architecture" element={<ConceptChatArchitecture />} />
+            <Route path="/concepts/observer-flow" element={<ConceptObserverFlow />} />
+            <Route path="/concepts/amp-control-plane" element={<ConceptAMPControlPlane />} />
+            <Route path="/concepts/framework-overview" element={<ConceptFrameworkOverview />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </I18nProvider>
   </StrictMode>
 );
