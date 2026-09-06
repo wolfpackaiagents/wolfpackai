@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { examples } from "../data/examples.generated";
 import { useI18n } from "../i18n/context";
+import { getCategoryLabel, getLocalizedExample } from "../i18n/content";
 
 const categories = [...new Set(examples.map((e) => e.category))].sort();
 
@@ -24,13 +25,15 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function AllExamples() {
+  const { lang } = useI18n();
   return (
     <div className="space-y-12">
       <header>
-        <h1 className="text-3xl font-bold text-white mb-2">Examples</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">{lang === "pt-BR" ? "Exemplos" : "Examples"}</h1>
         <p className="text-gray-400">
-          Browse through {examples.length} examples organized by category. Each example includes complete code,
-          step-by-step instructions, and expected output.
+          {lang === "pt-BR"
+            ? `Explore ${examples.length} exemplos organizados por categoria. Cada exemplo inclui código completo, instruções passo a passo e saída esperada.`
+            : `Browse through ${examples.length} examples organized by category. Each example includes complete code, step-by-step instructions, and expected output.`}
         </p>
       </header>
 
@@ -45,12 +48,14 @@ export default function AllExamples() {
                 to={`/examples/category/${encodeURIComponent(cat)}`}
                 className="text-xl font-semibold text-white hover:text-amber-400 transition-colors"
               >
-                {cat}
+                {getCategoryLabel(cat, lang)}
               </Link>
               <span className="text-sm text-gray-500">({filtered.length})</span>
             </div>
             <div className="grid md:grid-cols-2 gap-3">
-              {filtered.map((ex) => (
+              {filtered.map((sourceExample) => {
+                const ex = getLocalizedExample(sourceExample, lang);
+                return (
                 <Link
                   key={ex.id}
                   to={`/examples/${ex.id}`}
@@ -59,7 +64,8 @@ export default function AllExamples() {
                   <h4 className="font-medium text-white group-hover:text-amber-400 transition-colors">{ex.title}</h4>
                   <p className="text-sm text-gray-400 mt-1 line-clamp-2">{ex.description}</p>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </section>
         );

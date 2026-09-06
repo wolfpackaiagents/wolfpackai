@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptFrameworkOverview() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -16,10 +16,9 @@ export default function ConceptFrameworkOverview() {
           <span>/</span>
           <span className="text-white">{t.concepts.frameworkOverview}</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Framework Overview</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{lang === "pt-BR" ? "Visão geral do framework" : "Framework Overview"}</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          Complete Wolfpack AI framework showing all major components: Agent, Tools, Team, Memory,
-          Knowledge, Guardrails, Workflow, and Observability.
+           {lang === "pt-BR" ? "Visão completa do framework Wolfpack AI, com Agent, Tools, Team, Memory, Knowledge, Guardrails, Workflow e Observability." : "Complete Wolfpack AI framework showing all major components: Agent, Tools, Team, Memory, Knowledge, Guardrails, Workflow, and Observability."}
         </p>
       </header>
 
@@ -44,7 +43,7 @@ export default function ConceptFrameworkOverview() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Framework Components</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Componentes do framework" : "Framework Components"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Agent", desc: "Core execution loop that combines a model, typed tools, optional knowledge, session memory, guardrails, and telemetry." },
@@ -65,7 +64,7 @@ export default function ConceptFrameworkOverview() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Ecosystem</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Ecossistema" : "Ecosystem"}</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             Wolfpack AI is organized into two main layers:

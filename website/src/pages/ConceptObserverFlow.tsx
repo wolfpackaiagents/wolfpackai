@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptObserverFlow() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -16,9 +16,9 @@ export default function ConceptObserverFlow() {
           <span>/</span>
           <span className="text-white">{t.concepts.observerFlow}</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Observer Data Flow</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{lang === "pt-BR" ? "Fluxo de dados do Observer" : "Observer Data Flow"}</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          How WolfpackObserver collects agent telemetry and forwards buffered trace data to the AMP ingestion pipeline.
+           {lang === "pt-BR" ? "Como o WolfpackObserver coleta a telemetria do agente e envia dados de trace em lote para o pipeline de ingestão do AMP." : "How WolfpackObserver collects agent telemetry and forwards buffered trace data to the AMP ingestion pipeline."}
         </p>
       </header>
 
@@ -43,7 +43,7 @@ export default function ConceptObserverFlow() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">How the Observer Works</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Como o Observer funciona" : "How the Observer Works"}</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             WolfpackObserver implements the Tracker contract and is injected into the agent at construction
@@ -59,7 +59,7 @@ export default function ConceptObserverFlow() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Key Features</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Recursos principais" : "Key Features"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "PII Redaction", desc: "Personally identifiable information can be masked before leaving the agent process." },

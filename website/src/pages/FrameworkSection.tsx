@@ -1,12 +1,13 @@
 import { useParams, Link } from "react-router-dom";
-import { frameworkSections } from "../data/framework";
 import CodeBlock from "../components/CodeBlock";
 import { useI18n } from "../i18n/context";
+import { getFrameworkSections } from "../i18n/content";
 
 export default function FrameworkSection() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const { sectionId } = useParams<{ sectionId: string }>();
-  const section = frameworkSections.find((s) => s.id === sectionId);
+  const sections = getFrameworkSections(lang);
+  const section = sections.find((s) => s.id === sectionId);
 
   if (!section) {
     return (
@@ -33,7 +34,7 @@ export default function FrameworkSection() {
       </header>
 
       <div className="flex flex-wrap gap-2">
-        {frameworkSections.map((s) => (
+        {sections.map((s) => (
           <Link
             key={s.id}
             to={`/framework/${s.id}`}
@@ -50,16 +51,16 @@ export default function FrameworkSection() {
 
       {section.parameters && section.parameters.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold text-white mb-4">Parameters</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Parâmetros" : "Parameters"}</h2>
           <div className="overflow-hidden rounded-xl border border-gray-800">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-800/50">
-                  <th className="px-4 py-3 text-left font-medium text-gray-300">Parameter</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">{lang === "pt-BR" ? "Parâmetro" : "Parameter"}</th>
                   <th className="px-4 py-3 text-left font-medium text-gray-300">Type</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-300">Required</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-300">Default</th>
-                  <th className="px-4 py-3 text-left font-medium text-gray-300">Description</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">{lang === "pt-BR" ? "Obrigatório" : "Required"}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">{lang === "pt-BR" ? "Padrão" : "Default"}</th>
+                  <th className="px-4 py-3 text-left font-medium text-gray-300">{lang === "pt-BR" ? "Descrição" : "Description"}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
@@ -69,9 +70,9 @@ export default function FrameworkSection() {
                     <td className="px-4 py-3 font-mono text-gray-400">{param.type}</td>
                     <td className="px-4 py-3">
                       {param.required ? (
-                        <span className="text-green-400">Yes</span>
+                        <span className="text-green-400">{lang === "pt-BR" ? "Sim" : "Yes"}</span>
                       ) : (
-                        <span className="text-gray-500">No</span>
+                        <span className="text-gray-500">{lang === "pt-BR" ? "Não" : "No"}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 font-mono text-gray-400">{param.default || "-"}</td>
@@ -86,7 +87,7 @@ export default function FrameworkSection() {
 
       {section.codeExamples && section.codeExamples.length > 0 && (
         <section>
-          <h2 className="text-2xl font-bold text-white mb-4">Code Examples</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Exemplos de código" : "Code Examples"}</h2>
           <div className="space-y-6">
             {section.codeExamples.map((example, i) => (
               <div key={i}>

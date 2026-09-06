@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { frameworkSections } from "../data/framework";
-import { controlPlaneSections } from "../data/control-plane";
 import { examples } from "../data/examples.generated";
 import { useI18n } from "../i18n/context";
+import { getCategoryLabel, getControlPlaneSections, getFrameworkSections, getLocalizedExample } from "../i18n/content";
 
 const categoryNames = [
   "Basic", "Tools", "RAG", "Observability", "Guardrails", "Workflows", "Teams",
@@ -30,7 +29,9 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function Home() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
+  const framework = getFrameworkSections(lang);
+  const controlPlane = getControlPlaneSections(lang);
   const cats = [...new Set(examples.map((e) => e.category))].sort().map((name) => ({
     name,
     count: examples.filter((e) => e.category === name).length,
@@ -68,7 +69,7 @@ export default function Home() {
       <section>
         <h2 className="text-2xl font-bold text-white mb-6">{t.home.framework}</h2>
         <div className="grid md:grid-cols-3 gap-4">
-          {frameworkSections.map((section) => (
+           {framework.map((section) => (
             <Link
               key={section.id}
               to={`/framework/${section.id}`}
@@ -88,7 +89,7 @@ export default function Home() {
       <section>
         <h2 className="text-2xl font-bold text-white mb-6">{t.home.controlPlane}</h2>
         <div className="grid md:grid-cols-3 gap-4">
-          {controlPlaneSections.map((section) => (
+           {controlPlane.map((section) => (
             <Link
               key={section.id}
               to={`/control-plane/${section.id}`}
@@ -116,13 +117,15 @@ export default function Home() {
               key={cat.name}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r ${cat.color} text-white`}
             >
-              {cat.name}
+               {getCategoryLabel(cat.name, lang)}
               <span className="opacity-80">({cat.count})</span>
             </span>
           ))}
         </div>
         <div className="grid md:grid-cols-2 gap-3">
-          {examples.map((example) => (
+           {examples.map((sourceExample) => {
+             const example = getLocalizedExample(sourceExample, lang);
+             return (
             <Link
               key={example.id}
               to={`/examples/${example.id}`}
@@ -133,12 +136,13 @@ export default function Home() {
                   {example.title}
                 </h3>
                 <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 ml-2 shrink-0">
-                  {example.category}
+                 {getCategoryLabel(sourceExample.category, lang)}
                 </span>
               </div>
               <p className="text-sm text-gray-400 line-clamp-2">{example.description}</p>
-            </Link>
-          ))}
+           </Link>
+             );
+           })}
         </div>
       </section>
     </div>

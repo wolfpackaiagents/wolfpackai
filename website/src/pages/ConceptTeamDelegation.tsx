@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptTeamDelegation() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -16,10 +16,9 @@ export default function ConceptTeamDelegation() {
           <span>/</span>
           <span className="text-white">{t.concepts.teamDelegation}</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Team Delegation Architecture</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{lang === "pt-BR" ? "Arquitetura de delegação em time" : "Team Delegation Architecture"}</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          How the Team leader decomposes tasks and delegates them to specialist agents, with result
-          aggregation from independent specialist agents.
+           {lang === "pt-BR" ? "Como o líder do Team divide tarefas, delega para agentes especialistas e reúne seus resultados." : "How the Team leader decomposes tasks and delegates them to specialist agents, with result aggregation from independent specialist agents."}
         </p>
       </header>
 
@@ -44,7 +43,7 @@ export default function ConceptTeamDelegation() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">How Team Delegation Works</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Como a delegação funciona" : "How Team Delegation Works"}</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             The Team abstracts multi-agent orchestration behind a single interface. When the agent receives a
@@ -60,7 +59,7 @@ export default function ConceptTeamDelegation() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Delegation Modes</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Modos de delegação" : "Delegation Modes"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Coordinate", desc: "Leader-driven: the leader decomposes, delegates, and aggregates." },

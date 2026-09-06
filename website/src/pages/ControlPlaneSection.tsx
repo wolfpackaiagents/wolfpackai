@@ -1,11 +1,12 @@
 import { useParams, Link } from "react-router-dom";
-import { controlPlaneSections } from "../data/control-plane";
 import { useI18n } from "../i18n/context";
+import { getControlPlaneSections } from "../i18n/content";
 
 export default function ControlPlaneSection() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const { sectionId } = useParams<{ sectionId: string }>();
-  const section = controlPlaneSections.find((s) => s.id === sectionId);
+  const sections = getControlPlaneSections(lang);
+  const section = sections.find((s) => s.id === sectionId);
 
   if (!section) {
     return (
@@ -36,7 +37,7 @@ export default function ControlPlaneSection() {
       </header>
 
       <div className="flex flex-wrap gap-2">
-        {controlPlaneSections.map((s) => (
+        {sections.map((s) => (
           <Link
             key={s.id}
             to={`/control-plane/${s.id}`}
@@ -53,11 +54,11 @@ export default function ControlPlaneSection() {
 
       {hasScreenshot && (
         <section>
-          <h2 className="text-2xl font-bold text-white mb-4">Screenshot</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Captura de tela" : "Screenshot"}</h2>
           <div className="rounded-xl overflow-hidden border border-gray-800 bg-gray-900/50">
             <img
               src={screenshot}
-              alt={`${section.title} screenshot`}
+              alt={lang === "pt-BR" ? `Captura de tela de ${section.title}` : `${section.title} screenshot`}
               className="w-full h-auto object-contain"
               loading="lazy"
             />

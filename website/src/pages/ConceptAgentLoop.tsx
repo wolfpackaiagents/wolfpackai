@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptAgentLoop() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -16,10 +16,9 @@ export default function ConceptAgentLoop() {
           <span>/</span>
           <span className="text-white">{t.concepts.agentLoop}</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Agent Loop Architecture</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{lang === "pt-BR" ? "Arquitetura do loop do agente" : "Agent Loop Architecture"}</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          The core execution loop showing how a model uses typed tools, optional knowledge, session memory,
-          guardrails, and telemetry to process a request.
+           {lang === "pt-BR" ? "O loop central de execucao mostra como um modelo usa ferramentas tipadas, conhecimento opcional, memoria de sessao, guardrails e telemetria para processar uma requisicao." : "The core execution loop showing how a model uses typed tools, optional knowledge, session memory, guardrails, and telemetry to process a request."}
         </p>
       </header>
 
@@ -44,11 +43,10 @@ export default function ConceptAgentLoop() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">How It Works</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Como funciona" : "How It Works"}</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
-            The Agent Loop is the fundamental execution model in Wolfpack AI. When an agent receives input,
-            it continues until it produces a final answer or reaches
+             {lang === "pt-BR" ? "O Agent Loop e o modelo fundamental de execucao do Wolfpack AI. Quando um agente recebe uma entrada, ele continua ate produzir uma resposta final ou atingir" : "The Agent Loop is the fundamental execution model in Wolfpack AI. When an agent receives input, it continues until it produces a final answer or reaches"}
             <code className="text-amber-400"> max_iterations</code>.
           </p>
           <ol className="space-y-3 list-decimal list-inside">
@@ -64,7 +62,7 @@ export default function ConceptAgentLoop() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Key Components</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Componentes principais" : "Key Components"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Model", desc: "The LLM that drives reasoning. Supports OpenAI, Anthropic, Google, and any OpenAI-compatible endpoint." },

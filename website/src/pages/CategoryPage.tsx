@@ -1,5 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { examples } from "../data/examples.generated";
+import { useI18n } from "../i18n/context";
+import { getCategoryLabel, getLocalizedExample } from "../i18n/content";
 
 const categoryColors: Record<string, string> = {
   Basic: "from-green-500 to-emerald-600",
@@ -21,6 +23,7 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function CategoryPage() {
+  const { lang } = useI18n();
   const { categoryName } = useParams();
   const decoded = decodeURIComponent(categoryName || "");
   const filtered = examples.filter((e) => e.category === decoded);
@@ -31,20 +34,22 @@ export default function CategoryPage() {
       <header>
         <div className="flex items-center gap-3 mb-2">
           <Link to="/examples" className="text-sm text-amber-400 hover:text-amber-300 transition-colors">
-            ← All Examples
+             ← {lang === "pt-BR" ? "Todos os exemplos" : "All Examples"}
           </Link>
         </div>
         <div className="flex items-center gap-3">
           <div className={`w-3 h-3 rounded-full bg-gradient-to-br ${color}`} />
-          <h1 className="text-3xl font-bold text-white">{decoded}</h1>
+           <h1 className="text-3xl font-bold text-white">{getCategoryLabel(decoded, lang)}</h1>
           <span className="text-sm text-gray-400 bg-gray-800 px-2 py-0.5 rounded-full">
-            {filtered.length} example{filtered.length !== 1 ? "s" : ""}
+             {filtered.length} {lang === "pt-BR" ? "exemplo" : "example"}{filtered.length !== 1 ? "s" : ""}
           </span>
         </div>
       </header>
 
       <div className="grid gap-4">
-        {filtered.map((example) => (
+         {filtered.map((sourceExample) => {
+           const example = getLocalizedExample(sourceExample, lang);
+           return (
           <Link
             key={example.id}
             to={`/examples/${example.id}`}
@@ -57,11 +62,12 @@ export default function CategoryPage() {
             <div className="flex items-center gap-2 mt-3">
               <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{example.language}</span>
               <span className="text-xs text-amber-500/70 group-hover:text-amber-400 transition-colors">
-                View details →
+               {lang === "pt-BR" ? "Ver detalhes" : "View details"} →
               </span>
             </div>
-          </Link>
-        ))}
+         </Link>
+           );
+         })}
       </div>
     </div>
   );

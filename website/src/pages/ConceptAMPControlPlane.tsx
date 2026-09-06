@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptAMPControlPlane() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -18,8 +18,7 @@ export default function ConceptAMPControlPlane() {
         </div>
         <h1 className="text-4xl font-bold text-white mb-4">AMP Control Plane</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          The Agent Management Platform architecture connecting traces, registered runtimes, human approvals,
-          quality scores, schedules, provider channels, and governance controls.
+           {lang === "pt-BR" ? "A arquitetura do Agent Management Platform conecta traces, runtimes registrados, aprovações humanas, scores de qualidade, agendamentos, canais de provedores e controles de governança." : "The Agent Management Platform architecture connecting traces, registered runtimes, human approvals, quality scores, schedules, provider channels, and governance controls."}
         </p>
       </header>
 
@@ -44,7 +43,7 @@ export default function ConceptAMPControlPlane() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Capabilities</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Capacidades" : "Capabilities"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Traces", desc: "Ingested and queryable telemetry data with full lifecycle and cost attribution." },

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useI18n } from "../i18n/context";
 
 export default function AuthorPage() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   return (
     <article className="max-w-3xl space-y-8">
       <header className="border-b border-gray-800 pb-8">
@@ -20,13 +20,13 @@ export default function AuthorPage() {
 
       <div className="space-y-5 text-lg leading-8 text-gray-300">
         <p>
-          Backend and AI Engineer with 10+ years of experience architecting secure, scalable microservices and delivering modern LLM/RAG solutions. This engineer combines deep proficiency in Node.js, TypeScript, Python, Express, and PostgreSQL with infrastructure-grade execution on AWS, Docker, Terraform, and event-driven architectures.
+          {lang === "pt-BR" ? "Engenheiro de backend e IA com mais de dez anos de experiencia em arquitetura de microsservicos seguros e escalaveis e em solucoes modernas de LLM e RAG. Combina Node.js, TypeScript, Python, Express e PostgreSQL com execucao de infraestrutura em AWS, Docker, Terraform e arquiteturas orientadas a eventos." : "Backend and AI Engineer with 10+ years of experience architecting secure, scalable microservices and delivering modern LLM/RAG solutions. This engineer combines deep proficiency in Node.js, TypeScript, Python, Express, and PostgreSQL with infrastructure-grade execution on AWS, Docker, Terraform, and event-driven architectures."}
         </p>
         <p>
-          This developer builds observable AI workflows using LangChain and Langfuse, instrumenting LLM evaluations and operational metrics with Prometheus and Grafana to improve quality and reliability.
+          {lang === "pt-BR" ? "Desenvolve workflows de IA observaveis com LangChain e Langfuse, instrumentando avaliacoes de LLM e metricas operacionais com Prometheus e Grafana para aumentar a qualidade e a confiabilidade." : "This developer builds observable AI workflows using LangChain and Langfuse, instrumenting LLM evaluations and operational metrics with Prometheus and Grafana to improve quality and reliability."}
         </p>
         <p>
-          This specialist focuses on turning complex workflows into production-ready platforms, automating CI/CD with Jenkins and other pipelines, orchestrating real-time systems, and supporting high-throughput data flows with FastAPI and Kafka. Overall, this engineer stands out by bridging mature backend engineering with measurable, production-grade generative AI delivery.
+          {lang === "pt-BR" ? "Seu foco e transformar workflows complexos em plataformas prontas para producao, automatizar CI/CD com Jenkins e outros pipelines, orquestrar sistemas em tempo real e suportar fluxos de dados de alto volume com FastAPI e Kafka." : "This specialist focuses on turning complex workflows into production-ready platforms, automating CI/CD with Jenkins and other pipelines, orchestrating real-time systems, and supporting high-throughput data flows with FastAPI and Kafka. Overall, this engineer stands out by bridging mature backend engineering with measurable, production-grade generative AI delivery."}
         </p>
       </div>
     </article>

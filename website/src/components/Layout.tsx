@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
-import { frameworkSections } from "../data/framework";
-import { controlPlaneSections } from "../data/control-plane";
 import { examples } from "../data/examples.generated";
 import { useI18n, LangToggle } from "../i18n/context";
+import { getCategoryLabel, getControlPlaneSections, getFrameworkSections } from "../i18n/content";
 
 const categories = [...new Set(examples.map((e) => e.category))].sort();
 
@@ -17,12 +16,14 @@ const conceptPages = [
 ];
 
 export default function Layout() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
+  const framework = getFrameworkSections(lang);
+  const controlPlane = getControlPlaneSections(lang);
   const navItems = [
     { label: t.layout.documentation, path: "/docs" },
     { label: t.layout.aboutAuthor, path: "/sobre-o-autor" },
@@ -36,7 +37,7 @@ export default function Layout() {
     {
       label: t.layout.framework,
       path: "/framework/agent",
-      children: frameworkSections.map((s) => ({ label: s.title, path: `/framework/${s.id}` })),
+       children: framework.map((s) => ({ label: s.title, path: `/framework/${s.id}` })),
     },
     {
       label: t.layout.concepts,
@@ -46,13 +47,13 @@ export default function Layout() {
     {
       label: t.layout.controlPlane,
       path: "/control-plane/overview",
-      children: controlPlaneSections.map((s) => ({ label: s.title, path: `/control-plane/${s.id}` })),
+       children: controlPlane.map((s) => ({ label: s.title, path: `/control-plane/${s.id}` })),
     },
     {
       label: t.layout.examples,
       path: "/examples",
       children: categories.map((cat) => ({
-        label: `${cat} (${examples.filter((e) => e.category === cat).length})`,
+         label: `${getCategoryLabel(cat, lang)} (${examples.filter((e) => e.category === cat).length})`,
         path: `/examples/category/${encodeURIComponent(cat)}`,
       })),
     },

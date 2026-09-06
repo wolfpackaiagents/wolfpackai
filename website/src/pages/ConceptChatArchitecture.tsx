@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n/context";
 
 export default function ConceptChatArchitecture() {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -16,10 +16,9 @@ export default function ConceptChatArchitecture() {
           <span>/</span>
           <span className="text-white">{t.concepts.chatArchitecture}</span>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-4">Chat Architecture</h1>
+        <h1 className="text-4xl font-bold text-white mb-4">{lang === "pt-BR" ? "Arquitetura de chat" : "Chat Architecture"}</h1>
         <p className="text-lg text-gray-300 leading-relaxed">
-          End-to-end chat architecture showing how the AMP web interface dispatches persistent conversations
-          to registered runtimes through the Chat API.
+           {lang === "pt-BR" ? "Arquitetura de chat de ponta a ponta, mostrando como a interface web do AMP envia conversas persistentes para runtimes registrados pela API de Chat." : "End-to-end chat architecture showing how the AMP web interface dispatches persistent conversations to registered runtimes through the Chat API."}
         </p>
       </header>
 
@@ -44,7 +43,7 @@ export default function ConceptChatArchitecture() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">How Chat Works</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Como o chat funciona" : "How Chat Works"}</h2>
         <div className="space-y-4 text-gray-300 leading-relaxed">
           <p>
             The Chat API connects a web interface to a registered runtime agent. Each conversation is persisted
@@ -60,7 +59,7 @@ export default function ConceptChatArchitecture() {
       </section>
 
       <section>
-        <h2 className="text-2xl font-bold text-white mb-4">Key Concepts</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Conceitos principais" : "Key Concepts"}</h2>
         <div className="grid md:grid-cols-2 gap-4">
           {[
             { title: "Conversation", desc: "A persisted multi-turn conversation between a user and a registered runtime." },
