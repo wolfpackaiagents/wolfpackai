@@ -28,3 +28,9 @@ test-results/
 
 # DB
 *.db
+
+# Paper (manuscript and build artifacts)
+paper/
+
+# macOS
+.DS_Store

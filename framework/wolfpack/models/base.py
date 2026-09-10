@@ -406,33 +406,46 @@ class GoogleModel(BaseModel):
     def invoke(self, messages, tools=None):
         from google.genai import types as gtypes
 
-        convo = []
         system_parts = []
+        contents = []
         for m in messages:
-            if m["role"] == "system":
+            role = m["role"]
+            if role == "system":
                 system_parts.append(m["content"])
+            elif role == "tool":
+                fn_name = m.get("name", "")
+                result = m.get("content", "")
+                if contents and contents[-1].role == "user":
+                    parts = list(contents[-1].parts)
+                    parts.append(gtypes.Part.from_function_response(name=fn_name, response={"result": result}))
+                    contents[-1] = gtypes.Content(role="user", parts=parts)
+                else:
+                    contents.append(gtypes.Content(
+                        role="user",
+                        parts=[gtypes.Part.from_function_response(name=fn_name, response={"result": result})]
+                    ))
+            elif role == "assistant":
+                if not m.get("tool_calls"):
+                    contents.append(gtypes.Content(role="model", parts=[gtypes.Part(text=m.get("content", ""))]))
             else:
-                role = "model" if m["role"] == "assistant" else "user"
-                convo.append(gtypes.Content(role=role, parts=[gtypes.Part(text=m["content"])]))
+                contents.append(gtypes.Content(role="user", parts=[gtypes.Part(text=m.get("content", ""))]))
+
         tool_cfg = None
         if tools:
-            fns = [
-                {
-                    "function_declarations": [
-                        {
-                            "name": t["name"],
-                            "description": t.get("description", ""),
-                            "parameters": t.get("parameters", {"type": "object", "properties": {}}),
-                        }
-                        for t in tools
-                    ]
-                }
-            ]
-            tool_cfg = gtypes.Tool(**fns[0])
+            declarations = []
+            for t in tools:
+                declarations.append(
+                    gtypes.FunctionDeclaration(
+                        name=t.get("name", ""),
+                        description=t.get("description", ""),
+                        parameters=t.get("parameters", {"type": "object", "properties": {}}),
+                    )
+                )
+            tool_cfg = [gtypes.Tool(function_declarations=declarations)]
 
         resp = self._client.models.generate_content(
             model=self.model_id,
-            contents=convo,
+            contents=contents,
             config=gtypes.GenerateContentConfig(
                 system_instruction="\n".join(system_parts) if system_parts else None,
                 temperature=self.temperature,

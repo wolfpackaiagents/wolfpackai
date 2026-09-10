@@ -101,6 +101,24 @@ export default function LandingPage() {
             </div>
           </section>
 
+          <section className="py-24 border-y border-white/10">
+            <div className="grid lg:grid-cols-[.8fr_1.2fr] gap-10 items-center">
+              <div>
+                <p className="text-sm font-medium text-amber-200">{t.landing.benchmarkBadge || "BENCHMARK"}</p>
+                <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-[-.05em] leading-tight text-white">{t.landing.benchmarkTitle || "Wolfpack AI Leads in Multi-Provider Latency"}</h2>
+                <p className="mt-5 leading-relaxed text-zinc-400">{t.landing.benchmarkDesc || "Across all three providers (OpenAI, Anthropic, Gemini), Wolfpack AI delivers the fastest tool-agent latency among all frameworks tested."}</p>
+                <div className="mt-7 flex flex-wrap gap-6">
+                  <div><span className="text-3xl font-bold text-white">3</span><p className="text-sm text-zinc-500">{t.landing.benchmarkProviders || "Cloud Providers"}</p></div>
+                  <div><span className="text-3xl font-bold text-white">4</span><p className="text-sm text-zinc-500">{t.landing.benchmarkFrameworks || "Competing Frameworks"}</p></div>
+                  <div><span className="text-3xl font-bold text-green-400">#1</span><p className="text-sm text-zinc-500">{t.landing.benchmarkRank || "Fastest Overall"}</p></div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden">
+                <img src="/images/benchmark-comparison.png" alt="Wolfpack AI multi-provider latency benchmark comparison" className="w-full h-auto" loading="lazy" />
+              </div>
+            </div>
+          </section>
+
           <section id="platform" className="border-y border-white/10 py-5 grid sm:grid-cols-3 gap-4 text-sm text-zinc-400">
             <div><span className="text-white font-medium">{t.landing.oneSdk}</span><span className="block mt-1">{t.landing.oneSdkDesc}</span></div>
             <div><span className="text-white font-medium">{t.landing.oneControlPlane}</span><span className="block mt-1">{t.landing.oneControlPlaneDesc}</span></div>
