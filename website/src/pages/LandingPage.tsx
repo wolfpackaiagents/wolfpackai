@@ -54,7 +54,6 @@ function ExternalArrow() {
 export default function LandingPage() {
   const { t } = useI18n();
   const [activeUseCaseId, setActiveUseCaseId] = useState<typeof useCaseKeys[number]>("support");
-  const [modalOpen, setModalOpen] = useState(false);
   const activeUseCase = useCaseData[activeUseCaseId];
 
   return (
@@ -103,7 +102,7 @@ export default function LandingPage() {
           </section>
 
           <section className="py-24 border-y border-white/10">
-            <div className="max-w-3xl mx-auto text-center">
+            <div className="max-w-5xl mx-auto text-center">
               <p className="text-sm font-medium text-amber-200">{t.landing.benchmarkBadge || "BENCHMARK"}</p>
               <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-[-.05em] leading-tight text-white">{t.landing.benchmarkTitle || "Wolfpack AI Leads in Multi-Provider Latency"}</h2>
               <p className="mt-5 leading-relaxed text-zinc-400">{t.landing.benchmarkDesc || "Across all three providers (OpenAI, Anthropic, Gemini), Wolfpack AI delivers the fastest tool-agent latency among all frameworks tested."}</p>
@@ -113,8 +112,13 @@ export default function LandingPage() {
                 <div><span className="text-3xl font-bold text-green-400">#1</span><p className="text-sm text-zinc-500">{t.landing.benchmarkRank || "Fastest Overall"}</p></div>
               </div>
             </div>
-            <div className="mt-12 rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden cursor-pointer" onClick={() => setModalOpen(true)}>
-              <img src="/images/benchmark-banner.png" alt="Wolfpack AI multi-provider latency benchmark" className="w-full h-auto" loading="lazy" />
+            <div className="mt-14 grid md:grid-cols-2 gap-6">
+              <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden">
+                <img src="/images/benchmark-tool-agent.png" alt="Tool Agent Performance benchmark" className="w-full h-auto" loading="lazy" />
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden">
+                <img src="/images/benchmark-grounded-qa.png" alt="Grounded QA Performance benchmark" className="w-full h-auto" loading="lazy" />
+              </div>
             </div>
           </section>
 
@@ -188,15 +192,6 @@ export default function LandingPage() {
 
         <footer className="border-t border-white/10 py-7 flex flex-col sm:flex-row justify-between gap-4 text-sm text-zinc-500"><span>{t.landing.footer}</span><div className="flex gap-5"><Link to="/docs" className="hover:text-white">{t.landing.navDocs}</Link><a href={externalLinks.github} target="_blank" rel="noreferrer" className="hover:text-white">{t.landing.github}</a><a href={externalLinks.pypi} target="_blank" rel="noreferrer" className="hover:text-white">PyPI</a></div></footer>
       </div>
-
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
-          <div className="relative max-w-6xl w-full" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center text-xl hover:bg-black/80 z-10">&times;</button>
-            <img src="/images/benchmark-modal.png" alt="Benchmark chart" className="w-full h-auto rounded-2xl shadow-2xl" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
