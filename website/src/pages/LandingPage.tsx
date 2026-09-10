@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useI18n, LangToggle } from "../i18n/context";
 
 const externalLinks = {
@@ -54,7 +54,12 @@ function ExternalArrow() {
 export default function LandingPage() {
   const { t } = useI18n();
   const [activeUseCaseId, setActiveUseCaseId] = useState<typeof useCaseKeys[number]>("support");
+  const [chartIndex, setChartIndex] = useState(0);
   const activeUseCase = useCaseData[activeUseCaseId];
+  const charts = ["benchmark-tool-agent.png", "benchmark-grounded-qa.png"];
+  const chartLabels: [string, string] = ["Tool Agent Performance", "Grounded QA Performance"];
+  const nextChart = useCallback(() => setChartIndex((i) => (i + 1) % charts.length), []);
+  const prevChart = useCallback(() => setChartIndex((i) => (i + charts.length - 1) % charts.length), []);
 
   return (
     <div className="min-h-screen bg-[#080a0f] text-zinc-100 overflow-hidden selection:bg-amber-300 selection:text-zinc-950">
@@ -112,12 +117,21 @@ export default function LandingPage() {
                 <div><span className="text-3xl font-bold text-green-400">#1</span><p className="text-sm text-zinc-500">{t.landing.benchmarkRank || "Fastest Overall"}</p></div>
               </div>
             </div>
-            <div className="mt-14 grid md:grid-cols-2 gap-6">
-              <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden">
-                <img src="/images/benchmark-tool-agent.png" alt="Tool Agent Performance benchmark" className="w-full h-auto" loading="lazy" />
+            <div className="mt-14 max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">{chartLabels[chartIndex]}</h3>
+                <div className="flex gap-2">
+                  <button onClick={prevChart} className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Previous chart">&larr;</button>
+                  <button onClick={nextChart} className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors" aria-label="Next chart">&rarr;</button>
+                </div>
               </div>
               <div className="rounded-2xl border border-white/10 bg-[#0d1017] overflow-hidden">
-                <img src="/images/benchmark-grounded-qa.png" alt="Grounded QA Performance benchmark" className="w-full h-auto" loading="lazy" />
+                <img src={`/images/${charts[chartIndex]}`} alt={chartLabels[chartIndex]} className="w-full h-auto" loading="lazy" />
+              </div>
+              <div className="flex justify-center gap-2 mt-4">
+                {charts.map((_, i) => (
+                  <button key={i} onClick={() => setChartIndex(i)} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === chartIndex ? 'bg-amber-400' : 'bg-white/20'}`} aria-label={`Chart ${i + 1}`} />
+                ))}
               </div>
             </div>
           </section>
