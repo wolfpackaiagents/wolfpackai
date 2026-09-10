@@ -49,6 +49,12 @@ const en = {
     navDocs: "Docs",
     github: "GitHub",
     wolfpackRuntime: "Wolfpack runtime",
+    benchmarkBadge: "BENCHMARK",
+    benchmarkTitle: "Wolfpack AI Leads in Multi-Provider Latency",
+    benchmarkDesc: "Across all three providers (OpenAI, Anthropic, Gemini), Wolfpack AI delivers the fastest tool-agent latency among all frameworks tested.",
+    benchmarkProviders: "Cloud Providers",
+    benchmarkFrameworks: "Competing Frameworks",
+    benchmarkRank: "Fastest Overall",
   },
   useCases: {
     support: { label: "01 / Customer support", title: "Support that keeps context.", description: "Build a support agent that carries a session across turns, calls approved business tools, and gives operators a trace for every answer." },

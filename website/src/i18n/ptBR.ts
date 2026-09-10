@@ -51,6 +51,12 @@ const ptBR: Translations = {
     navDocs: "Docs",
     github: "GitHub",
     wolfpackRuntime: "Wolfpack runtime",
+    benchmarkBadge: "BENCHMARK",
+    benchmarkTitle: "Wolfpack AI Lidera em Latência Multi-Provedor",
+    benchmarkDesc: "Em todos os três provedores (OpenAI, Anthropic, Gemini), o Wolfpack AI entrega a latência mais rápida em tool agent entre todos os frameworks testados.",
+    benchmarkProviders: "Provedores Cloud",
+    benchmarkFrameworks: "Frameworks Concorrentes",
+    benchmarkRank: "Mais Rápido Geral",
   },
   useCases: {
     support: { label: "01 / Suporte ao cliente", title: "Suporte que mantém contexto.", description: "Construa um agente de suporte que carrega uma sessão entre turnos, chama ferramentas de negócio aprovadas e dá aos operadores um trace para cada resposta." },
