@@ -193,7 +193,7 @@ export default function LandingPage() {
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4" onClick={() => setModalOpen(false)}>
           <div className="relative max-w-6xl w-full" onClick={(e) => e.stopPropagation()}>
             <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center text-xl hover:bg-black/80 z-10">&times;</button>
-            <img src="/images/benchmark-banner.png" alt="Benchmark chart" className="w-full h-auto rounded-2xl shadow-2xl" />
+            <img src="/images/benchmark-modal.png" alt="Benchmark chart" className="w-full h-auto rounded-2xl shadow-2xl" />
           </div>
         </div>
       )}
