@@ -93,6 +93,56 @@ print(agent.run("What is my name?").content)`,
     }],
   },
   {
+    id: "data-connectors",
+    title: "Governed Data Connectors",
+    description: "Data connectors expose scoped, read-only access to approved relational, document, graph, key-value, and analytics sources. A DataAccessPolicy restricts source objects, masks sensitive fields, and caps returned rows before data reaches the agent.",
+    codeExamples: [{
+      title: "Query PostgreSQL through a scoped connector",
+      language: "python",
+      code: `import os
+import psycopg
+
+from wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env
+
+policy = DataAccessPolicy(
+    source_id="production-customers",
+    allowed_tables={"customers"},
+    sensitive_columns={"email", "phone"},
+    max_rows=100,
+)
+
+connection = psycopg.connect(os.environ["DATABASE_URL"])
+customer_data = SqlToolkit(connection, policy=policy, dialect="postgres")
+
+agent = Agent(
+    name="customer-analyst",
+    model=get_model_from_env(),
+    tools=[customer_data],
+    tool_allowlist=["list_tables", "describe_table", "query"],
+)
+
+print(agent.run("How many customers signed up this month?").content)`,
+      description: "Use a database role with SELECT-only privileges. The application opens the connection; the model never receives the DSN or credentials.",
+    }, {
+      title: "Use SQLite for a local, governed dataset",
+      language: "python",
+      code: `import sqlite3
+
+from wolfpack import DataAccessPolicy, SqlToolkit
+
+connection = sqlite3.connect("analytics.db")
+policy = DataAccessPolicy(
+    source_id="local-analytics",
+    allowed_tables={"daily_sales"},
+    max_rows=50,
+)
+data = SqlToolkit(connection, policy=policy, dialect="sqlite")
+
+print(data.query("SELECT day, total FROM daily_sales ORDER BY day DESC"))`,
+      description: "The same policy blocks writes and access to tables outside the approved scope.",
+    }],
+  },
+  {
     id: "guardrails",
     title: "Guardrails and Approvals",
     description: "Built-in guardrails can mask personally identifiable information, block prompt injection, and constrain the tool allowlist. Run requirements pause sensitive work until an approval store resolves it.",

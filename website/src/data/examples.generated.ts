@@ -665,6 +665,53 @@ export const examples: Example[] = [
     "validationStatus": "passed"
   },
   {
+    "id": "13_data_connectors-01_sqlite_connector",
+    "title": "Sqlite Connector",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/01_sqlite_connector.py.",
+    "code": "\"\"\"Run a bounded query against a local SQLite database.\"\"\"\n\nimport sqlite3\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\nconnection = sqlite3.connect(\":memory:\")\nconnection.execute(\"CREATE TABLE daily_sales (day TEXT, total INTEGER)\")\nconnection.execute(\"INSERT INTO daily_sales VALUES ('2026-09-12', 4200)\")\nconnection.commit()\n\npolicy = DataAccessPolicy(\n    source_id=\"local-analytics\",\n    allowed_tables={\"daily_sales\"},\n    max_rows=50,\n)\ndata = SqlToolkit(connection, policy=policy, dialect=\"sqlite\")\n\nprint(data.query(\"SELECT day, total FROM daily_sales ORDER BY day DESC\"))\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/01_sqlite_connector.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "{'source_id': 'local-analytics', 'rows': [{'day': '2026-09-12', 'total': 4200}], 'row_count': 1, 'truncated': False}",
+    "sourcePath": "framework/examples/13_data_connectors/01_sqlite_connector.py",
+    "command": "uv run python examples/13_data_connectors/01_sqlite_connector.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/..."
+    ],
+    "verificationClass": "Deterministic",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-02_postgres_connector",
+    "title": "Postgres Connector",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/02_postgres_connector.py.",
+    "code": "\"\"\"Connect a PostgreSQL data source with a server-side access policy.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\ndatabase_url = os.environ[\"DATABASE_URL\"]\npolicy = DataAccessPolicy(\n    source_id=\"production-customers\",\n    allowed_tables={\"customers\"},\n    sensitive_columns={\"email\", \"phone\"},\n    max_rows=100,\n)\n\nwith psycopg.connect(database_url) as connection:\n    customers = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n    print(customers.query(\"SELECT id, name, email FROM customers ORDER BY id\"))\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/02_postgres_connector.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Requires DATABASE_URL for a PostgreSQL database with a customers table and a SELECT-only database role.",
+    "sourcePath": "framework/examples/13_data_connectors/02_postgres_connector.py",
+    "command": "uv run python examples/13_data_connectors/02_postgres_connector.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role."
+    ],
+    "verificationClass": "External runtime",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
     "id": "16_scheduled_tasks-01_schedule_client",
     "title": "Schedule Client",
     "category": "Schedules",

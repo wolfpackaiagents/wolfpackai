@@ -39,6 +39,11 @@ pgvector = ["pgvector>=0.2", "psycopg[binary]>=3.1"]
 chroma = ["chromadb>=0.4"]
 knowledge = ["pypdf>=4.0", "python-docx>=1.1", "beautifulsoup4>=4.12", "markdown>=3.5"]
 mcp = ["mcp>=1.0,<2"]
+sql = ["sqlalchemy>=2.0", "sqlglot>=26.0"]
+postgres = ["psycopg[binary]>=3.1"]
+mongodb = ["pymongo>=4.10"]
+neo4j = ["neo4j>=5.0"]
+analytics = ["trino>=0.330", "pyathena>=3.0", "google-cloud-bigquery>=3.0", "clickhouse-connect>=0.8", "snowflake-connector-python>=3.0", "databricks-sql-connector>=3.0"]
 test = ["pytest>=8", "pytest-asyncio>=0.23"]
 
 [dependency-groups]
@@ -46,6 +51,11 @@ dev = ["pytest>=8", "pytest-asyncio>=0.23"]
 
 [tool.uv]
 package = true
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: requires a running external service",
+]
 
 [project.urls]
 Homepage = "https://github.com/wolfpackaiagents/wolfpackai"

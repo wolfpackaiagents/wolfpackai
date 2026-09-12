@@ -20,6 +20,7 @@ const categoryByDirectory = {
   "10_privacy": "Privacy",
   "11_resilience": "Resilience",
   "12_hardening": "Hardening",
+  "13_data_connectors": "Data connectors",
   "16_scheduled_tasks": "Schedules",
   "17_personal_agent": "Personal Agent",
   "18_coding_agent": "Coding Agent",
@@ -72,6 +73,8 @@ const capturedOutput = {
   "10_privacy/01_pii_safe_telemetry.py": "agent output: We will reply to ana@example.com.\npersisted output: We will reply to [PII_REDACTED].\nPII was masked before telemetry persistence.",
   "11_resilience/01_openai_token_stream.py": "Response: Streaming improves chat UX by providing real-time updates and interactions.",
   "12_hardening/01_production_flow.py": "Hardened quote completed: {\"decision\": \"approved\", \"quote_id\": \"quote-2026-001\", \"total_cents\": 6000}\nVerified PII masking, tool policy, structured output, and observer telemetry.",
+  "13_data_connectors/01_sqlite_connector.py": "{'source_id': 'local-analytics', 'rows': [{'day': '2026-09-12', 'total': 4200}], 'row_count': 1, 'truncated': False}",
+  "13_data_connectors/02_postgres_connector.py": "Requires DATABASE_URL for a PostgreSQL database with a customers table and a SELECT-only database role.",
   "16_scheduled_tasks/01_schedule_client.py": "Existing <schedule-id>: weekday-operations-report (active)\n<schedule-id>: 0 9 * * 1-5 -> reports.operations_daily [active]",
   "16_scheduled_tasks/02_agent_hitl.py": "Registered tools: ['schedule_task', 'list_tasks', 'pause_task', 'resume_task', 'cancel_task']\ncancel_task result: tool_confirmation",
   "16_scheduled_tasks/03_http_runtime.py": "{'status': 'accepted', 'run_id': 'example-run'}",
@@ -102,12 +105,14 @@ function requirementsFor(relativePath) {
   if (modelExamples.has(relativePath)) requirements.push("Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.");
   if (ampExamples.has(relativePath)) requirements.push("Start AMP and set WOLFPACK_AMP_URL plus WOLFPACK_AMP_API_KEY. Seed demo data when the script requests weather-operations.");
   if (relativePath.startsWith("08_mcp/")) requirements.push("Install the MCP extra: uv sync --extra mcp.");
+  if (relativePath === "13_data_connectors/02_postgres_connector.py") requirements.push("Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role.");
   if (relativePath === "16_scheduled_tasks/03_http_runtime.py") requirements.push("Set WOLFPACK_SCHEDULER_DISPATCH_SECRET and WOLFPACK_SCHEDULER_CALLBACK_SECRET.");
   return requirements;
 }
 
 function verificationClass(relativePath) {
   if (externalExamples.has(relativePath)) return "External runtime";
+  if (relativePath === "13_data_connectors/02_postgres_connector.py") return "External runtime";
   if (ampExamples.has(relativePath)) return "AMP integration";
   if (modelExamples.has(relativePath)) return "LLM integration";
   return "Deterministic";

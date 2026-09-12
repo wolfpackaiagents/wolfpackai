@@ -33,6 +33,14 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     description: "Knowledge indexa textos e arquivos em uma implementacao VectorDb. SessionMemory mantem o historico de uma conversa em um armazenamento de sessao em memoria ou SQLite. Sao capacidades separadas que podem ser combinadas em um Agent.",
     codeExamples: [{ title: "Persista uma sessao" }],
   },
+  "data-connectors": {
+    title: "Conectores de dados governados",
+    description: "Conectores de dados oferecem acesso de leitura, com escopo definido, a fontes relacionais, de documentos, grafos, chave-valor e analiticas. DataAccessPolicy limita os objetos da fonte, mascara campos sensiveis e restringe as linhas retornadas antes que os dados cheguem ao agente.",
+    codeExamples: [
+      { title: "Consulte PostgreSQL por um conector com escopo" },
+      { title: "Use SQLite para um conjunto local governado" },
+    ],
+  },
   guardrails: {
     title: "Guardrails e aprovacoes",
     description: "Os guardrails integrados podem mascarar informacoes de identificacao pessoal, bloquear injecao de prompt e limitar as ferramentas permitidas. Requisitos de execucao pausam tarefas sensiveis ate que um armazenamento de aprovacoes as resolva.",
@@ -76,6 +84,7 @@ const categoryPt: Record<string, string> = {
   Basic: "Basico", Tools: "Ferramentas", RAG: "RAG", Observability: "Observabilidade",
   Guardrails: "Guardrails", Workflows: "Workflows", Teams: "Times", MCP: "MCP",
   Evals: "Avaliacoes", Privacy: "Privacidade", Resilience: "Resiliencia", Hardening: "Reforco",
+  "Data connectors": "Conectores de dados",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
 };
 
