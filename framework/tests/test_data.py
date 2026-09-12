@@ -104,3 +104,15 @@ def test_warehouse_toolkits_share_the_governed_sql_contract():
         assert toolkit.estimate_cost("SELECT id FROM customers")["engine"]
         with pytest.raises(DataPolicyError):
             toolkit.query("UPDATE customers SET name = 'Grace'")
+
+
+def test_agent_keeps_live_sql_tools_separate_from_knowledge_search():
+    from wolfpack import Agent
+
+    class SnapshotKnowledge:
+        def search(self, query: str, limit: int = 5):
+            return []
+
+    agent = Agent(name="customer-researcher", model=object(), tools=[_toolkit()], knowledge=SnapshotKnowledge())
+
+    assert {"list_tables", "describe_table", "query", "search_knowledge"} <= set(agent._tool_map)

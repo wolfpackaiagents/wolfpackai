@@ -712,6 +712,56 @@ export const examples: Example[] = [
     "validationStatus": "passed"
   },
   {
+    "id": "13_data_connectors-03_postgres_agent",
+    "title": "Postgres Agent",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/03_postgres_agent.py.",
+    "code": "\"\"\"Give a real Agent bounded, read-only access to PostgreSQL.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"production-customers\",\n        allowed_tables={\"customers\"},\n        allowed_columns={\"customers\": {\"id\", \"name\", \"email\"}},\n        sensitive_columns={\"email\"},\n        max_rows=100,\n    )\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        customer_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        agent = Agent(\n            name=\"customer-analyst\",\n            model=get_model_from_env(),\n            role=\"Customer data analyst\",\n            goal=\"Answer only from the approved customer source.\",\n            tools=[customer_data],\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\"],\n        )\n        result = agent.run(\"How many customers are in the approved source? Do not request email addresses.\")\n\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/03_postgres_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Uses list_tables and query through a governed SqlToolkit; email values are redacted before reaching the agent.",
+    "sourcePath": "framework/examples/13_data_connectors/03_postgres_agent.py",
+    "command": "uv run python examples/13_data_connectors/03_postgres_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-04_sql_snapshot_knowledge_agent",
+    "title": "Sql Snapshot Knowledge Agent",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py.",
+    "code": "\"\"\"Combine a governed live SQL tool with an explicitly ingested RAG snapshot.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env, ingest_rows\nfrom wolfpack.knowledge.knowledge import Knowledge\nfrom wolfpack.vectordb.base import MemoryVectorDb\nfrom wolfpack.vectordb.embeddings import OllamaEmbeddingModel, OpenAIEmbeddingModel\n\n\ndef embedding_model():\n    if os.environ.get(\"OPENAI_API_KEY\"):\n        return OpenAIEmbeddingModel(model=\"text-embedding-3-small\", api_key=os.environ[\"OPENAI_API_KEY\"])\n    return OllamaEmbeddingModel(model=\"embeddinggemma:latest\")\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"production-customers\",\n        allowed_tables={\"customers\"},\n        allowed_columns={\"customers\": {\"id\", \"name\", \"email\"}},\n        sensitive_columns={\"email\"},\n        max_rows=100,\n    )\n    knowledge = Knowledge(vector_db=MemoryVectorDb(), embedding_model=embedding_model())\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        customer_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        snapshot = customer_data.query(\"SELECT id, name, email FROM customers ORDER BY id\")\n        ingest_rows(knowledge, snapshot[\"rows\"], source_id=policy.source_id)\n\n        agent = Agent(\n            name=\"customer-researcher\",\n            model=get_model_from_env(),\n            tools=[customer_data],\n            knowledge=knowledge,\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\", \"search_knowledge\"],\n        )\n        result = agent.run(\"Use the knowledge base to summarize the approved snapshot. Query live SQL only if needed.\")\n\n    print(f\"Knowledge documents: {knowledge.count()}\")\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Knowledge documents: <customer-count>\nUses search_knowledge for the ingested snapshot and query only when live data is needed.",
+    "sourcePath": "framework/examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py",
+    "command": "uv run python examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
     "id": "16_scheduled_tasks-01_schedule_client",
     "title": "Schedule Client",
     "category": "Schedules",

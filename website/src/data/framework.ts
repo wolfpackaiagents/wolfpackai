@@ -95,7 +95,7 @@ print(agent.run("What is my name?").content)`,
   {
     id: "data-connectors",
     title: "Governed Data Connectors",
-    description: "Data connectors expose scoped, read-only access to approved relational, document, graph, key-value, and analytics sources. A DataAccessPolicy restricts source objects, masks sensitive fields, and caps returned rows before data reaches the agent.",
+    description: "Data connectors expose scoped, read-only access to approved relational, document, graph, key-value, and analytics sources. Pass a live SqlToolkit through Agent.tools, not Agent.knowledge. DataAccessPolicy restricts source objects, masks sensitive fields, and caps returned rows before data reaches the agent.",
     codeExamples: [{
       title: "Query PostgreSQL through a scoped connector",
       language: "python",
@@ -122,7 +122,7 @@ agent = Agent(
 )
 
 print(agent.run("How many customers signed up this month?").content)`,
-      description: "Use a database role with SELECT-only privileges. The application opens the connection; the model never receives the DSN or credentials.",
+      description: "A live SqlToolkit belongs in tools. Use a database role with SELECT-only privileges; the application opens the connection and the model never receives the DSN or credentials.",
     }, {
       title: "Use SQLite for a local, governed dataset",
       language: "python",
@@ -140,6 +140,25 @@ data = SqlToolkit(connection, policy=policy, dialect="sqlite")
 
 print(data.query("SELECT day, total FROM daily_sales ORDER BY day DESC"))`,
       description: "The same policy blocks writes and access to tables outside the approved scope.",
+    }, {
+      title: "Combine live SQL with a Knowledge snapshot",
+      language: "python",
+      code: `from wolfpack import Agent, get_model_from_env, ingest_rows
+from wolfpack.knowledge.knowledge import Knowledge
+
+# customer_data is the governed SqlToolkit from the prior example.
+snapshot = customer_data.query("SELECT id, name, email FROM customers")
+knowledge = Knowledge(vector_db=vector_db, embedding_model=embedding_model)
+ingest_rows(knowledge, snapshot["rows"], source_id="production-customers")
+
+agent = Agent(
+    name="customer-researcher",
+    model=get_model_from_env(),
+    tools=[customer_data],             # live, governed database access
+    knowledge=knowledge,               # an explicit, point-in-time RAG snapshot
+    tool_allowlist=["query", "search_knowledge"],
+)`,
+      description: "Use Knowledge only for explicitly ingested snapshots. It remains distinct from the live connector and carries no source credentials.",
     }],
   },
   {
