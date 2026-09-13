@@ -15,7 +15,7 @@ export interface Example {
   prerequisites: string[];
   verificationClass: string;
   validatedAt: string;
-  validationStatus: "passed" | "needs-repair";
+  validationStatus: "passed" | "needs-repair" | "not-verified";
 }
 
 export const examples: Example[] = [
@@ -669,14 +669,14 @@ export const examples: Example[] = [
     "title": "Sqlite Connector",
     "category": "Data connectors",
     "description": "Runnable source example from framework/examples/13_data_connectors/01_sqlite_connector.py.",
-    "code": "\"\"\"Run a bounded query against a local SQLite database.\"\"\"\n\nimport sqlite3\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\nconnection = sqlite3.connect(\":memory:\")\nconnection.execute(\"CREATE TABLE daily_sales (day TEXT, total INTEGER)\")\nconnection.execute(\"INSERT INTO daily_sales VALUES ('2026-09-12', 4200)\")\nconnection.commit()\n\npolicy = DataAccessPolicy(\n    source_id=\"local-analytics\",\n    allowed_tables={\"daily_sales\"},\n    max_rows=50,\n)\ndata = SqlToolkit(connection, policy=policy, dialect=\"sqlite\")\n\nprint(data.query(\"SELECT day, total FROM daily_sales ORDER BY day DESC\"))\n",
+    "code": "\"\"\"Search an approved action-movie catalog in a local SQLite database.\"\"\"\n\nimport sqlite3\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\nconnection = sqlite3.connect(\":memory:\")\nconnection.execute(\"CREATE TABLE movies (title TEXT, genre TEXT, release_year INTEGER, rating REAL)\")\nconnection.execute(\"INSERT INTO movies VALUES ('Mad Max: Fury Road', 'Action', 2015, 8.1)\")\nconnection.commit()\n\npolicy = DataAccessPolicy(\n    source_id=\"film-catalog\",\n    allowed_tables={\"movies\"},\n    max_rows=50,\n)\ndata = SqlToolkit(connection, policy=policy, dialect=\"sqlite\")\n\nprint(data.query(\"SELECT title, release_year, rating FROM movies WHERE genre = 'Action' ORDER BY rating DESC\"))\n",
     "language": "python",
     "steps": [
       "Install dependencies with uv sync.",
       "Run: uv run python examples/13_data_connectors/01_sqlite_connector.py"
     ],
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
-    "expectedOutput": "{'source_id': 'local-analytics', 'rows': [{'day': '2026-09-12', 'total': 4200}], 'row_count': 1, 'truncated': False}",
+    "expectedOutput": "{'source_id': 'film-catalog', 'rows': [{'title': 'Mad Max: Fury Road', 'release_year': 2015, 'rating': 8.1}], 'row_count': 1, 'truncated': False}",
     "sourcePath": "framework/examples/13_data_connectors/01_sqlite_connector.py",
     "command": "uv run python examples/13_data_connectors/01_sqlite_connector.py",
     "prerequisites": [
@@ -692,14 +692,14 @@ export const examples: Example[] = [
     "title": "Postgres Connector",
     "category": "Data connectors",
     "description": "Runnable source example from framework/examples/13_data_connectors/02_postgres_connector.py.",
-    "code": "\"\"\"Connect a PostgreSQL data source with a server-side access policy.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\ndatabase_url = os.environ[\"DATABASE_URL\"]\npolicy = DataAccessPolicy(\n    source_id=\"production-customers\",\n    allowed_tables={\"customers\"},\n    sensitive_columns={\"email\", \"phone\"},\n    max_rows=100,\n)\n\nwith psycopg.connect(database_url) as connection:\n    customers = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n    print(customers.query(\"SELECT id, name, email FROM customers ORDER BY id\"))\n",
+    "code": "\"\"\"Query approved corporate debt records from PostgreSQL.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import DataAccessPolicy, SqlToolkit\n\n\ndatabase_url = os.environ[\"DATABASE_URL\"]\npolicy = DataAccessPolicy(\n    source_id=\"corporate-debts\",\n    allowed_tables={\"company_debts\"},\n    sensitive_columns={\"tax_id\", \"contact_email\"},\n    max_rows=100,\n)\n\nwith psycopg.connect(database_url) as connection:\n    debts = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n    print(debts.query(\"SELECT company_name, outstanding_amount, due_date FROM company_debts WHERE status = 'overdue' ORDER BY outstanding_amount DESC\"))\n",
     "language": "python",
     "steps": [
       "Install dependencies with uv sync.",
       "Run: uv run python examples/13_data_connectors/02_postgres_connector.py"
     ],
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
-    "expectedOutput": "Requires DATABASE_URL for a PostgreSQL database with a customers table and a SELECT-only database role.",
+    "expectedOutput": "Requires DATABASE_URL for a PostgreSQL database with a company_debts table and a SELECT-only database role.",
     "sourcePath": "framework/examples/13_data_connectors/02_postgres_connector.py",
     "command": "uv run python examples/13_data_connectors/02_postgres_connector.py",
     "prerequisites": [
@@ -716,14 +716,14 @@ export const examples: Example[] = [
     "title": "Postgres Agent",
     "category": "Data connectors",
     "description": "Runnable source example from framework/examples/13_data_connectors/03_postgres_agent.py.",
-    "code": "\"\"\"Give a real Agent bounded, read-only access to PostgreSQL.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"production-customers\",\n        allowed_tables={\"customers\"},\n        allowed_columns={\"customers\": {\"id\", \"name\", \"email\"}},\n        sensitive_columns={\"email\"},\n        max_rows=100,\n    )\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        customer_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        agent = Agent(\n            name=\"customer-analyst\",\n            model=get_model_from_env(),\n            role=\"Customer data analyst\",\n            goal=\"Answer only from the approved customer source.\",\n            tools=[customer_data],\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\"],\n        )\n        result = agent.run(\"How many customers are in the approved source? Do not request email addresses.\")\n\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "code": "\"\"\"Give a collections Agent bounded, read-only access to PostgreSQL debt data.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"corporate-debts\",\n        allowed_tables={\"company_debts\"},\n        allowed_columns={\"company_debts\": {\"company_name\", \"outstanding_amount\", \"due_date\", \"status\", \"tax_id\"}},\n        sensitive_columns={\"tax_id\"},\n        max_rows=100,\n    )\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        debt_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        agent = Agent(\n            name=\"collections-analyst\",\n            model=get_model_from_env(),\n            role=\"Corporate collections analyst\",\n            goal=\"Prioritize overdue corporate debt using only the approved source.\",\n            tools=[debt_data],\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\"],\n        )\n        result = agent.run(\"Which three companies have the largest overdue balances? Do not request tax IDs.\")\n\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
     "language": "python",
     "steps": [
       "Install dependencies with uv sync.",
       "Run: uv run python examples/13_data_connectors/03_postgres_agent.py"
     ],
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
-    "expectedOutput": "Uses list_tables and query through a governed SqlToolkit; email values are redacted before reaching the agent.",
+    "expectedOutput": "Uses list_tables and query through a governed SqlToolkit; tax IDs are redacted before reaching the agent.",
     "sourcePath": "framework/examples/13_data_connectors/03_postgres_agent.py",
     "command": "uv run python examples/13_data_connectors/03_postgres_agent.py",
     "prerequisites": [
@@ -741,14 +741,14 @@ export const examples: Example[] = [
     "title": "Sql Snapshot Knowledge Agent",
     "category": "Data connectors",
     "description": "Runnable source example from framework/examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py.",
-    "code": "\"\"\"Combine a governed live SQL tool with an explicitly ingested RAG snapshot.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env, ingest_rows\nfrom wolfpack.knowledge.knowledge import Knowledge\nfrom wolfpack.vectordb.base import MemoryVectorDb\nfrom wolfpack.vectordb.embeddings import OllamaEmbeddingModel, OpenAIEmbeddingModel\n\n\ndef embedding_model():\n    if os.environ.get(\"OPENAI_API_KEY\"):\n        return OpenAIEmbeddingModel(model=\"text-embedding-3-small\", api_key=os.environ[\"OPENAI_API_KEY\"])\n    return OllamaEmbeddingModel(model=\"embeddinggemma:latest\")\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"production-customers\",\n        allowed_tables={\"customers\"},\n        allowed_columns={\"customers\": {\"id\", \"name\", \"email\"}},\n        sensitive_columns={\"email\"},\n        max_rows=100,\n    )\n    knowledge = Knowledge(vector_db=MemoryVectorDb(), embedding_model=embedding_model())\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        customer_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        snapshot = customer_data.query(\"SELECT id, name, email FROM customers ORDER BY id\")\n        ingest_rows(knowledge, snapshot[\"rows\"], source_id=policy.source_id)\n\n        agent = Agent(\n            name=\"customer-researcher\",\n            model=get_model_from_env(),\n            tools=[customer_data],\n            knowledge=knowledge,\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\", \"search_knowledge\"],\n        )\n        result = agent.run(\"Use the knowledge base to summarize the approved snapshot. Query live SQL only if needed.\")\n\n    print(f\"Knowledge documents: {knowledge.count()}\")\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "code": "\"\"\"Combine live corporate debt data with an explicitly ingested RAG snapshot.\"\"\"\n\nimport os\n\nimport psycopg\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env, ingest_rows\nfrom wolfpack.knowledge.knowledge import Knowledge\nfrom wolfpack.vectordb.base import MemoryVectorDb\nfrom wolfpack.vectordb.embeddings import OllamaEmbeddingModel, OpenAIEmbeddingModel\n\n\ndef embedding_model():\n    if os.environ.get(\"OPENAI_API_KEY\"):\n        return OpenAIEmbeddingModel(model=\"text-embedding-3-small\", api_key=os.environ[\"OPENAI_API_KEY\"])\n    return OllamaEmbeddingModel(model=\"embeddinggemma:latest\")\n\n\ndef main() -> None:\n    policy = DataAccessPolicy(\n        source_id=\"corporate-debts\",\n        allowed_tables={\"company_debts\"},\n        allowed_columns={\"company_debts\": {\"company_name\", \"outstanding_amount\", \"due_date\", \"status\", \"tax_id\"}},\n        sensitive_columns={\"tax_id\"},\n        max_rows=100,\n    )\n    knowledge = Knowledge(vector_db=MemoryVectorDb(), embedding_model=embedding_model())\n\n    with psycopg.connect(os.environ[\"DATABASE_URL\"]) as connection:\n        debt_data = SqlToolkit(connection, policy=policy, dialect=\"postgres\")\n        snapshot = debt_data.query(\"SELECT company_name, outstanding_amount, due_date, status, tax_id FROM company_debts WHERE status = 'overdue'\")\n        ingest_rows(knowledge, snapshot[\"rows\"], source_id=policy.source_id)\n\n        agent = Agent(\n            name=\"collections-researcher\",\n            model=get_model_from_env(),\n            tools=[debt_data],\n            knowledge=knowledge,\n            tool_allowlist=[\"list_tables\", \"describe_table\", \"query\", \"search_knowledge\"],\n        )\n        result = agent.run(\"Use the knowledge base to summarize the overdue debt snapshot. Query live SQL only if current balances are needed.\")\n\n    print(f\"Knowledge documents: {knowledge.count()}\")\n    print(result.content)\n    print(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n\n\nif __name__ == \"__main__\":\n    main()\n",
     "language": "python",
     "steps": [
       "Install dependencies with uv sync.",
       "Run: uv run python examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py"
     ],
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
-    "expectedOutput": "Knowledge documents: <customer-count>\nUses search_knowledge for the ingested snapshot and query only when live data is needed.",
+    "expectedOutput": "Knowledge documents: <overdue-company-count>\nUses search_knowledge for the ingested debt snapshot and query only when live data is needed.",
     "sourcePath": "framework/examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py",
     "command": "uv run python examples/13_data_connectors/04_sql_snapshot_knowledge_agent.py",
     "prerequisites": [
@@ -760,6 +760,106 @@ export const examples: Example[] = [
     "verificationClass": "LLM integration",
     "validatedAt": "2026-08-26",
     "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-05_mysql_movie_agent",
+    "title": "Mysql Movie Agent",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/05_mysql_movie_agent.py.",
+    "code": "\"\"\"Use MySQL to give an Agent read-only access to a film catalog.\"\"\"\n\nimport os\n\nimport pymysql\n\nfrom wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env\n\n\nconnection = pymysql.connect(\n    host=os.environ[\"MYSQL_HOST\"],\n    user=os.environ[\"MYSQL_USER\"],\n    password=os.environ[\"MYSQL_PASSWORD\"],\n    database=os.environ[\"MYSQL_DATABASE\"],\n)\nmovies = SqlToolkit(\n    connection,\n    policy=DataAccessPolicy(source_id=\"film-catalog\", allowed_tables={\"movies\"}, max_rows=20),\n    dialect=\"mysql\",\n)\nagent = Agent(\n    name=\"film-programmer\",\n    model=get_model_from_env(),\n    tools=[movies],\n    tool_allowlist=[\"list_tables\", \"describe_table\", \"query\"],\n)\nprint(agent.run(\"Recommend three action movies rated above 8.0 from the approved catalog.\").content)\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/05_mysql_movie_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Queries the approved movie catalog for action-film recommendations.",
+    "sourcePath": "framework/examples/13_data_connectors/05_mysql_movie_agent.py",
+    "command": "uv run python examples/13_data_connectors/05_mysql_movie_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the MySQL extra: uv sync --extra mysql. Configure MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE with a SELECT-only account."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-06_mongodb_support_agent",
+    "title": "Mongodb Support Agent",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/06_mongodb_support_agent.py.",
+    "code": "\"\"\"Use MongoDB support tickets as a bounded Agent tool.\"\"\"\n\nimport os\n\nfrom pymongo import MongoClient\n\nfrom wolfpack import Agent, DataAccessPolicy, DocumentToolkit, get_model_from_env\n\n\ncollection = MongoClient(os.environ[\"MONGODB_URL\"]).support.tickets\ntickets = DocumentToolkit(\n    collection=\"tickets\",\n    policy=DataAccessPolicy(source_id=\"support-tickets\", allowed_collections={\"tickets\"}, max_rows=20),\n    find=lambda name, filter, limit: list(collection.find(filter, {\"_id\": 0, \"customer_email\": 0}).limit(limit)),\n)\nagent = Agent(\n    name=\"support-triage\",\n    model=get_model_from_env(),\n    tools=[tickets],\n    tool_allowlist=[\"find_documents\"],\n)\nprint(agent.run(\"List the open payment incidents reported in the last day without exposing customer email addresses.\").content)\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/06_mongodb_support_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Finds open payment incidents without returning customer email addresses.",
+    "sourcePath": "framework/examples/13_data_connectors/06_mongodb_support_agent.py",
+    "command": "uv run python examples/13_data_connectors/06_mongodb_support_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the MongoDB extra: uv sync --extra mongodb. Configure MONGODB_URL with a read-only account."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-07_clickhouse_revenue_agent",
+    "title": "Clickhouse Revenue Agent",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/07_clickhouse_revenue_agent.py.",
+    "code": "\"\"\"Use ClickHouse aggregates as a read-only Agent tool.\"\"\"\n\nimport os\n\nimport clickhouse_connect\n\nfrom wolfpack import Agent, ClickHouseToolkit, DataAccessPolicy, get_model_from_env\n\n\nclient = clickhouse_connect.get_client(\n    host=os.environ[\"CLICKHOUSE_HOST\"],\n    username=os.environ[\"CLICKHOUSE_USER\"],\n    password=os.environ[\"CLICKHOUSE_PASSWORD\"],\n    database=os.environ[\"CLICKHOUSE_DATABASE\"],\n)\nrevenue = ClickHouseToolkit(\n    client,\n    policy=DataAccessPolicy(source_id=\"daily-revenue\", allowed_tables={\"daily_revenue\"}, max_rows=31),\n)\nagent = Agent(\n    name=\"revenue-analyst\",\n    model=get_model_from_env(),\n    tools=[revenue],\n    tool_allowlist=[\"list_tables\", \"describe_table\", \"query\", \"estimate_cost\"],\n)\nprint(agent.run(\"Which sales region had the highest revenue in the last 30 days?\").content)\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/07_clickhouse_revenue_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Uses daily revenue aggregates to identify the leading sales region.",
+    "sourcePath": "framework/examples/13_data_connectors/07_clickhouse_revenue_agent.py",
+    "command": "uv run python examples/13_data_connectors/07_clickhouse_revenue_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the ClickHouse extra: uv sync --extra clickhouse. Configure CLICKHOUSE_HOST, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, and CLICKHOUSE_DATABASE."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-08_other_connectors_agents",
+    "title": "Other Connectors Agents",
+    "category": "Data connectors",
+    "description": "Runnable source example from framework/examples/13_data_connectors/08_other_connectors_agents.py.",
+    "code": "\"\"\"Agent factories for connectors that require external infrastructure to verify.\"\"\"\n\nfrom wolfpack import (\n    Agent,\n    AthenaToolkit,\n    BigQueryToolkit,\n    DataAccessPolicy,\n    DatabricksToolkit,\n    DocumentToolkit,\n    GraphToolkit,\n    KeyValueToolkit,\n    SnowflakeToolkit,\n    TrinoToolkit,\n    get_model_from_env,\n)\n\n\ndef supply_chain_agent(neo4j_driver):\n    \"\"\"Trace delayed shipments through Neo4j supplier relationships.\"\"\"\n    graph = GraphToolkit(\n        policy=DataAccessPolicy(source_id=\"supply-chain\", allowed_graph_labels={\"Supplier\", \"Shipment\"}, max_rows=25),\n        labels=lambda: [\"Supplier\", \"Shipment\"],\n        read=lambda query, parameters, limit: [dict(record) for record in neo4j_driver.session().run(query, parameters or {})][:limit],\n    )\n    return Agent(\"supply-chain-analyst\", get_model_from_env(), tools=[graph], tool_allowlist=[\"list_labels\", \"read_cypher\"])\n\n\ndef inventory_agent(redis_client):\n    \"\"\"Look up warehouse inventory by an approved Redis key prefix.\"\"\"\n    inventory = KeyValueToolkit(\n        policy=DataAccessPolicy(source_id=\"warehouse-inventory\", allowed_key_prefixes={\"inventory:\"}),\n        get_value=redis_client.get,\n    )\n    return Agent(\"inventory-assistant\", get_model_from_env(), tools=[inventory], tool_allowlist=[\"get\"])\n\n\ndef account_agent(dynamodb_table):\n    \"\"\"Retrieve bounded account records from DynamoDB.\"\"\"\n    accounts = DocumentToolkit(\n        collection=\"accounts\",\n        policy=DataAccessPolicy(source_id=\"customer-accounts\", allowed_collections={\"accounts\"}, max_rows=20),\n        find=lambda name, filter, limit: dynamodb_table.scan(Limit=limit, FilterExpression=filter).get(\"Items\", []),\n    )\n    return Agent(\"account-analyst\", get_model_from_env(), tools=[accounts], tool_allowlist=[\"find_documents\"])\n\n\ndef field_service_agent(firestore_collection):\n    \"\"\"Retrieve open field-service work orders from Firestore.\"\"\"\n    work_orders = DocumentToolkit(\n        collection=\"work_orders\",\n        policy=DataAccessPolicy(source_id=\"field-service\", allowed_collections={\"work_orders\"}, max_rows=20),\n        find=lambda name, filter, limit: [snapshot.to_dict() for snapshot in firestore_collection.limit(limit).stream()],\n    )\n    return Agent(\"field-service-dispatcher\", get_model_from_env(), tools=[work_orders], tool_allowlist=[\"find_documents\"])\n\n\ndef warehouse_agents(trino_connection, athena_connection, bigquery_connection, snowflake_connection, databricks_connection):\n    \"\"\"Create agents for delivery, advertising, invoicing, retail, and fraud analysis.\"\"\"\n    sources = [\n        (\"delivery-lake\", TrinoToolkit(trino_connection, policy=DataAccessPolicy(source_id=\"delivery-lake\", allowed_tables={\"shipment_events\"}))),\n        (\"ad-performance\", AthenaToolkit(athena_connection, policy=DataAccessPolicy(source_id=\"ad-performance\", allowed_tables={\"campaign_events\"}))),\n        (\"invoices\", BigQueryToolkit(bigquery_connection, policy=DataAccessPolicy(source_id=\"invoices\", allowed_tables={\"invoice_fact\"}))),\n        (\"retail-sales\", SnowflakeToolkit(snowflake_connection, policy=DataAccessPolicy(source_id=\"retail-sales\", allowed_tables={\"daily_store_sales\"}))),\n        (\"fraud-signals\", DatabricksToolkit(databricks_connection, policy=DataAccessPolicy(source_id=\"fraud-signals\", allowed_tables={\"transactions\"}))),\n    ]\n    return [Agent(f\"{name}-analyst\", get_model_from_env(), tools=[toolkit], tool_allowlist=[\"query\", \"estimate_cost\"]) for name, toolkit in sources]\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/08_other_connectors_agents.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Factory examples for Neo4j, Redis, DynamoDB, Firestore, Trino, Athena, BigQuery, Snowflake, and Databricks.",
+    "sourcePath": "framework/examples/13_data_connectors/08_other_connectors_agents.py",
+    "command": "uv run python examples/13_data_connectors/08_other_connectors_agents.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the source-specific driver and configure credentials for the selected external connector."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "not-verified"
   },
   {
     "id": "16_scheduled_tasks-01_schedule_client",

@@ -92,8 +92,8 @@ export default function ExamplePage() {
           )}
           <div className="flex items-center gap-2">
              <span className="text-sm text-gray-400">{lang === "pt-BR" ? "Validação:" : "Validation:"}</span>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${example.validationStatus === "passed" ? "text-green-400 bg-green-500/15" : "text-amber-400 bg-amber-500/15"}`}>
-               {example.validationStatus === "passed" ? (lang === "pt-BR" ? "APROVADO" : "PASSED") : (lang === "pt-BR" ? "PRECISA DE CORREÇÃO" : "NEEDS REPAIR")}
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${example.validationStatus === "passed" ? "text-green-400 bg-green-500/15" : example.validationStatus === "not-verified" ? "text-zinc-300 bg-zinc-500/15" : "text-amber-400 bg-amber-500/15"}`}>
+                {example.validationStatus === "passed" ? (lang === "pt-BR" ? "APROVADO" : "PASSED") : example.validationStatus === "not-verified" ? (lang === "pt-BR" ? "NÃO VERIFICADO" : "NOT VERIFIED") : (lang === "pt-BR" ? "PRECISA DE CORREÇÃO" : "NEEDS REPAIR")}
             </span>
             <span className="text-xs text-gray-500">({example.validatedAt})</span>
           </div>

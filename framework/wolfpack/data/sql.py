@@ -16,6 +16,20 @@ _WRITE_KEYWORDS = re.compile(
 _TABLE_REFERENCE = re.compile(r"\b(?:FROM|JOIN)\s+([\w.\"`\[\]]+)", re.IGNORECASE)
 
 
+class _ClickHouseCursor:
+    """Adapt clickhouse-connect QueryResult to the DB-API cursor surface we use."""
+
+    def __init__(self, result: Any) -> None:
+        self.description = [(name,) for name in result.column_names]
+        self._rows = result.result_rows
+
+    def fetchall(self) -> list[Any]:
+        return list(self._rows)
+
+    def fetchmany(self, size: int) -> list[Any]:
+        return list(self._rows[:size])
+
+
 class SqlToolkit(Toolkit):
     """Expose bounded read-only SQL operations over a DB-API connection.
 
@@ -168,6 +182,34 @@ class BigQueryToolkit(AnalyticsToolkit):
 class ClickHouseToolkit(AnalyticsToolkit):
     def __init__(self, connection: Any, *, policy: DataAccessPolicy) -> None:
         super().__init__(connection, engine="clickhouse", policy=policy)
+
+    def list_tables(self) -> dict[str, Any]:
+        rows = self._execute(
+            "SELECT name FROM system.tables WHERE database = currentDatabase() "
+            "AND is_temporary = 0 ORDER BY name"
+        ).fetchall()
+        names = [row[0] for row in rows]
+        if self.policy.allowed_tables:
+            allowed = {name.lower() for name in self.policy.allowed_tables}
+            names = [name for name in names if str(name).lower() in allowed]
+        return {"source_id": self.policy.source_id, "tables": names}
+
+    def describe_table(self, table: str) -> dict[str, Any]:
+        self.policy.require_table(table)
+        self._validate_identifier(table)
+        rows = self._execute(f"DESCRIBE TABLE {table}").fetchall()
+        columns = [
+            {"name": row[0], "type": row[1], "nullable": str(row[1]).startswith("Nullable(")}
+            for row in rows
+        ]
+        return {"source_id": self.policy.source_id, "table": table, "columns": columns}
+
+    def _execute(self, statement: str, parameters: Any = None) -> Any:
+        if hasattr(self.connection, "cursor"):
+            return super()._execute(statement, parameters)
+        if parameters is not None and not isinstance(parameters, dict):
+            raise DataPolicyError("ClickHouse parameters must use a named dictionary.")
+        return _ClickHouseCursor(self.connection.query(statement, parameters=parameters))
 
 
 class SnowflakeToolkit(AnalyticsToolkit):

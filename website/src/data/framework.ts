@@ -97,7 +97,7 @@ print(agent.run("What is my name?").content)`,
     title: "Governed Data Connectors",
     description: "Data connectors expose scoped, read-only access to approved relational, document, graph, key-value, and analytics sources. Pass a live SqlToolkit through Agent.tools, not Agent.knowledge. DataAccessPolicy restricts source objects, masks sensitive fields, and caps returned rows before data reaches the agent.",
     codeExamples: [{
-      title: "Query PostgreSQL through a scoped connector",
+      title: "Prioritize overdue corporate debt in PostgreSQL",
       language: "python",
       code: `import os
 import psycopg
@@ -105,26 +105,26 @@ import psycopg
 from wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env
 
 policy = DataAccessPolicy(
-    source_id="production-customers",
-    allowed_tables={"customers"},
-    sensitive_columns={"email", "phone"},
+    source_id="corporate-debts",
+    allowed_tables={"company_debts"},
+    sensitive_columns={"tax_id"},
     max_rows=100,
 )
 
 connection = psycopg.connect(os.environ["DATABASE_URL"])
-customer_data = SqlToolkit(connection, policy=policy, dialect="postgres")
+debt_data = SqlToolkit(connection, policy=policy, dialect="postgres")
 
 agent = Agent(
-    name="customer-analyst",
+    name="collections-analyst",
     model=get_model_from_env(),
-    tools=[customer_data],
+    tools=[debt_data],
     tool_allowlist=["list_tables", "describe_table", "query"],
 )
 
-print(agent.run("How many customers signed up this month?").content)`,
+print(agent.run("Which companies have the largest overdue balances?").content)`,
       description: "A live SqlToolkit belongs in tools. Use a database role with SELECT-only privileges; the application opens the connection and the model never receives the DSN or credentials.",
     }, {
-      title: "Use SQLite for a local, governed dataset",
+      title: "Search action movies in a local SQLite catalog",
       language: "python",
       code: `import sqlite3
 
@@ -132,13 +132,13 @@ from wolfpack import DataAccessPolicy, SqlToolkit
 
 connection = sqlite3.connect("analytics.db")
 policy = DataAccessPolicy(
-    source_id="local-analytics",
-    allowed_tables={"daily_sales"},
+    source_id="film-catalog",
+    allowed_tables={"movies"},
     max_rows=50,
 )
 data = SqlToolkit(connection, policy=policy, dialect="sqlite")
 
-print(data.query("SELECT day, total FROM daily_sales ORDER BY day DESC"))`,
+print(data.query("SELECT title, rating FROM movies WHERE genre = 'Action' ORDER BY rating DESC"))`,
       description: "The same policy blocks writes and access to tables outside the approved scope.",
     }, {
       title: "Combine live SQL with a Knowledge snapshot",
@@ -146,15 +146,15 @@ print(data.query("SELECT day, total FROM daily_sales ORDER BY day DESC"))`,
       code: `from wolfpack import Agent, get_model_from_env, ingest_rows
 from wolfpack.knowledge.knowledge import Knowledge
 
-# customer_data is the governed SqlToolkit from the prior example.
-snapshot = customer_data.query("SELECT id, name, email FROM customers")
+# debt_data is the governed SqlToolkit from the prior example.
+snapshot = debt_data.query("SELECT company_name, outstanding_amount, due_date FROM company_debts WHERE status = 'overdue'")
 knowledge = Knowledge(vector_db=vector_db, embedding_model=embedding_model)
 ingest_rows(knowledge, snapshot["rows"], source_id="production-customers")
 
 agent = Agent(
-    name="customer-researcher",
+    name="collections-researcher",
     model=get_model_from_env(),
-    tools=[customer_data],             # live, governed database access
+    tools=[debt_data],                 # live, governed database access
     knowledge=knowledge,               # an explicit, point-in-time RAG snapshot
     tool_allowlist=["query", "search_knowledge"],
 )`,

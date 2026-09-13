@@ -106,6 +106,27 @@ def test_warehouse_toolkits_share_the_governed_sql_contract():
             toolkit.query("UPDATE customers SET name = 'Grace'")
 
 
+def test_clickhouse_toolkit_accepts_clickhouse_connect_clients():
+    from wolfpack.data import ClickHouseToolkit
+
+    class QueryResult:
+        column_names = ("id", "email")
+        result_rows = ((1, "ada@example.com"),)
+
+    class ClickHouseClient:
+        def query(self, statement, parameters=None):
+            assert statement == "SELECT id, email FROM customers"
+            assert parameters is None
+            return QueryResult()
+
+    toolkit = ClickHouseToolkit(
+        ClickHouseClient(),
+        policy=DataAccessPolicy(source_id="warehouse", allowed_tables={"customers"}, sensitive_columns={"email"}),
+    )
+
+    assert toolkit.query("SELECT id, email FROM customers")["rows"] == [{"id": 1, "email": "[REDACTED]"}]
+
+
 def test_agent_keeps_live_sql_tools_separate_from_knowledge_search():
     from wolfpack import Agent
 

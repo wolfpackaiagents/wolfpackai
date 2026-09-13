@@ -37,8 +37,8 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     title: "Conectores de dados governados",
     description: "Conectores de dados oferecem acesso de leitura, com escopo definido, a fontes relacionais, de documentos, grafos, chave-valor e analiticas. Passe SqlToolkit ao campo tools do Agent, nao ao campo knowledge. DataAccessPolicy limita os objetos da fonte, mascara campos sensiveis e restringe as linhas retornadas antes que os dados cheguem ao agente.",
     codeExamples: [
-      { title: "Consulte PostgreSQL por um conector com escopo" },
-      { title: "Use SQLite para um conjunto local governado" },
+      { title: "Priorize debitos corporativos vencidos no PostgreSQL" },
+      { title: "Busque filmes de acao em um catalogo SQLite local" },
       { title: "Combine SQL ao vivo com um snapshot de Knowledge" },
     ],
   },

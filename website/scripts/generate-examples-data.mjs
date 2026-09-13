@@ -36,6 +36,7 @@ const modelExamples = new Set([
   "06_hitl_guardrails/01_hitl_approve.py", "06_hitl_guardrails/02_guardrails.py", "06_workflows/02_session.py",
   "07_teams/01_coordinate.py", "09_evals/02_agent_evaluator.py", "11_resilience/01_openai_token_stream.py",
   "13_data_connectors/03_postgres_agent.py", "13_data_connectors/04_sql_snapshot_knowledge_agent.py",
+  "13_data_connectors/05_mysql_movie_agent.py", "13_data_connectors/06_mongodb_support_agent.py", "13_data_connectors/07_clickhouse_revenue_agent.py", "13_data_connectors/08_other_connectors_agents.py",
   "20_team_with_knowledge/01_team_with_knowledge.py",
 ]);
 
@@ -74,10 +75,14 @@ const capturedOutput = {
   "10_privacy/01_pii_safe_telemetry.py": "agent output: We will reply to ana@example.com.\npersisted output: We will reply to [PII_REDACTED].\nPII was masked before telemetry persistence.",
   "11_resilience/01_openai_token_stream.py": "Response: Streaming improves chat UX by providing real-time updates and interactions.",
   "12_hardening/01_production_flow.py": "Hardened quote completed: {\"decision\": \"approved\", \"quote_id\": \"quote-2026-001\", \"total_cents\": 6000}\nVerified PII masking, tool policy, structured output, and observer telemetry.",
-  "13_data_connectors/01_sqlite_connector.py": "{'source_id': 'local-analytics', 'rows': [{'day': '2026-09-12', 'total': 4200}], 'row_count': 1, 'truncated': False}",
-  "13_data_connectors/02_postgres_connector.py": "Requires DATABASE_URL for a PostgreSQL database with a customers table and a SELECT-only database role.",
-  "13_data_connectors/03_postgres_agent.py": "Uses list_tables and query through a governed SqlToolkit; email values are redacted before reaching the agent.",
-  "13_data_connectors/04_sql_snapshot_knowledge_agent.py": "Knowledge documents: <customer-count>\nUses search_knowledge for the ingested snapshot and query only when live data is needed.",
+  "13_data_connectors/01_sqlite_connector.py": "{'source_id': 'film-catalog', 'rows': [{'title': 'Mad Max: Fury Road', 'release_year': 2015, 'rating': 8.1}], 'row_count': 1, 'truncated': False}",
+  "13_data_connectors/02_postgres_connector.py": "Requires DATABASE_URL for a PostgreSQL database with a company_debts table and a SELECT-only database role.",
+  "13_data_connectors/03_postgres_agent.py": "Uses list_tables and query through a governed SqlToolkit; tax IDs are redacted before reaching the agent.",
+  "13_data_connectors/04_sql_snapshot_knowledge_agent.py": "Knowledge documents: <overdue-company-count>\nUses search_knowledge for the ingested debt snapshot and query only when live data is needed.",
+  "13_data_connectors/05_mysql_movie_agent.py": "Queries the approved movie catalog for action-film recommendations.",
+  "13_data_connectors/06_mongodb_support_agent.py": "Finds open payment incidents without returning customer email addresses.",
+  "13_data_connectors/07_clickhouse_revenue_agent.py": "Uses daily revenue aggregates to identify the leading sales region.",
+  "13_data_connectors/08_other_connectors_agents.py": "Factory examples for Neo4j, Redis, DynamoDB, Firestore, Trino, Athena, BigQuery, Snowflake, and Databricks.",
   "16_scheduled_tasks/01_schedule_client.py": "Existing <schedule-id>: weekday-operations-report (active)\n<schedule-id>: 0 9 * * 1-5 -> reports.operations_daily [active]",
   "16_scheduled_tasks/02_agent_hitl.py": "Registered tools: ['schedule_task', 'list_tasks', 'pause_task', 'resume_task', 'cancel_task']\ncancel_task result: tool_confirmation",
   "16_scheduled_tasks/03_http_runtime.py": "{'status': 'accepted', 'run_id': 'example-run'}",
@@ -110,6 +115,10 @@ function requirementsFor(relativePath) {
   if (relativePath.startsWith("08_mcp/")) requirements.push("Install the MCP extra: uv sync --extra mcp.");
   if (relativePath.startsWith("13_data_connectors/02_")) requirements.push("Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role.");
   if (relativePath.startsWith("13_data_connectors/03_") || relativePath.startsWith("13_data_connectors/04_")) requirements.push("Install the PostgreSQL extra: uv sync --extra postgres. Set DATABASE_URL to a PostgreSQL connection using a SELECT-only role.");
+  if (relativePath === "13_data_connectors/05_mysql_movie_agent.py") requirements.push("Install the MySQL extra: uv sync --extra mysql. Configure MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, and MYSQL_DATABASE with a SELECT-only account.");
+  if (relativePath === "13_data_connectors/06_mongodb_support_agent.py") requirements.push("Install the MongoDB extra: uv sync --extra mongodb. Configure MONGODB_URL with a read-only account.");
+  if (relativePath === "13_data_connectors/07_clickhouse_revenue_agent.py") requirements.push("Install the ClickHouse extra: uv sync --extra clickhouse. Configure CLICKHOUSE_HOST, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, and CLICKHOUSE_DATABASE.");
+  if (relativePath === "13_data_connectors/08_other_connectors_agents.py") requirements.push("Install the source-specific driver and configure credentials for the selected external connector.");
   if (relativePath === "16_scheduled_tasks/03_http_runtime.py") requirements.push("Set WOLFPACK_SCHEDULER_DISPATCH_SECRET and WOLFPACK_SCHEDULER_CALLBACK_SECRET.");
   return requirements;
 }
@@ -141,10 +150,10 @@ const examples = await Promise.all(files.map(async (file) => {
     prerequisites: requirementsFor(relativePath),
     verificationClass: verificationClass(relativePath),
     validatedAt: "2026-08-26",
-    validationStatus: relativePath === "06_hitl_guardrails/01_hitl_approve.py" ? "needs-repair" : "passed",
+    validationStatus: relativePath === "06_hitl_guardrails/01_hitl_approve.py" ? "needs-repair" : relativePath === "13_data_connectors/08_other_connectors_agents.py" ? "not-verified" : "passed",
   };
 }));
 
-const generated = `// Generated by website/scripts/generate-examples-data.mjs. Do not edit manually.\n\nexport interface Example {\n  id: string;\n  title: string;\n  category: string;\n  description: string;\n  code: string;\n  language: string;\n  steps: string[];\n  explanation: string;\n  expectedOutput: string;\n  sourcePath: string;\n  command: string;\n  prerequisites: string[];\n  verificationClass: string;\n  validatedAt: string;\n  validationStatus: \"passed\" | \"needs-repair\";\n}\n\nexport const examples: Example[] = ${JSON.stringify(examples, null, 2)};\n`;
+const generated = `// Generated by website/scripts/generate-examples-data.mjs. Do not edit manually.\n\nexport interface Example {\n  id: string;\n  title: string;\n  category: string;\n  description: string;\n  code: string;\n  language: string;\n  steps: string[];\n  explanation: string;\n  expectedOutput: string;\n  sourcePath: string;\n  command: string;\n  prerequisites: string[];\n  verificationClass: string;\n  validatedAt: string;\n  validationStatus: \"passed\" | \"needs-repair\" | \"not-verified\";\n}\n\nexport const examples: Example[] = ${JSON.stringify(examples, null, 2)};\n`;
 await writeFile(outputPath, generated);
-console.log(`Generated ${examples.length} verified examples.`);
+console.log(`Generated ${examples.length} documentation examples.`);

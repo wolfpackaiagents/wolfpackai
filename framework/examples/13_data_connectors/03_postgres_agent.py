@@ -1,4 +1,4 @@
-"""Give a real Agent bounded, read-only access to PostgreSQL."""
+"""Give a collections Agent bounded, read-only access to PostgreSQL debt data."""
 
 import os
 
@@ -9,24 +9,24 @@ from wolfpack import Agent, DataAccessPolicy, SqlToolkit, get_model_from_env
 
 def main() -> None:
     policy = DataAccessPolicy(
-        source_id="production-customers",
-        allowed_tables={"customers"},
-        allowed_columns={"customers": {"id", "name", "email"}},
-        sensitive_columns={"email"},
+        source_id="corporate-debts",
+        allowed_tables={"company_debts"},
+        allowed_columns={"company_debts": {"company_name", "outstanding_amount", "due_date", "status", "tax_id"}},
+        sensitive_columns={"tax_id"},
         max_rows=100,
     )
 
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
-        customer_data = SqlToolkit(connection, policy=policy, dialect="postgres")
+        debt_data = SqlToolkit(connection, policy=policy, dialect="postgres")
         agent = Agent(
-            name="customer-analyst",
+            name="collections-analyst",
             model=get_model_from_env(),
-            role="Customer data analyst",
-            goal="Answer only from the approved customer source.",
-            tools=[customer_data],
+            role="Corporate collections analyst",
+            goal="Prioritize overdue corporate debt using only the approved source.",
+            tools=[debt_data],
             tool_allowlist=["list_tables", "describe_table", "query"],
         )
-        result = agent.run("How many customers are in the approved source? Do not request email addresses.")
+        result = agent.run("Which three companies have the largest overdue balances? Do not request tax IDs.")
 
     print(result.content)
     print("Tools used:", [call["name"] for call in result.tool_calls])
