@@ -7,31 +7,10 @@ from wolfpack import (
     DataAccessPolicy,
     DatabricksToolkit,
     DocumentToolkit,
-    GraphToolkit,
-    KeyValueToolkit,
     SnowflakeToolkit,
     TrinoToolkit,
     get_model_from_env,
 )
-
-
-def supply_chain_agent(neo4j_driver):
-    """Trace delayed shipments through Neo4j supplier relationships."""
-    graph = GraphToolkit(
-        policy=DataAccessPolicy(source_id="supply-chain", allowed_graph_labels={"Supplier", "Shipment"}, max_rows=25),
-        labels=lambda: ["Supplier", "Shipment"],
-        read=lambda query, parameters, limit: [dict(record) for record in neo4j_driver.session().run(query, parameters or {})][:limit],
-    )
-    return Agent("supply-chain-analyst", get_model_from_env(), tools=[graph], tool_allowlist=["list_labels", "read_cypher"])
-
-
-def inventory_agent(redis_client):
-    """Look up warehouse inventory by an approved Redis key prefix."""
-    inventory = KeyValueToolkit(
-        policy=DataAccessPolicy(source_id="warehouse-inventory", allowed_key_prefixes={"inventory:"}),
-        get_value=redis_client.get,
-    )
-    return Agent("inventory-assistant", get_model_from_env(), tools=[inventory], tool_allowlist=["get"])
 
 
 def account_agent(dynamodb_table):

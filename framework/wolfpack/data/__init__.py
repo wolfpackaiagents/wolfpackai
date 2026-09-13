@@ -1,7 +1,7 @@
 """Governed live-data tools and structured-source ingestion."""
 
 from .ingestion import ingest_rows
-from .nonrelational import DocumentToolkit, GraphToolkit, KeyValueToolkit
+from .nonrelational import DocumentToolkit, ElasticsearchToolkit, GraphToolkit, KeyValueToolkit, Neo4jToolkit, RedisToolkit
 from .policy import DataAccessPolicy, DataPolicyError
 from .sql import (
     AnalyticsToolkit,
@@ -22,9 +22,12 @@ __all__ = [
     "DataAccessPolicy",
     "DataPolicyError",
     "DocumentToolkit",
+    "ElasticsearchToolkit",
     "DatabricksToolkit",
     "GraphToolkit",
     "KeyValueToolkit",
+    "Neo4jToolkit",
+    "RedisToolkit",
     "SqlToolkit",
     "SnowflakeToolkit",
     "TrinoToolkit",

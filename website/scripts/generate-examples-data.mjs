@@ -37,6 +37,7 @@ const modelExamples = new Set([
   "07_teams/01_coordinate.py", "09_evals/02_agent_evaluator.py", "11_resilience/01_openai_token_stream.py",
   "13_data_connectors/03_postgres_agent.py", "13_data_connectors/04_sql_snapshot_knowledge_agent.py",
   "13_data_connectors/05_mysql_movie_agent.py", "13_data_connectors/06_mongodb_support_agent.py", "13_data_connectors/07_clickhouse_revenue_agent.py", "13_data_connectors/08_other_connectors_agents.py",
+  "13_data_connectors/09_redis_inventory_agent.py", "13_data_connectors/10_neo4j_supplier_agent.py", "13_data_connectors/11_elasticsearch_support_agent.py",
   "20_team_with_knowledge/01_team_with_knowledge.py",
 ]);
 
@@ -58,7 +59,10 @@ const databasesByExample = {
   "13_data_connectors/05_mysql_movie_agent.py": ["MySQL"],
   "13_data_connectors/06_mongodb_support_agent.py": ["MongoDB"],
   "13_data_connectors/07_clickhouse_revenue_agent.py": ["ClickHouse"],
-  "13_data_connectors/08_other_connectors_agents.py": ["Neo4j", "Redis", "DynamoDB", "Firestore", "Trino", "Athena", "BigQuery", "Snowflake", "Databricks"],
+  "13_data_connectors/08_other_connectors_agents.py": ["DynamoDB", "Firestore", "Trino", "Athena", "BigQuery", "Snowflake", "Databricks"],
+  "13_data_connectors/09_redis_inventory_agent.py": ["Redis"],
+  "13_data_connectors/10_neo4j_supplier_agent.py": ["Neo4j"],
+  "13_data_connectors/11_elasticsearch_support_agent.py": ["Elasticsearch"],
 };
 
 const capturedOutput = {
@@ -97,6 +101,9 @@ const capturedOutput = {
   "13_data_connectors/06_mongodb_support_agent.py": "AGENT RESULT\nOpen payment incidents:\n\n1. PAY-1042: Card charge duplicated\n2. PAY-1047: Invoice payment pending\nTools used: find_documents",
   "13_data_connectors/07_clickhouse_revenue_agent.py": "AGENT RESULT\nThe Southeast region had the highest revenue in the last 30 days: $840,000.\nTools used: list_tables, describe_table, query, estimate_cost",
   "13_data_connectors/08_other_connectors_agents.py": "Factory examples for Neo4j, Redis, DynamoDB, Firestore, Trino, Athena, BigQuery, Snowflake, and Databricks.",
+  "13_data_connectors/09_redis_inventory_agent.py": "AGENT RESULT\nThere are 12 units available for SKU 42.\nTools used: get",
+  "13_data_connectors/10_neo4j_supplier_agent.py": "AGENT RESULT\nThe available supplier in the approved supply-chain graph is Atlas Parts.\nTools used: list_labels, read_cypher",
+  "13_data_connectors/11_elasticsearch_support_agent.py": "AGENT RESULT\nOpen support incident: PAY-1042, status Open.\nTools used: find_documents",
   "16_scheduled_tasks/01_schedule_client.py": "Existing <schedule-id>: weekday-operations-report (active)\n<schedule-id>: 0 9 * * 1-5 -> reports.operations_daily [active]",
   "16_scheduled_tasks/02_agent_hitl.py": "Registered tools: ['schedule_task', 'list_tasks', 'pause_task', 'resume_task', 'cancel_task']\ncancel_task result: tool_confirmation",
   "16_scheduled_tasks/03_http_runtime.py": "{'status': 'accepted', 'run_id': 'example-run'}",
@@ -115,6 +122,9 @@ const sourceData = {
   "13_data_connectors/05_mysql_movie_agent.py": "movies\ntitle                | genre  | rating\nThe Dark Knight      | Action | 9.0\nDie Hard             | Action | 8.2\nMad Max: Fury Road   | Action | 8.1",
   "13_data_connectors/06_mongodb_support_agent.py": "tickets\nticket_id | status | category | summary\nPAY-1042 | open   | payment  | Card charge duplicated\nPAY-1047 | open   | payment  | Invoice payment pending",
   "13_data_connectors/07_clickhouse_revenue_agent.py": "daily_revenue\nregion    | revenue\nSoutheast | 840000\nSouth     | 610000\nNortheast | 455000",
+  "13_data_connectors/09_redis_inventory_agent.py": "inventory:sku-42 = 12",
+  "13_data_connectors/10_neo4j_supplier_agent.py": "(:Supplier {name: 'Atlas Parts'})",
+  "13_data_connectors/11_elasticsearch_support_agent.py": "support-tickets\nticket_id | status | customer_email\nPAY-1042 | open   | [REDACTED]",
 };
 
 async function pythonFiles(directory) {
@@ -141,6 +151,9 @@ function requirementsFor(relativePath) {
   if (relativePath === "13_data_connectors/06_mongodb_support_agent.py") requirements.push("Install the MongoDB extra: uv sync --extra mongodb. Configure MONGODB_URL with a read-only account.");
   if (relativePath === "13_data_connectors/07_clickhouse_revenue_agent.py") requirements.push("Install the ClickHouse extra: uv sync --extra clickhouse. Configure CLICKHOUSE_HOST, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, and CLICKHOUSE_DATABASE.");
   if (relativePath === "13_data_connectors/08_other_connectors_agents.py") requirements.push("Install the source-specific driver and configure credentials for the selected external connector.");
+  if (relativePath === "13_data_connectors/09_redis_inventory_agent.py") requirements.push("Install the Redis extra: uv sync --extra redis. Configure REDIS_URL with a read-only account.");
+  if (relativePath === "13_data_connectors/10_neo4j_supplier_agent.py") requirements.push("Install the Neo4j extra: uv sync --extra neo4j. Configure NEO4J_URL, NEO4J_USER, and NEO4J_PASSWORD with a read-only account.");
+  if (relativePath === "13_data_connectors/11_elasticsearch_support_agent.py") requirements.push("Install the Elasticsearch extra: uv sync --extra elasticsearch. Configure ELASTICSEARCH_URL with a read-only account.");
   if (relativePath === "16_scheduled_tasks/03_http_runtime.py") requirements.push("Set WOLFPACK_SCHEDULER_DISPATCH_SECRET and WOLFPACK_SCHEDULER_CALLBACK_SECRET.");
   return requirements;
 }

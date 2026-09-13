@@ -816,7 +816,7 @@ export const examples: Example[] = [
     "title": "Other Connectors Agents",
     "category": "SQLToolkit",
     "description": "Runnable source example from framework/examples/13_data_connectors/08_other_connectors_agents.py.",
-    "code": "\"\"\"Agent factories for connectors that require external infrastructure to verify.\"\"\"\n\nfrom wolfpack import (\n    Agent,\n    AthenaToolkit,\n    BigQueryToolkit,\n    DataAccessPolicy,\n    DatabricksToolkit,\n    DocumentToolkit,\n    GraphToolkit,\n    KeyValueToolkit,\n    SnowflakeToolkit,\n    TrinoToolkit,\n    get_model_from_env,\n)\n\n\ndef supply_chain_agent(neo4j_driver):\n    \"\"\"Trace delayed shipments through Neo4j supplier relationships.\"\"\"\n    graph = GraphToolkit(\n        policy=DataAccessPolicy(source_id=\"supply-chain\", allowed_graph_labels={\"Supplier\", \"Shipment\"}, max_rows=25),\n        labels=lambda: [\"Supplier\", \"Shipment\"],\n        read=lambda query, parameters, limit: [dict(record) for record in neo4j_driver.session().run(query, parameters or {})][:limit],\n    )\n    return Agent(\"supply-chain-analyst\", get_model_from_env(), tools=[graph], tool_allowlist=[\"list_labels\", \"read_cypher\"])\n\n\ndef inventory_agent(redis_client):\n    \"\"\"Look up warehouse inventory by an approved Redis key prefix.\"\"\"\n    inventory = KeyValueToolkit(\n        policy=DataAccessPolicy(source_id=\"warehouse-inventory\", allowed_key_prefixes={\"inventory:\"}),\n        get_value=redis_client.get,\n    )\n    return Agent(\"inventory-assistant\", get_model_from_env(), tools=[inventory], tool_allowlist=[\"get\"])\n\n\ndef account_agent(dynamodb_table):\n    \"\"\"Retrieve bounded account records from DynamoDB.\"\"\"\n    accounts = DocumentToolkit(\n        collection=\"accounts\",\n        policy=DataAccessPolicy(source_id=\"customer-accounts\", allowed_collections={\"accounts\"}, max_rows=20),\n        find=lambda name, filter, limit: dynamodb_table.scan(Limit=limit, FilterExpression=filter).get(\"Items\", []),\n    )\n    return Agent(\"account-analyst\", get_model_from_env(), tools=[accounts], tool_allowlist=[\"find_documents\"])\n\n\ndef field_service_agent(firestore_collection):\n    \"\"\"Retrieve open field-service work orders from Firestore.\"\"\"\n    work_orders = DocumentToolkit(\n        collection=\"work_orders\",\n        policy=DataAccessPolicy(source_id=\"field-service\", allowed_collections={\"work_orders\"}, max_rows=20),\n        find=lambda name, filter, limit: [snapshot.to_dict() for snapshot in firestore_collection.limit(limit).stream()],\n    )\n    return Agent(\"field-service-dispatcher\", get_model_from_env(), tools=[work_orders], tool_allowlist=[\"find_documents\"])\n\n\ndef warehouse_agents(trino_connection, athena_connection, bigquery_connection, snowflake_connection, databricks_connection):\n    \"\"\"Create agents for delivery, advertising, invoicing, retail, and fraud analysis.\"\"\"\n    sources = [\n        (\"delivery-lake\", TrinoToolkit(trino_connection, policy=DataAccessPolicy(source_id=\"delivery-lake\", allowed_tables={\"shipment_events\"}))),\n        (\"ad-performance\", AthenaToolkit(athena_connection, policy=DataAccessPolicy(source_id=\"ad-performance\", allowed_tables={\"campaign_events\"}))),\n        (\"invoices\", BigQueryToolkit(bigquery_connection, policy=DataAccessPolicy(source_id=\"invoices\", allowed_tables={\"invoice_fact\"}))),\n        (\"retail-sales\", SnowflakeToolkit(snowflake_connection, policy=DataAccessPolicy(source_id=\"retail-sales\", allowed_tables={\"daily_store_sales\"}))),\n        (\"fraud-signals\", DatabricksToolkit(databricks_connection, policy=DataAccessPolicy(source_id=\"fraud-signals\", allowed_tables={\"transactions\"}))),\n    ]\n    return [Agent(f\"{name}-analyst\", get_model_from_env(), tools=[toolkit], tool_allowlist=[\"query\", \"estimate_cost\"]) for name, toolkit in sources]\n",
+    "code": "\"\"\"Agent factories for connectors that require external infrastructure to verify.\"\"\"\n\nfrom wolfpack import (\n    Agent,\n    AthenaToolkit,\n    BigQueryToolkit,\n    DataAccessPolicy,\n    DatabricksToolkit,\n    DocumentToolkit,\n    SnowflakeToolkit,\n    TrinoToolkit,\n    get_model_from_env,\n)\n\n\ndef account_agent(dynamodb_table):\n    \"\"\"Retrieve bounded account records from DynamoDB.\"\"\"\n    accounts = DocumentToolkit(\n        collection=\"accounts\",\n        policy=DataAccessPolicy(source_id=\"customer-accounts\", allowed_collections={\"accounts\"}, max_rows=20),\n        find=lambda name, filter, limit: dynamodb_table.scan(Limit=limit, FilterExpression=filter).get(\"Items\", []),\n    )\n    return Agent(\"account-analyst\", get_model_from_env(), tools=[accounts], tool_allowlist=[\"find_documents\"])\n\n\ndef field_service_agent(firestore_collection):\n    \"\"\"Retrieve open field-service work orders from Firestore.\"\"\"\n    work_orders = DocumentToolkit(\n        collection=\"work_orders\",\n        policy=DataAccessPolicy(source_id=\"field-service\", allowed_collections={\"work_orders\"}, max_rows=20),\n        find=lambda name, filter, limit: [snapshot.to_dict() for snapshot in firestore_collection.limit(limit).stream()],\n    )\n    return Agent(\"field-service-dispatcher\", get_model_from_env(), tools=[work_orders], tool_allowlist=[\"find_documents\"])\n\n\ndef warehouse_agents(trino_connection, athena_connection, bigquery_connection, snowflake_connection, databricks_connection):\n    \"\"\"Create agents for delivery, advertising, invoicing, retail, and fraud analysis.\"\"\"\n    sources = [\n        (\"delivery-lake\", TrinoToolkit(trino_connection, policy=DataAccessPolicy(source_id=\"delivery-lake\", allowed_tables={\"shipment_events\"}))),\n        (\"ad-performance\", AthenaToolkit(athena_connection, policy=DataAccessPolicy(source_id=\"ad-performance\", allowed_tables={\"campaign_events\"}))),\n        (\"invoices\", BigQueryToolkit(bigquery_connection, policy=DataAccessPolicy(source_id=\"invoices\", allowed_tables={\"invoice_fact\"}))),\n        (\"retail-sales\", SnowflakeToolkit(snowflake_connection, policy=DataAccessPolicy(source_id=\"retail-sales\", allowed_tables={\"daily_store_sales\"}))),\n        (\"fraud-signals\", DatabricksToolkit(databricks_connection, policy=DataAccessPolicy(source_id=\"fraud-signals\", allowed_tables={\"transactions\"}))),\n    ]\n    return [Agent(f\"{name}-analyst\", get_model_from_env(), tools=[toolkit], tool_allowlist=[\"query\", \"estimate_cost\"]) for name, toolkit in sources]\n",
     "language": "python",
     "steps": [
       "Install dependencies with uv sync.",
@@ -825,8 +825,6 @@ export const examples: Example[] = [
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
     "expectedOutput": "Factory examples for Neo4j, Redis, DynamoDB, Firestore, Trino, Athena, BigQuery, Snowflake, and Databricks.",
     "databases": [
-      "Neo4j",
-      "Redis",
       "DynamoDB",
       "Firestore",
       "Trino",
@@ -846,6 +844,93 @@ export const examples: Example[] = [
     "verificationClass": "LLM integration",
     "validatedAt": "2026-08-26",
     "validationStatus": "not-verified"
+  },
+  {
+    "id": "13_data_connectors-09_redis_inventory_agent",
+    "title": "Redis Inventory Agent",
+    "category": "SQLToolkit",
+    "description": "Runnable source example from framework/examples/13_data_connectors/09_redis_inventory_agent.py.",
+    "code": "\"\"\"Use Redis inventory values as a bounded Agent tool.\"\"\"\n\nimport os\n\nimport redis\n\nfrom wolfpack import Agent, DataAccessPolicy, RedisToolkit, get_model_from_env\n\n\nclient = redis.Redis.from_url(os.environ[\"REDIS_URL\"], decode_responses=True)\ninventory = RedisToolkit(\n    client,\n    policy=DataAccessPolicy(source_id=\"warehouse-inventory\", allowed_key_prefixes={\"inventory:\"}),\n)\nprint(\"APPROVED KEY DATA:\", inventory.get(\"inventory:sku-42\"))\nagent = Agent(\n    name=\"inventory-assistant\",\n    model=get_model_from_env(),\n    system=\"For SKU 42, call get with exactly 'inventory:sku-42' before answering.\",\n    tools=[inventory],\n    tool_allowlist=[\"get\"],\n)\nresult = agent.run(\"How many units are available for SKU 42?\")\nprint(\"AGENT RESULT:\", result.content)\nprint(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/09_redis_inventory_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "AGENT RESULT\nThere are 12 units available for SKU 42.\nTools used: get",
+    "sourceData": "inventory:sku-42 = 12",
+    "databases": [
+      "Redis"
+    ],
+    "sourcePath": "framework/examples/13_data_connectors/09_redis_inventory_agent.py",
+    "command": "uv run python examples/13_data_connectors/09_redis_inventory_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the Redis extra: uv sync --extra redis. Configure REDIS_URL with a read-only account."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-10_neo4j_supplier_agent",
+    "title": "Neo4j Supplier Agent",
+    "category": "SQLToolkit",
+    "description": "Runnable source example from framework/examples/13_data_connectors/10_neo4j_supplier_agent.py.",
+    "code": "\"\"\"Use Neo4j supplier relationships as a bounded Agent tool.\"\"\"\n\nimport os\n\nfrom neo4j import GraphDatabase\n\nfrom wolfpack import Agent, DataAccessPolicy, Neo4jToolkit, get_model_from_env\n\n\ndriver = GraphDatabase.driver(os.environ[\"NEO4J_URL\"], auth=(os.environ[\"NEO4J_USER\"], os.environ[\"NEO4J_PASSWORD\"]))\nsuppliers = Neo4jToolkit(\n    driver,\n    policy=DataAccessPolicy(source_id=\"supply-chain\", allowed_graph_labels={\"Supplier\"}, max_rows=20),\n)\nprint(\"APPROVED GRAPH DATA:\", suppliers.read_cypher(\"MATCH (s:Supplier) RETURN s.name AS supplier\"))\nagent = Agent(\n    name=\"supply-chain-analyst\",\n    model=get_model_from_env(),\n    tools=[suppliers],\n    tool_allowlist=[\"list_labels\", \"read_cypher\"],\n)\nresult = agent.run(\"Which suppliers are available in the approved supply-chain graph?\")\nprint(\"AGENT RESULT:\", result.content)\nprint(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\ndriver.close()\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/10_neo4j_supplier_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "AGENT RESULT\nThe available supplier in the approved supply-chain graph is Atlas Parts.\nTools used: list_labels, read_cypher",
+    "sourceData": "(:Supplier {name: 'Atlas Parts'})",
+    "databases": [
+      "Neo4j"
+    ],
+    "sourcePath": "framework/examples/13_data_connectors/10_neo4j_supplier_agent.py",
+    "command": "uv run python examples/13_data_connectors/10_neo4j_supplier_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the Neo4j extra: uv sync --extra neo4j. Configure NEO4J_URL, NEO4J_USER, and NEO4J_PASSWORD with a read-only account."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
+    "id": "13_data_connectors-11_elasticsearch_support_agent",
+    "title": "Elasticsearch Support Agent",
+    "category": "SQLToolkit",
+    "description": "Runnable source example from framework/examples/13_data_connectors/11_elasticsearch_support_agent.py.",
+    "code": "\"\"\"Use Elasticsearch support documents as a bounded Agent tool.\"\"\"\n\nimport os\n\nfrom elasticsearch import Elasticsearch\n\nfrom wolfpack import Agent, DataAccessPolicy, ElasticsearchToolkit, get_model_from_env\n\n\ntickets = ElasticsearchToolkit(\n    Elasticsearch(os.environ[\"ELASTICSEARCH_URL\"]),\n    index=\"support-tickets\",\n    policy=DataAccessPolicy(\n        source_id=\"support-tickets\",\n        allowed_collections={\"support-tickets\"},\n        sensitive_columns={\"customer_email\"},\n        max_rows=20,\n    ),\n)\nprint(\"APPROVED INDEX DATA:\", tickets.find_documents({\"status\": \"open\"}))\nagent = Agent(\n    name=\"support-triage\",\n    model=get_model_from_env(),\n    system=\"For open incidents, call find_documents with exactly {'status': 'open'} before answering.\",\n    tools=[tickets],\n    tool_allowlist=[\"find_documents\"],\n)\nresult = agent.run(\"List the open support incidents without exposing customer email addresses.\")\nprint(\"AGENT RESULT:\", result.content)\nprint(\"Tools used:\", [call[\"name\"] for call in result.tool_calls])\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/13_data_connectors/11_elasticsearch_support_agent.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "AGENT RESULT\nOpen support incident: PAY-1042, status Open.\nTools used: find_documents",
+    "sourceData": "support-tickets\nticket_id | status | customer_email\nPAY-1042 | open   | [REDACTED]",
+    "databases": [
+      "Elasticsearch"
+    ],
+    "sourcePath": "framework/examples/13_data_connectors/11_elasticsearch_support_agent.py",
+    "command": "uv run python examples/13_data_connectors/11_elasticsearch_support_agent.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL.",
+      "Install the Elasticsearch extra: uv sync --extra elasticsearch. Configure ELASTICSEARCH_URL with a read-only account."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
   },
   {
     "id": "16_scheduled_tasks-01_schedule_client",

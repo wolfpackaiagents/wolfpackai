@@ -95,6 +95,44 @@ def test_document_graph_and_key_value_toolkits_apply_source_scope():
         cache.get("session:1")
 
 
+def test_native_redis_neo4j_and_elasticsearch_toolkits_apply_governed_reads():
+    from wolfpack.data import ElasticsearchToolkit, Neo4jToolkit, RedisToolkit
+
+    class RedisClient:
+        def get(self, key):
+            return b"12"
+
+    class Neo4jDriver:
+        def session(self):
+            class Session:
+                def __enter__(self):
+                    return self
+
+                def __exit__(self, *args):
+                    pass
+
+                def run(self, query, parameters):
+                    return [{"supplier": "Atlas Parts"}]
+
+            return Session()
+
+    class ElasticsearchClient:
+        def search(self, *, index, query, size):
+            return {"hits": {"hits": [{"_source": {"ticket_id": "PAY-1042", "customer_email": "ana@example.com"}}]}}
+
+    inventory = RedisToolkit(RedisClient(), policy=DataAccessPolicy(source_id="inventory", allowed_key_prefixes={"inventory:"}))
+    suppliers = Neo4jToolkit(Neo4jDriver(), policy=DataAccessPolicy(source_id="suppliers", allowed_graph_labels={"Supplier"}))
+    tickets = ElasticsearchToolkit(
+        ElasticsearchClient(),
+        index="support-tickets",
+        policy=DataAccessPolicy(source_id="tickets", allowed_collections={"support-tickets"}, sensitive_columns={"customer_email"}),
+    )
+
+    assert inventory.get("inventory:sku-42")["value"] == "12"
+    assert suppliers.read_cypher("MATCH (s:Supplier) RETURN s.name AS supplier")["rows"] == [{"supplier": "Atlas Parts"}]
+    assert tickets.find_documents({"status": "open"})["documents"] == [{"ticket_id": "PAY-1042", "customer_email": "[REDACTED]"}]
+
+
 def test_warehouse_toolkits_share_the_governed_sql_contract():
     from wolfpack.data import AthenaToolkit, BigQueryToolkit, ClickHouseToolkit, DatabricksToolkit, SnowflakeToolkit, TrinoToolkit
 

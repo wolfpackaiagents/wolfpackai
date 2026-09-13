@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 import pytest
 
-from wolfpack.data import ClickHouseToolkit, DataAccessPolicy, DataPolicyError, DocumentToolkit, SqlToolkit
+from wolfpack.data import ClickHouseToolkit, DataAccessPolicy, DataPolicyError, DocumentToolkit, ElasticsearchToolkit, Neo4jToolkit, RedisToolkit, SqlToolkit
 
 
 def _policy() -> DataAccessPolicy:
@@ -134,4 +134,62 @@ def test_clickhouse_database_enforces_data_policy():
     ]
     with pytest.raises(DataPolicyError):
         toolkit.query("DELETE FROM customers")
+    client.close()
+
+
+@pytest.mark.integration
+def test_redis_database_enforces_key_scope():
+    redis_url = os.environ.get("WOLFPACK_TEST_REDIS_URL")
+    if not redis_url:
+        pytest.skip("WOLFPACK_TEST_REDIS_URL is not configured")
+
+    redis = pytest.importorskip("redis")
+    client = redis.Redis.from_url(redis_url, decode_responses=True)
+    client.set("inventory:sku-42", "12")
+    toolkit = RedisToolkit(client, policy=DataAccessPolicy(source_id="inventory", allowed_key_prefixes={"inventory:"}))
+
+    assert toolkit.get("inventory:sku-42")["value"] == "12"
+    with pytest.raises(DataPolicyError):
+        toolkit.get("session:42")
+    client.close()
+
+
+@pytest.mark.integration
+def test_neo4j_database_enforces_read_scope():
+    neo4j_url = os.environ.get("WOLFPACK_TEST_NEO4J_URL")
+    if not neo4j_url:
+        pytest.skip("WOLFPACK_TEST_NEO4J_URL is not configured")
+
+    neo4j = pytest.importorskip("neo4j")
+    driver = neo4j.GraphDatabase.driver(neo4j_url, auth=(os.environ.get("WOLFPACK_TEST_NEO4J_USER", "neo4j"), os.environ.get("WOLFPACK_TEST_NEO4J_PASSWORD", "wolfpack")))
+    with driver.session() as session:
+        session.run("MATCH (n:Supplier) DETACH DELETE n").consume()
+        session.run("CREATE (:Supplier {name: 'Atlas Parts'})").consume()
+    toolkit = Neo4jToolkit(driver, policy=DataAccessPolicy(source_id="suppliers", allowed_graph_labels={"Supplier"}))
+
+    assert toolkit.read_cypher("MATCH (s:Supplier) RETURN s.name AS name")["rows"] == [{"name": "Atlas Parts"}]
+    with pytest.raises(DataPolicyError):
+        toolkit.read_cypher("MATCH (s:Customer) RETURN s")
+    driver.close()
+
+
+@pytest.mark.integration
+def test_elasticsearch_database_enforces_document_scope():
+    elasticsearch_url = os.environ.get("WOLFPACK_TEST_ELASTICSEARCH_URL")
+    if not elasticsearch_url:
+        pytest.skip("WOLFPACK_TEST_ELASTICSEARCH_URL is not configured")
+
+    elasticsearch = pytest.importorskip("elasticsearch")
+    client = elasticsearch.Elasticsearch(elasticsearch_url)
+    index = "support-tickets"
+    client.indices.delete(index=index, ignore_unavailable=True)
+    client.indices.create(index=index)
+    client.index(index=index, id="PAY-1042", document={"ticket_id": "PAY-1042", "status": "open", "customer_email": "ana@example.com"}, refresh="wait_for")
+    toolkit = ElasticsearchToolkit(
+        client,
+        index=index,
+        policy=DataAccessPolicy(source_id="tickets", allowed_collections={index}, sensitive_columns={"customer_email"}),
+    )
+
+    assert toolkit.find_documents({"status": "open"})["documents"] == [{"ticket_id": "PAY-1042", "status": "open", "customer_email": "[REDACTED]"}]
     client.close()
