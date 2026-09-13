@@ -85,7 +85,7 @@ const categoryPt: Record<string, string> = {
   Basic: "Basico", Tools: "Ferramentas", RAG: "RAG", Observability: "Observabilidade",
   Guardrails: "Guardrails", Workflows: "Workflows", Teams: "Times", MCP: "MCP",
   Evals: "Avaliacoes", Privacy: "Privacidade", Resilience: "Resiliencia", Hardening: "Reforco",
-  "Data connectors": "Conectores de dados",
+  SQLToolkit: "SQLToolkit",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
 };
 

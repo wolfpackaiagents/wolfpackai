@@ -22,6 +22,7 @@ const categoryColors: Record<string, string> = {
   "Personal Agent": "from-fuchsia-500 to-pink-600",
   "Coding Agent": "from-teal-500 to-cyan-600",
   Channels: "from-yellow-500 to-orange-600",
+  SQLToolkit: "from-sky-500 to-blue-600",
 };
 
 export default function AllExamples() {

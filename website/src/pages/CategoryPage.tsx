@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { examples } from "../data/examples.generated";
 import { useI18n } from "../i18n/context";
@@ -20,13 +21,19 @@ const categoryColors: Record<string, string> = {
   "Personal Agent": "from-fuchsia-500 to-pink-600",
   "Coding Agent": "from-teal-500 to-cyan-600",
   Channels: "from-yellow-500 to-orange-600",
+  SQLToolkit: "from-sky-500 to-blue-600",
 };
 
 export default function CategoryPage() {
   const { lang } = useI18n();
   const { categoryName } = useParams();
   const decoded = decodeURIComponent(categoryName || "");
-  const filtered = examples.filter((e) => e.category === decoded);
+  const [selectedDatabase, setSelectedDatabase] = useState<string | null>(null);
+  const categoryExamples = examples.filter((e) => e.category === decoded);
+  const databases = [...new Set(categoryExamples.flatMap((example) => example.databases ?? []))].sort();
+  const filtered = selectedDatabase
+    ? categoryExamples.filter((example) => example.databases?.includes(selectedDatabase))
+    : categoryExamples;
   const color = categoryColors[decoded] || "from-gray-500 to-gray-600";
 
   return (
@@ -46,6 +53,27 @@ export default function CategoryPage() {
         </div>
       </header>
 
+      {databases.length > 0 && (
+        <section className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-gray-400 mr-1">{lang === "pt-BR" ? "Banco:" : "Database:"}</span>
+          <button
+            onClick={() => setSelectedDatabase(null)}
+            className={`px-3 py-1.5 rounded-full text-sm transition-colors ${selectedDatabase === null ? "bg-amber-500 text-gray-950 font-medium" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+          >
+            {lang === "pt-BR" ? "Todos" : "All"}
+          </button>
+          {databases.map((database) => (
+            <button
+              key={database}
+              onClick={() => setSelectedDatabase(database)}
+              className={`px-3 py-1.5 rounded-full text-sm transition-colors ${selectedDatabase === database ? "bg-amber-500 text-gray-950 font-medium" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+            >
+              {database}
+            </button>
+          ))}
+        </section>
+      )}
+
       <div className="grid gap-4">
          {filtered.map((sourceExample) => {
            const example = getLocalizedExample(sourceExample, lang);
@@ -59,9 +87,15 @@ export default function CategoryPage() {
               {example.title}
             </h3>
             <p className="text-sm text-gray-400 mt-1 line-clamp-2">{example.description}</p>
-            <div className="flex items-center gap-2 mt-3">
-              <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{example.language}</span>
-              <span className="text-xs text-amber-500/70 group-hover:text-amber-400 transition-colors">
+             <div className="flex items-center gap-2 mt-3">
+               <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded">{example.language}</span>
+               {example.databases?.map((database) => (
+                 <span key={database} className="text-xs text-sky-300 bg-sky-500/10 px-2 py-0.5 rounded">{database}</span>
+               ))}
+               {example.validationStatus === "not-verified" && (
+                 <span className="text-xs font-semibold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded">BETA</span>
+               )}
+               <span className="text-xs text-amber-500/70 group-hover:text-amber-400 transition-colors">
                {lang === "pt-BR" ? "Ver detalhes" : "View details"} →
               </span>
             </div>
