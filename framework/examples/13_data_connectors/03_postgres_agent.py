@@ -18,6 +18,11 @@ def main() -> None:
 
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         debt_data = SqlToolkit(connection, policy=policy, dialect="postgres")
+        source_rows = debt_data.query(
+            "SELECT company_name, outstanding_amount, due_date, status FROM company_debts "
+            "WHERE status = 'overdue' ORDER BY outstanding_amount DESC"
+        )
+        print("APPROVED TABLE DATA:", source_rows["rows"])
         agent = Agent(
             name="collections-analyst",
             model=get_model_from_env(),
@@ -28,7 +33,7 @@ def main() -> None:
         )
         result = agent.run("Which three companies have the largest overdue balances? Do not request tax IDs.")
 
-    print(result.content)
+    print("AGENT RESULT:", result.content)
     print("Tools used:", [call["name"] for call in result.tool_calls])
 
 

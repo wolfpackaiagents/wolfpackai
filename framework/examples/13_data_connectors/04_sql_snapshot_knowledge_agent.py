@@ -29,6 +29,7 @@ def main() -> None:
     with psycopg.connect(os.environ["DATABASE_URL"]) as connection:
         debt_data = SqlToolkit(connection, policy=policy, dialect="postgres")
         snapshot = debt_data.query("SELECT company_name, outstanding_amount, due_date, status, tax_id FROM company_debts WHERE status = 'overdue'")
+        print("APPROVED SNAPSHOT DATA:", snapshot["rows"])
         ingest_rows(knowledge, snapshot["rows"], source_id=policy.source_id)
 
         agent = Agent(
@@ -41,7 +42,7 @@ def main() -> None:
         result = agent.run("Use the knowledge base to summarize the overdue debt snapshot. Query live SQL only if current balances are needed.")
 
     print(f"Knowledge documents: {knowledge.count()}")
-    print(result.content)
+    print("AGENT RESULT:", result.content)
     print("Tools used:", [call["name"] for call in result.tool_calls])
 
 

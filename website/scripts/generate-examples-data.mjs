@@ -77,11 +77,11 @@ const capturedOutput = {
   "12_hardening/01_production_flow.py": "Hardened quote completed: {\"decision\": \"approved\", \"quote_id\": \"quote-2026-001\", \"total_cents\": 6000}\nVerified PII masking, tool policy, structured output, and observer telemetry.",
   "13_data_connectors/01_sqlite_connector.py": "{'source_id': 'film-catalog', 'rows': [{'title': 'Mad Max: Fury Road', 'release_year': 2015, 'rating': 8.1}], 'row_count': 1, 'truncated': False}",
   "13_data_connectors/02_postgres_connector.py": "Requires DATABASE_URL for a PostgreSQL database with a company_debts table and a SELECT-only database role.",
-  "13_data_connectors/03_postgres_agent.py": "Uses list_tables and query through a governed SqlToolkit; tax IDs are redacted before reaching the agent.",
-  "13_data_connectors/04_sql_snapshot_knowledge_agent.py": "Knowledge documents: <overdue-company-count>\nUses search_knowledge for the ingested debt snapshot and query only when live data is needed.",
-  "13_data_connectors/05_mysql_movie_agent.py": "Queries the approved movie catalog for action-film recommendations.",
-  "13_data_connectors/06_mongodb_support_agent.py": "Finds open payment incidents without returning customer email addresses.",
-  "13_data_connectors/07_clickhouse_revenue_agent.py": "Uses daily revenue aggregates to identify the leading sales region.",
+  "13_data_connectors/03_postgres_agent.py": "AGENT RESULT\nThe three companies with the largest overdue balances are:\n\n1. Atlas Logistics - $185,000.00\n2. Nova Energia - $97,000.00\n3. Ponte Digital - $42,000.00\nTools used: list_tables, describe_table, query",
+  "13_data_connectors/04_sql_snapshot_knowledge_agent.py": "Knowledge documents: 3\nAGENT RESULT\nThe overdue debt snapshot contains Ponte Digital ($42,000.00), Atlas Logistics ($185,000.00), and Nova Energia ($97,000.00).\nTools used: search_knowledge",
+  "13_data_connectors/05_mysql_movie_agent.py": "AGENT RESULT\nHere are three action movies rated above 8.0 from the catalog:\n\n1. Mad Max: Fury Road\n2. The Dark Knight\n3. Die Hard\nTools used: list_tables, describe_table, query",
+  "13_data_connectors/06_mongodb_support_agent.py": "AGENT RESULT\nOpen payment incidents:\n\n1. PAY-1042: Card charge duplicated\n2. PAY-1047: Invoice payment pending\nTools used: find_documents",
+  "13_data_connectors/07_clickhouse_revenue_agent.py": "AGENT RESULT\nThe Southeast region had the highest revenue in the last 30 days: $840,000.\nTools used: list_tables, describe_table, query, estimate_cost",
   "13_data_connectors/08_other_connectors_agents.py": "Factory examples for Neo4j, Redis, DynamoDB, Firestore, Trino, Athena, BigQuery, Snowflake, and Databricks.",
   "16_scheduled_tasks/01_schedule_client.py": "Existing <schedule-id>: weekday-operations-report (active)\n<schedule-id>: 0 9 * * 1-5 -> reports.operations_daily [active]",
   "16_scheduled_tasks/02_agent_hitl.py": "Registered tools: ['schedule_task', 'list_tasks', 'pause_task', 'resume_task', 'cancel_task']\ncancel_task result: tool_confirmation",
@@ -93,6 +93,14 @@ const capturedOutput = {
   "18_coding_agent/02_amp_coding_workflow.py": "Trace confirmed with 4 observations\nAuto-evaluated scores: 1\ncoding_agent_workflow_completion = 1.0 (AUTO_EVAL)",
   "19_channels/webchat_adapter.py": "webchat:acme-support:browser-tab-3:customer-7: Where is my order?\n{'delivery_id': 'local-run', 'status': 'accepted'}",
   "20_team_with_knowledge/01_team_with_knowledge.py": "Knowledge base loaded: 5 chunks\nUsing model: openai/gpt-4o-mini\nResult: password-reset troubleshooting guidance.",
+};
+
+const sourceData = {
+  "13_data_connectors/03_postgres_agent.py": "company_debts\ncompany_name      | outstanding_amount | due_date   | status\nAtlas Logistics   | 185000.00          | 2026-08-15 | overdue\nNova Energia      |  97000.00          | 2026-08-28 | overdue\nPonte Digital     |  42000.00          | 2026-09-05 | overdue",
+  "13_data_connectors/04_sql_snapshot_knowledge_agent.py": "company_debts snapshot\ncompany_name      | outstanding_amount | due_date   | status | tax_id\nAtlas Logistics   | 185000.00          | 2026-08-15 | overdue | [REDACTED]\nNova Energia      |  97000.00          | 2026-08-28 | overdue | [REDACTED]\nPonte Digital     |  42000.00          | 2026-09-05 | overdue | [REDACTED]",
+  "13_data_connectors/05_mysql_movie_agent.py": "movies\ntitle                | genre  | rating\nThe Dark Knight      | Action | 9.0\nDie Hard             | Action | 8.2\nMad Max: Fury Road   | Action | 8.1",
+  "13_data_connectors/06_mongodb_support_agent.py": "tickets\nticket_id | status | category | summary\nPAY-1042 | open   | payment  | Card charge duplicated\nPAY-1047 | open   | payment  | Invoice payment pending",
+  "13_data_connectors/07_clickhouse_revenue_agent.py": "daily_revenue\nregion    | revenue\nSoutheast | 840000\nSouth     | 610000\nNortheast | 455000",
 };
 
 async function pythonFiles(directory) {
@@ -145,6 +153,7 @@ const examples = await Promise.all(files.map(async (file) => {
     steps: ["Install dependencies with uv sync.", `Run: uv run python examples/${relativePath}`],
     explanation: "This page renders the canonical source file that was executed during the documentation verification run.",
     expectedOutput: capturedOutput[relativePath] ?? "Execution output was not captured.",
+    sourceData: sourceData[relativePath],
     sourcePath: `framework/examples/${relativePath}`,
     command: `uv run python examples/${relativePath}`,
     prerequisites: requirementsFor(relativePath),
@@ -154,6 +163,6 @@ const examples = await Promise.all(files.map(async (file) => {
   };
 }));
 
-const generated = `// Generated by website/scripts/generate-examples-data.mjs. Do not edit manually.\n\nexport interface Example {\n  id: string;\n  title: string;\n  category: string;\n  description: string;\n  code: string;\n  language: string;\n  steps: string[];\n  explanation: string;\n  expectedOutput: string;\n  sourcePath: string;\n  command: string;\n  prerequisites: string[];\n  verificationClass: string;\n  validatedAt: string;\n  validationStatus: \"passed\" | \"needs-repair\" | \"not-verified\";\n}\n\nexport const examples: Example[] = ${JSON.stringify(examples, null, 2)};\n`;
+const generated = `// Generated by website/scripts/generate-examples-data.mjs. Do not edit manually.\n\nexport interface Example {\n  id: string;\n  title: string;\n  category: string;\n  description: string;\n  code: string;\n  language: string;\n  steps: string[];\n  explanation: string;\n  expectedOutput: string;\n  sourceData?: string;\n  sourcePath: string;\n  command: string;\n  prerequisites: string[];\n  verificationClass: string;\n  validatedAt: string;\n  validationStatus: \"passed\" | \"needs-repair\" | \"not-verified\";\n}\n\nexport const examples: Example[] = ${JSON.stringify(examples, null, 2)};\n`;
 await writeFile(outputPath, generated);
 console.log(`Generated ${examples.length} documentation examples.`);

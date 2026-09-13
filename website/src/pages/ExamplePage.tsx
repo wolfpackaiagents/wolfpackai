@@ -103,6 +103,17 @@ export default function ExamplePage() {
         </div>
       </section>
 
+      {example.sourceData && (
+        <section>
+          <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Dados disponíveis para o agente" : "Data Available to the Agent"}</h2>
+          <div className="p-4 bg-gray-900 border border-gray-800 rounded-xl">
+            <pre className="text-sm text-gray-200 whitespace-pre-wrap font-mono">
+              {example.sourceData}
+            </pre>
+          </div>
+        </section>
+      )}
+
       {example.expectedOutput && (
         <section>
          <h2 className="text-2xl font-bold text-white mb-4">{lang === "pt-BR" ? "Saída esperada" : "Expected Output"}</h2>
