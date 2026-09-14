@@ -143,6 +143,22 @@ def main():
     print(f"\nResultado:")
     print(f"  Acuracia: {report.accuracy_score:.0%} {status}")
     print(f"  Justificativa: {report.evaluation_reason}")
+
+    print(f"\n--- RELATORIO SINTETIZADO ---")
+    print(report.synthesis[:1200] if report.synthesis else "(vazio)")
+    if len(report.synthesis) > 1200:
+        print("... (truncado)")
+
+    print(f"\n--- ITERACOES DO DEBATE ({len(report.rounds)} rodadas) ---")
+    for i, r in enumerate(report.rounds):
+        event = r.get("event", r.get("data", {}))
+        etype = event.get("event_type", "N/A")
+        content = event.get("content", "")
+        print(f"\nRodada {i+1} [{etype}]:")
+        print(f"  {content[:600]}")
+        if len(content) > 600:
+            print("  ...")
+
     print("=" * 60)
     print("OK: Exemplo concluido sem dependencia de API externa.")
 
