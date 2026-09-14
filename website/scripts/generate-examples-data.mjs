@@ -26,7 +26,7 @@ const categoryByDirectory = {
   "18_coding_agent": "Coding Agent",
   "19_channels": "Channels",
   "20_team_with_knowledge": "Teams",
-  "21_predictions": "Evals",
+  "21_predictions": "AI Prediction",
 };
 
 const modelExamples = new Set([
@@ -115,7 +115,7 @@ const capturedOutput = {
   "18_coding_agent/02_amp_coding_workflow.py": "Trace confirmed with 4 observations\nAuto-evaluated scores: 1\ncoding_agent_workflow_completion = 1.0 (AUTO_EVAL)",
   "19_channels/webchat_adapter.py": "webchat:acme-support:browser-tab-3:customer-7: Where is my order?\n{'delivery_id': 'local-run', 'status': 'accepted'}",
   "20_team_with_knowledge/01_team_with_knowledge.py": "Knowledge base loaded: 5 chunks\nUsing model: openai/gpt-4o-mini\nResult: password-reset troubleshooting guidance.",
-  "21_predictions/01_ai_prediction.py": "Acuracia: 100%\nJustificativa: A previsao de vitoria do Candidato Alfa corresponde ao resultado observado.",
+  "21_predictions/01_ai_prediction.py": "Personas auto-geradas: 2\n  - Dra. Marcia: analista de mercado imobiliario (conservadora)\n  - Dr. Renato: especialista em licitacoes publicas (pragmatico)\nEntidades extraidas do seed: 5\nRelacoes extraidas: 5\nAcuracia: 100%",
 };
 
 const sourceData = {

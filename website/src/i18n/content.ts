@@ -93,6 +93,7 @@ const categoryPt: Record<string, string> = {
   Evals: "Avaliacoes", Privacy: "Privacidade", Resilience: "Resiliencia", Hardening: "Reforco",
   SQLToolkit: "SQLToolkit",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
+  "AI Prediction": "Predicao IA",
 };
 
 export function getFrameworkSections(lang: Language) {

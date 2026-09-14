@@ -1,15 +1,15 @@
-"""21_predictions/01_ai_prediction.py — AIPrediction with deterministic model.
+"""21_predictions/01_ai_prediction.py — AIPrediction with auto personas and outcome evaluation.
 
 Run from the framework directory:
     uv run python examples/21_predictions/01_ai_prediction.py
 
-This example demonstrates the full AIPrediction flow with a deterministic
-model, so it needs no API keys or external services. It covers:
-- Persona generation from seed material
-- Multi-agent debate with critique rounds
-- Social graph extraction with typed entities and evidence
-- Observed-outcome evaluation with accuracy scoring
-- Prediction report with synthesis, convergences, and scores
+This example uses a deterministic model so no API keys are needed.
+It demonstrates:
+- Markdown seed ingestion
+- Auto-generated personas from the seed
+- Multi-agent prediction with debate rounds
+- World graph extraction with typed entities and evidence
+- Observed-outcome evaluation with accuracy score
 """
 
 import json
@@ -22,13 +22,46 @@ from wolfpack.ai_prediction import AIPrediction, PredictionReport
 from wolfpack.models.base import BaseModel, ModelResponse
 from wolfpack.models.message import Message
 
+SEED_MD = """
+# Previsao: Loteamento Novo Horizonte
+
+## Contexto
+
+A cidade de Nova Esperanca vai leiloar uma area de 50 hectares na zona
+norte para loteamento urbano. Duas construtoras disputam o terreno:
+a Construtora Alvorada e a Construtora Novo Rumo.
+
+## Dados
+
+- Area total: 50 hectares
+- Projecao de unidades: 1.200 lotes
+- Investimento inicial estimado: R$ 80 milhoes
+- Retorno esperado em 5 anos: R$ 200 milhoes
+- Alvorada: maior porte, mais experiente, proposta de R$ 45 milhoes
+- Novo Rumo: menor porte, proposta de R$ 42 milhoes, financiamento inovador
+
+## Historico
+
+A Alvorada ja venceu 3 leiloes municipais nos ultimos 5 anos. A Novo Rumo
+venceu 1 leilao, mas tem boa reputacao no mercado.
+"""
+
+SCENARIO = (
+    "Cenario: Leilao do loteamento Novo Horizonte em Nova Esperanca. "
+    "Construtora Alvorada (proposta R$ 45 mi) vs Construtora Novo Rumo "
+    "(proposta R$ 42 mi). Qual construtora vence o leilao?"
+)
+
+OBSERVED_OUTCOME = (
+    "A Construtora Alvorada venceu o leilao do loteamento Novo Horizonte "
+    "com a proposta de R$ 45 milhoes, confirmando seu historico de "
+    "vitorias em leiloes municipais."
+)
+
 
 class DeterministicPredictionModel(BaseModel):
-    """Returns canned responses for each step of the prediction pipeline."""
-
     provider = "deterministic"
     model_id = "prediction-demo-v1"
-
     _call_count = 0
 
     def invoke(self, messages, tools=None):
@@ -36,130 +69,82 @@ class DeterministicPredictionModel(BaseModel):
         self.__class__._call_count += 1
         n = self.__class__._call_count
 
-        # Persona generation
-        if "PERSONA" in content.upper() and "JSON" in content.upper():
+        if "persona" in content.lower() and "json" in content.lower():
             payload = json.dumps([
-                {"name": "Dr. Ana", "role": "economist", "bias": "conservative", "expertise": "macroeconomia"},
-                {"name": "Prof. Carlos", "role": "political analyst", "bias": "contrarian", "expertise": "ciencia politica"},
+                {"name": "Dra. Marcia", "role": "analista de mercado imobiliario", "bias": "conservadora", "expertise": "loteamentos e financiamento urbano"},
+                {"name": "Dr. Renato", "role": "especialista em licitacoes publicas", "bias": "pragmatico", "expertise": "leiloes e contratos municipais"},
             ])
 
-        # World graph extraction
-        elif "WORLD GRAPH" in content.upper():
+        elif "world graph" in content.lower():
             payload = json.dumps({
                 "entities": [
-                    {"name": "Candidato Alfa", "type": "Candidato", "summary": "Atual prefeito, favorito nas pesquisas"},
-                    {"name": "Candidato Beta", "type": "Candidato", "summary": "Opositor, crescimento entre jovens"},
-                    {"name": "Instituto X", "type": "Instituto de pesquisa", "summary": "Pesquisa mais recente mostra empate tecnico"},
+                    {"name": "Construtora Alvorada", "type": "Empresa", "summary": "Maior porte, proposta de R$ 45 mi"},
+                    {"name": "Construtora Novo Rumo", "type": "Empresa", "summary": "Menor porte, proposta de R$ 42 mi"},
+                    {"name": "Prefeitura de Nova Esperanca", "type": "Orgao publico", "summary": "Realiza o leilao do loteamento"},
                 ],
                 "relationships": [
-                    {"source": "Candidato Alfa", "target": "Candidato Beta", "type": "Adversario", "strength": 0.8, "evidence": "Pesquisa mostra empate tecnico entre os dois candidatos."},
-                    {"source": "Instituto X", "target": "Candidato Alfa", "type": "Resultado de pesquisa", "strength": 0.6, "evidence": "Instituto X divulga pesquisa com empate tecnico."},
+                    {"source": "Construtora Alvorada", "target": "Construtora Novo Rumo", "type": "Concorrente", "strength": 0.7, "evidence": "Disputam o mesmo loteamento de 50 hectares."},
+                    {"source": "Construtora Alvorada", "target": "Prefeitura de Nova Esperanca", "type": "Proponente", "strength": 0.8, "evidence": "Alvorada ofereceu R$ 45 mi pelo terreno."},
+                    {"source": "Construtora Novo Rumo", "target": "Prefeitura de Nova Esperanca", "type": "Proponente", "strength": 0.6, "evidence": "Novo Rumo ofereceu R$ 42 mi."},
                 ],
             })
 
-        # Debate rounds (individual prediction)
-        elif n == 3:
-            payload = json.dumps({
-                "prediction": "Candidato Alfa vence com 52% dos votos.",
-                "confidence": 0.75,
-                "reasoning": "Base fiel e maior tempo de TV.",
-            })
-        elif n == 4:
-            payload = json.dumps({
-                "prediction": "Candidato Beta vence com 51% dos votos.",
-                "confidence": 0.60,
-                "reasoning": "Crescimento entre jovens e rejeicao menor.",
-            })
-
-        # Debate critique rounds
-        elif "CRITIQUE" in content.upper() or "critique" in content:
-            payload = json.dumps({
-                "revised_prediction": "Candidato Alfa vence, margem entre 50 e 53%.",
-                "confidence": 0.72,
-                "reasoning": "Apos debate, mantenho a projecao com ajuste na margem.",
-            })
-
-        # Evaluation
-        elif "OBSERVED OUTCOME EVALUATION" in content.upper():
+        elif "observed outcome evaluation" in content.lower():
             payload = json.dumps({
                 "accuracy_score": 1.0,
-                "reason": "A previsao de vitoria do Candidato Alfa corresponde ao resultado observado.",
+                "reason": "A previsao de vitoria da Construtora Alvorada corresponde ao resultado observado.",
             })
 
-        # Synthesis
-        elif "SYNTHESIS" in content.upper() or "synthesis" in content:
-            payload = "Previsao consolidada: Candidato Alfa vence a eleicao."
-        else:
-            payload = "{}"
+        elif "synthesis" in content.lower():
+            payload = "Previsao: Construtora Alvorada vence o leilao do Novo Horizonte."
 
-        return ModelResponse(
-            Message(role="assistant", content=payload),
-            usage={"input_tokens": 10, "output_tokens": 8},
-        )
+        else:
+            payload = json.dumps({
+                "prediction": "Construtora Alvorada vence o leilao.",
+                "confidence": 0.75,
+                "reasoning": "Proposta mais alta e historico favoravel.",
+            })
+
+        return ModelResponse(Message(role="assistant", content=payload), usage={"input_tokens": 10, "output_tokens": 5})
 
 
 def main():
     model = DeterministicPredictionModel()
     predictor = AIPrediction(
-        name="predicao-eleitoral",
+        name="leilao-novo-horizonte",
         model=model,
-        auto_create_personas=False,
-        personas=[
-            {"name": "Dr. Ana", "role": "economist", "bias": "conservative", "expertise": "macroeconomia"},
-            {"name": "Prof. Carlos", "role": "political analyst", "bias": "contrarian", "expertise": "ciencia politica"},
-        ],
-        debate_rounds=3,
-        horizon="2026-10-04",
+        auto_create_personas=True,
+        persona_count=2,
+        debate_rounds=2,
+        horizon="2026-12-15",
     )
+    predictor.ingest_seed(text=SEED_MD)
 
-    predictor.ingest_seed(
-        text=(
-            "Eleicao municipal na cidade de Exemplopolis. Pesquisa do Instituto X "
-            "divulgada hoje mostra empate tecnico entre o Candidato Alfa (42%) e o "
-            "Candidato Beta (41%), margem de erro 3 pp. Alfa e o atual prefeito e "
-            "tem maior tempo de TV. Beta cresce entre eleitores jovens."
-        )
-    )
+    report = predictor.run(SCENARIO, observed_outcome=OBSERVED_OUTCOME)
 
-    scenario = (
-        "Cenario: Eleicao municipal em Exemplopolis. Candidato Alfa (atual prefeito) "
-        "vs Candidato Beta (opositor). Instituto X mostra empate tecnico. "
-        "Quem vence a eleicao? Aponte um unico vencedor."
-    )
-
-    observed_outcome = (
-        "Candidato Alfa venceu a eleicao municipal de Exemplopolis em 2026 "
-        "com 52,3% dos votos validos, contra 47,7% do Candidato Beta."
-    )
-
-    report = predictor.run(scenario, observed_outcome=observed_outcome)
+    status = "\u2705" if report.accuracy_score == 1.0 else "\u274c"
 
     print("=" * 60)
-    print("RESULTADO DA PREDICAO")
+    print("PREDICAO: LOTEAMENTO NOVO HORIZONTE")
     print("=" * 60)
-    print(f"Previsao: {report.name}")
-    print(f"Personas: {len(predictor.personas)}")
+    print(f"Personas auto-geradas: {len(predictor.personas)}")
     for p in predictor.personas:
         print(f"  - {p['name']}: {p['role']} ({p['bias']})")
     print(f"\nEntidades extraidas do seed: {len(report.entities)}")
     for e in report.entities:
-        print(f"  - {e['name']} ({e['entity_type']})")
-    print(f"\nRelacoes extraidas: {len(report.relationships)}")
+        src = e.get("metadata", {}).get("source", "")
+        print(f"  - {e['name']} ({e['entity_type']}) [{src}]")
+    print(f"\nRelacoes extraidas:")
     for r in report.relationships:
-        rel = json.dumps(r.get("attributes", {}))
-        print(f"  - {r['source']} -> {r['target']}: {r['relationship_type']} {rel}")
-    print(f"\nRodadas de debate: {len(report.rounds)}")
-    for i, r in enumerate(report.rounds):
-        event = r.get("event", r.get("data", {}))
-        print(f"  Rodada {i+1}: {event.get('event_type', 'N/A')}")
-    print(f"\nEventos da simulacao: {len(report.events)}")
-    print(f"Revisoes de estado: {len(report.revisions)}")
-    print(f"Scores de debate: {len(report.scores)}")
-    print(f"\nAcuracia: {report.accuracy_score:.0%}")
-    print(f"Justificativa: {report.evaluation_reason}")
-    print(f"\nObservado: {report.observed_outcome}")
+        ev = r.get("attributes", {}).get("evidence", "")
+        print(f"  - {r['source']} -> {r['target']}: {r['relationship_type']}")
+        if ev:
+            print(f"    Evidencia: \"{ev}\"")
+    print(f"\nResultado:")
+    print(f"  Acuracia: {report.accuracy_score:.0%} {status}")
+    print(f"  Justificativa: {report.evaluation_reason}")
     print("=" * 60)
-    print("OK: Predicao concluida com avaliacao automatica.")
+    print("OK: Exemplo concluido sem dependencia de API externa.")
 
 
 if __name__ == "__main__":
