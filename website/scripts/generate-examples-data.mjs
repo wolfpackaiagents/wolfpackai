@@ -26,6 +26,7 @@ const categoryByDirectory = {
   "18_coding_agent": "Coding Agent",
   "19_channels": "Channels",
   "20_team_with_knowledge": "Teams",
+  "21_predictions": "Evals",
 };
 
 const modelExamples = new Set([
@@ -114,6 +115,7 @@ const capturedOutput = {
   "18_coding_agent/02_amp_coding_workflow.py": "Trace confirmed with 4 observations\nAuto-evaluated scores: 1\ncoding_agent_workflow_completion = 1.0 (AUTO_EVAL)",
   "19_channels/webchat_adapter.py": "webchat:acme-support:browser-tab-3:customer-7: Where is my order?\n{'delivery_id': 'local-run', 'status': 'accepted'}",
   "20_team_with_knowledge/01_team_with_knowledge.py": "Knowledge base loaded: 5 chunks\nUsing model: openai/gpt-4o-mini\nResult: password-reset troubleshooting guidance.",
+  "21_predictions/01_ai_prediction.py": "Acuracia: 100%\nJustificativa: A previsao de vitoria do Candidato Alfa corresponde ao resultado observado.",
 };
 
 const sourceData = {
@@ -155,6 +157,7 @@ function requirementsFor(relativePath) {
   if (relativePath === "13_data_connectors/10_neo4j_supplier_agent.py") requirements.push("Install the Neo4j extra: uv sync --extra neo4j. Configure NEO4J_URL, NEO4J_USER, and NEO4J_PASSWORD with a read-only account.");
   if (relativePath === "13_data_connectors/11_elasticsearch_support_agent.py") requirements.push("Install the Elasticsearch extra: uv sync --extra elasticsearch. Configure ELASTICSEARCH_URL with a read-only account.");
   if (relativePath === "16_scheduled_tasks/03_http_runtime.py") requirements.push("Set WOLFPACK_SCHEDULER_DISPATCH_SECRET and WOLFPACK_SCHEDULER_CALLBACK_SECRET.");
+  if (relativePath === "21_predictions/01_ai_prediction.py") requirements.push("No API key needed — uses a deterministic model.");
   return requirements;
 }
 
