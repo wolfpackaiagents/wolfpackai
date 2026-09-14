@@ -45,6 +45,8 @@
     "accuracy": "Accuracy",
     "accuracyPending": "Accuracy pending an observed outcome",
     "accuracyPendingShort": "Pending outcome",
+    "delete": "Delete",
+    "deleteConfirm": "Remove this prediction? All simulation data will be permanently deleted.",
     "created": "Created",
     "overview": "Overview",
     "interactions": "Interactions",

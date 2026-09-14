@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useSearchParams } from 'react-router-dom'
-import { fetchPredictions } from '../lib/api'
+import { fetchPredictions, deletePrediction } from '../lib/api'
 import type { PredictionRun } from '../lib/types'
 import { formatDateTime, formatNumber } from '../i18n/format'
 
@@ -14,6 +14,7 @@ export default function Predictions() {
   const [data, setData] = useState<PredictionRun[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [deleting, setDeleting] = useState<string | null>(null)
   const page = Number(params.get('page') ?? '0')
   const statusFilter = params.get('status') ?? ''
 
@@ -25,6 +26,18 @@ export default function Predictions() {
       .finally(() => { if (alive) setLoading(false) })
     return () => { alive = false }
   }, [page, statusFilter])
+
+  async function handleDelete(id: string) {
+    if (!window.confirm(t('predictions.deleteConfirm'))) return
+    setDeleting(id)
+    try {
+      await deletePrediction(id)
+      setData((prev) => prev.filter((p) => p.id !== id))
+      setTotal((prev) => prev - 1)
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   function setFilter(key: string, value: string) {
     const next = new URLSearchParams(params)
@@ -64,6 +77,7 @@ export default function Predictions() {
                 <th>{t('predictions.agents')}</th>
                 <th>{t('predictions.accuracy')}</th>
                 <th>{t('predictions.created')}</th>
+                <th className="w-16"></th>
               </tr>
             </thead>
             <tbody>
@@ -77,6 +91,11 @@ export default function Predictions() {
                     ? `${Math.round(p.accuracy_score * 100)}%`
                     : <span className="text-[#789087] text-xs">{t('predictions.accuracyPendingShort')}</span>}</td>
                   <td className="text-[#789087] text-sm">{formatDateTime(p.created_at)}</td>
+                  <td>
+                    <button onClick={() => handleDelete(p.id)} disabled={deleting === p.id}
+                      className="text-xs text-red-400/70 hover:text-red-400 transition-colors disabled:opacity-30">
+                      {deleting === p.id ? '...' : t('predictions.delete')}</button>
+                  </td>
                 </tr>
               ))}
             </tbody>

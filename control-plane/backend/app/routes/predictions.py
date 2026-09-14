@@ -171,7 +171,7 @@ def update_prediction(prediction_id: str, body: CreatePredictionBody, auth: Auth
 
 
 @router.delete("/predictions/{prediction_id}", status_code=204)
-def delete_prediction(prediction_id: str, auth: AuthContext = Depends(require_role("admin"))):
+def delete_prediction(prediction_id: str, auth: AuthContext = Depends(require_role("editor"))):
     run = auth.db.query(PredictionRun).filter_by(id=prediction_id, project_id=auth.project_id).first()
     if not run:
         raise HTTPException(status_code=404, detail="Prediction not found")

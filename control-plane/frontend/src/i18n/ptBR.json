@@ -848,6 +848,8 @@
     "accuracy": "Acurácia",
     "accuracyPending": "Acurácia pendente do resultado observado",
     "accuracyPendingShort": "Resultado pendente",
+    "delete": "Remover",
+    "deleteConfirm": "Remover esta predicao? Todos os dados da simulacao serao permanentemente excluidos.",
     "created": "Criada",
     "overview": "Visão geral",
     "interactions": "Interações",
