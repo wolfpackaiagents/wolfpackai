@@ -12,19 +12,6 @@ services:
       timeout: 5s
       retries: 10
 
-  clickhouse:
-    image: clickhouse/clickhouse-server:24.8
-    environment:
-      CLICKHOUSE_DB: wolfpack
-      CLICKHOUSE_USER: wolfpack
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD}
-    volumes: [clickhousedata:/var/lib/clickhouse]
-    healthcheck:
-      test: ["CMD-SHELL", "clickhouse-client --user wolfpack --password \"$${CLICKHOUSE_PASSWORD}\" --query 'SELECT 1'"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
-
   inngest-postgres:
     image: postgres:16
     environment:
@@ -97,16 +84,10 @@ services:
         condition: service_healthy
 
   backend:
-    image: wolfpackaiagents/wolfpack-amp-backend:0.1.2
+    image: wolfpackaiagents/wolfpack-amp-backend:0.1.1
     environment:
       ENVIRONMENT: production
       DATABASE_URL: postgresql+psycopg://wolfpack:${POSTGRES_PASSWORD}@postgres:5432/wolfpack
-      TELEMETRY_STORAGE_BACKEND: ${TELEMETRY_STORAGE_BACKEND:-postgres}
-      CLICKHOUSE_HOST: clickhouse
-      CLICKHOUSE_PORT: "8123"
-      CLICKHOUSE_DATABASE: wolfpack
-      CLICKHOUSE_USERNAME: wolfpack
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?Set CLICKHOUSE_PASSWORD}
       REDIS_URL: redis://redis:6379/0
       RATE_LIMIT_BACKEND: redis
       MINIO_ENDPOINT: http://minio:9000
@@ -119,8 +100,6 @@ services:
     ports: ["8000:8000"]
     depends_on:
       postgres:
-        condition: service_healthy
-      clickhouse:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -138,7 +117,6 @@ services:
 
 volumes:
   pgdata:
-  clickhousedata:
   inngestpgdata:
   miniodata:
   qdrantdata:

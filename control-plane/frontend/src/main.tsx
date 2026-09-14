@@ -20,6 +20,8 @@ import Mesh from './pages/Mesh'
 import Chat from './pages/Chat'
 import Schedules from './pages/Schedules'
 import Channels from './pages/Channels'
+import Predictions from './pages/Predictions'
+import PredictionDetail from './pages/PredictionDetail'
 import { useAuthStore } from './stores/auth'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -55,6 +57,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
            <Route path="/chat/:conversationId" element={<Chat />} />
           <Route path="/schedules" element={<Schedules />} />
           <Route path="/channels" element={<Channels />} />
+          <Route path="/predictions" element={<Predictions />} />
+          <Route path="/predictions/:id" element={<PredictionDetail />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />

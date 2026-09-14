@@ -233,4 +233,43 @@ agent.run("Summarize this request.")
 tracker.flush()`,
     }],
   },
+  {
+    id: "ai-prediction",
+    title: "AIPrediction",
+    description: "AIPrediction orchestrates a panel of persona agents to generate structured forecasts from seed materials. Each persona receives the scenario and seed context, debates with other agents, and the results are synthesized into a prediction report with convergence analysis, a social simulation graph with typed entities and evidence from the source material, and optional observed-outcome evaluation for accuracy scoring.",
+    parameters: [
+      { name: "name", type: "str", required: true, description: "Prediction run name used in AMP reports." },
+      { name: "model", type: "BaseModel", required: true, description: "Model created with get_model() or get_model_from_env()." },
+      { name: "personas", type: "list[dict]", required: false, description: "List of persona definitions with name, role, bias, and expertise. Auto-generated from the seed when omitted." },
+      { name: "horizon", type: "str", required: false, description: "Prediction horizon date (ISO format)." },
+      { name: "knowledge", type: "Knowledge", required: false, description: "Knowledge instance with seed documents loaded." },
+      { name: "auto_create_personas", type: "bool", required: false, default: "False", description: "When True, generates personas from the seed context via LLM." },
+      { name: "persona_count", type: "int", required: false, default: "4", description: "Number of personas to auto-generate." },
+      { name: "debate_rounds", type: "int", required: false, default: "3", description: "Critique and revision rounds between personas." },
+    ],
+    codeExamples: [{
+      title: "Predict with auto personas and outcome evaluation",
+      language: "python",
+      code: `from wolfpack import AIPrediction, get_model_from_env
+
+model = get_model_from_env()
+predictor = AIPrediction(
+    name="election-prediction",
+    model=model,
+    auto_create_personas=True,
+    persona_count=4,
+    debate_rounds=3,
+    horizon="2026-10-04",
+)
+predictor.ingest_seed(text=seed_text)
+
+# observed_outcome is optional; omitting it skips evaluation
+report = predictor.run(scenario, observed_outcome=observed_result)
+print(f"Accuracy: {report.accuracy_score}")
+print(report.evaluation_reason)
+
+# Sync to AMP for visualization and persistence
+pred_id = predictor.sync_to_amp(report, "http://localhost:8000", "pk-...:secret")`,
+    }],
+  },
 ];

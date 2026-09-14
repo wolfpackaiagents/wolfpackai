@@ -20,7 +20,7 @@ export default function ControlPlaneSection() {
 
   const screenshot = `/screenshots/${section.id}.png`;
 
-  const hasScreenshot = ["overview", "mesh", "chat", "channels", "schedules", "traces", "approvals", "guardrails", "scores", "resilience", "privacy", "settings", "secrets", "sessions"].includes(section.id);
+  const hasScreenshot = ["overview", "mesh", "chat", "channels", "schedules", "traces", "approvals", "guardrails", "scores", "predictions", "resilience", "privacy", "settings", "secrets", "sessions"].includes(section.id);
 
   return (
     <article className="space-y-8">

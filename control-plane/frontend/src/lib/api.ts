@@ -43,6 +43,12 @@ import type {
   ChatConversation,
   ChatRun,
   ChatRunEvent,
+  PredictionRun,
+  PredictionListResponse,
+  PredictionAgentRun,
+  PredictionInteractionGraph,
+  PredictionSimulation,
+  PredictionSummary,
 } from './types'
 
 const api = axios.create({ baseURL: '/api' })
@@ -81,7 +87,8 @@ api.interceptors.request.use((config) => {
   if (config.method?.toLowerCase() === 'get' && config.url?.startsWith('/public/') && !config.url.startsWith('/public/chat/')) {
     const { environmentId, registrationId, range } = useScopeStore.getState()
     const explicitParams = Object.fromEntries(Object.entries(config.params ?? {}).filter(([, value]) => value !== undefined))
-    config.params = { ...scopeParams(environmentId, registrationId, range), ...explicitParams }
+    const merged = { ...scopeParams(environmentId, registrationId, range), ...explicitParams }
+    config.params = Object.fromEntries(Object.entries(merged).filter(([, value]) => value !== undefined && value !== ''))
   }
   return config
 })
@@ -404,6 +411,65 @@ export async function deleteChatConversation(id: string): Promise<void> {
 export async function startChatRun(input: { conversation_id: string; message: string }): Promise<ChatRun> {
   const { data } = await api.post<ChatRun>(`/public/chat/conversations/${encodeURIComponent(input.conversation_id)}/runs`, { message: input.message, idempotency_key: crypto.randomUUID() })
   return data
+}
+
+export async function fetchPredictions(params?: { status?: string; page?: number; per_page?: number }): Promise<PredictionListResponse> {
+  const { data } = await api.get<PredictionListResponse>('/public/predictions', { params })
+  return data
+}
+
+export async function fetchPrediction(id: string): Promise<PredictionRun> {
+  const { data } = await api.get<PredictionRun>(`/public/predictions/${encodeURIComponent(id)}`)
+  return data
+}
+
+export async function createPrediction(input: { name: string; seed_summary?: string; horizon_date?: string; scenario_params?: Record<string, unknown>; personas?: Array<{ nome: string; role?: string; bias?: string }> }): Promise<PredictionRun> {
+  const { data } = await api.post<PredictionRun>('/public/predictions', input)
+  return data
+}
+
+export async function completePrediction(id: string): Promise<PredictionRun> {
+  const { data } = await api.post<PredictionRun>(`/public/predictions/${encodeURIComponent(id)}/complete`)
+  return data
+}
+
+export async function evaluatePrediction(id: string, accuracyScore: number): Promise<{ id: string; accuracy_score: number; status: string }> {
+  const { data } = await api.post<{ id: string; accuracy_score: number; status: string }>(`/public/predictions/${encodeURIComponent(id)}/eval`, { accuracy_score: accuracyScore })
+  return data
+}
+
+export async function fetchPredictionAgents(id: string): Promise<{ prediction_id: string; agents: PredictionAgentRun[] }> {
+  const { data } = await api.get<{ prediction_id: string; agents: PredictionAgentRun[] }>(`/public/predictions/${encodeURIComponent(id)}/agents`)
+  return data
+}
+
+export async function fetchPredictionInteractions(id: string): Promise<PredictionInteractionGraph> {
+  const { data } = await api.get<PredictionInteractionGraph>(`/public/predictions/${encodeURIComponent(id)}/interactions`)
+  return data
+}
+
+export async function fetchPredictionSimulation(id: string): Promise<PredictionSimulation> {
+  const { data } = await api.get<PredictionSimulation>(`/public/predictions/${encodeURIComponent(id)}/simulation`)
+  return data
+}
+
+export async function fetchPredictionScores(id: string): Promise<{ prediction_id: string; scores: Score[] }> {
+  const { data } = await api.get<{ prediction_id: string; scores: Score[] }>(`/public/predictions/${encodeURIComponent(id)}/scores`)
+  return data
+}
+
+export async function fetchPredictionTraces(id: string): Promise<{ prediction_id: string; traces: Array<{ id: string; name: string; session_id: string | null; input: unknown; output: unknown; latency_ms: number | null; total_cost: number | null; created_at: string }> }> {
+  const { data } = await api.get(`/public/predictions/${encodeURIComponent(id)}/traces`)
+  return data
+}
+
+export async function fetchPredictionSummary(id: string): Promise<PredictionSummary> {
+  const { data } = await api.get<PredictionSummary>(`/public/predictions/${encodeURIComponent(id)}/summary`)
+  return data
+}
+
+export async function deletePrediction(id: string): Promise<void> {
+  await api.delete(`/public/predictions/${encodeURIComponent(id)}`)
 }
 
 export async function streamChatRun(runId: string, onEvent: (event: ChatRunEvent) => void): Promise<void> {

@@ -51,7 +51,7 @@ const en = {
     wolfpackRuntime: "Wolfpack runtime",
     benchmarkBadge: "BENCHMARK",
     benchmarkTitle: "Wolfpack AI Leads in Multi-Provider Latency",
-    benchmarkDesc: "Across all three providers (OpenAI, Anthropic, Gemini), Wolfpack AI delivers the fastest tool-agent latency among all frameworks tested.",
+    benchmarkDesc: "Wolfpack AI has the lowest fully successful tool-agent latency on OpenAI and Gemini, and is within 6% of the Anthropic leader.",
     benchmarkProviders: "Cloud Providers",
     benchmarkFrameworks: "Competing Frameworks",
     benchmarkRank: "Fastest Overall",

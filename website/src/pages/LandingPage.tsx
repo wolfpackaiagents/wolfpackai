@@ -110,7 +110,7 @@ export default function LandingPage() {
             <div className="max-w-5xl mx-auto text-center">
               <p className="text-sm font-medium text-amber-200">{t.landing.benchmarkBadge || "BENCHMARK"}</p>
               <h2 className="mt-4 text-4xl md:text-5xl font-semibold tracking-[-.05em] leading-tight text-white">{t.landing.benchmarkTitle || "Wolfpack AI Leads in Multi-Provider Latency"}</h2>
-              <p className="mt-5 leading-relaxed text-zinc-400">{t.landing.benchmarkDesc || "Across all three providers (OpenAI, Anthropic, Gemini), Wolfpack AI delivers the fastest tool-agent latency among all frameworks tested."}</p>
+              <p className="mt-5 leading-relaxed text-zinc-400">{t.landing.benchmarkDesc || "Wolfpack AI has the lowest fully successful tool-agent latency on OpenAI and Gemini, and is within 6% of the Anthropic leader."}</p>
               <div className="mt-7 flex justify-center gap-10">
                 <div><span className="text-3xl font-bold text-white">3</span><p className="text-sm text-zinc-500">{t.landing.benchmarkProviders || "Cloud Providers"}</p></div>
                 <div><span className="text-3xl font-bold text-white">4</span><p className="text-sm text-zinc-500">{t.landing.benchmarkFrameworks || "Competing Frameworks"}</p></div>

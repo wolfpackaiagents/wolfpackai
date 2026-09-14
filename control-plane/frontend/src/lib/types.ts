@@ -440,3 +440,75 @@ export interface ChatRunEvent {
   status?: string
   error?: string
 }
+
+export interface PredictionRun {
+  id: string
+  name: string
+  seed_summary: string | null
+  horizon_date: string | null
+  scenario_params: Record<string, unknown>
+  personas: Array<{ nome: string; role?: string; bias?: string }>
+  status: 'running' | 'completed' | 'evaluated'
+  report: {
+    synthesis: string
+    convergences: Array<{ agents: string[]; rate: number; common_factors: string[] }>
+    predictions: Array<{ persona_name: string; prediction: unknown; persona_profile: Record<string, unknown> }>
+    rounds?: Array<{
+      round: number
+      interactions: Array<{ source: string; target: string; stance: string; content: string; round: number }>
+      revisions: Array<{ persona_name: string; prediction: unknown }>
+    }>
+    scores?: Array<{ persona_name: string; name: string; value: number; comment?: string }>
+    auto_generated_personas?: boolean
+  } | null
+  accuracy_score: number | null
+  agent_count: number
+  agents: PredictionAgentRun[]
+  created_at: string
+  completed_at: string | null
+}
+
+export interface PredictionAgentRun {
+  id: string
+  entity_id: string | null
+  persona_name: string
+  persona_profile: Record<string, unknown>
+  trace_id: string | null
+  prediction: unknown
+  confidence: number | null
+  interactions: Array<{ target: string; content: string; round: number; type?: string }>
+  status: 'pending' | 'running' | 'completed'
+  created_at: string
+}
+
+export interface PredictionInteractionGraph {
+  prediction_id: string
+  nodes: Array<{ id: string; label: string; confidence: number | null; status: string }>
+  edges: Array<{ source: string; target: string; type: string; content: string; round: number }>
+}
+
+export interface PredictionSimulation {
+  prediction_id: string
+  entities: Array<{ id: string; entity_type: string; name: string; state: Record<string, unknown>; metadata: Record<string, unknown> | null }>
+  relationships: Array<{ id: string; source_entity_id: string; target_entity_id: string; relationship_type: string; attributes: Record<string, unknown> }>
+  rounds: Array<{ id: string; number: number; status: string; data: Record<string, unknown>; created_at: string; closed_at: string | null }>
+  events: Array<{ id: string; sequence: number; round_id: string | null; entity_id: string | null; agent_run_id: string | null; event_type: string; payload: Record<string, unknown>; created_at: string }>
+  revisions: Array<{ id: string; entity_id: string; revision: number; state: Record<string, unknown>; created_at: string }>
+}
+
+export interface PredictionListResponse {
+  predictions: PredictionRun[]
+  page: number
+  per_page: number
+  total: number
+}
+
+export interface PredictionSummary {
+  name: string
+  status: string
+  accuracy_score: number | null
+  agent_count: number
+  agents: string[]
+  convergences: Array<{ agents: string[]; rate: number; confidence_avg: number }>
+  completed_at: string | null
+}

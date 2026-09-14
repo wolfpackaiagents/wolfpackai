@@ -16,6 +16,14 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     database_url: str = "postgresql+psycopg://wolfpack:wolfpack@localhost:5439/wolfpack"
+    telemetry_storage_backend: Literal["postgres", "clickhouse"] = "postgres"
+    clickhouse_host: str = "localhost"
+    clickhouse_port: int = Field(default=8123, ge=1, le=65535)
+    clickhouse_database: str = "wolfpack"
+    clickhouse_username: str = "default"
+    clickhouse_password: str = ""
+    clickhouse_secure: bool = False
+    clickhouse_connect_timeout: float = Field(default=5.0, gt=0)
     redis_url: str = "redis://localhost:6382/0"
     rate_limit_backend: Literal["memory", "redis"] = "memory"
     rate_limit_redis_prefix: str = "wolfpack:rate-limit"

@@ -13,6 +13,7 @@ Language: comments in English.
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -21,6 +22,9 @@ from sqlalchemy.orm import Session
 from ..models.entities import Environment, EnvironmentRegistration, MeshDefinition, MeshInteraction, Observation, Score, Trace
 from ..schemas.contract import IngestionEvent, IngestionResult
 from .cost_estimation import estimate_cost
+from .telemetry_store import get_clickhouse_telemetry_store
+
+logger = logging.getLogger(__name__)
 
 KIND_TO_OBSERVATION_TYPE = {
     "GENERATION": "GENERATION",
@@ -58,6 +62,8 @@ class IngestionService:
     def __init__(self, db: Session, project_id: str):
         self.db = db
         self.project_id = project_id
+        self._trace_ids: set[str] = set()
+        self._observation_ids: set[str] = set()
 
     def process_batch(self, payload: Dict[str, Any]) -> IngestionResult:
         events: List[IngestionEvent] = []
@@ -89,6 +95,7 @@ class IngestionService:
             self._aggregate_trace_cost(tid)
         self._auto_evaluate_traces(traced_ids)
         self.db.commit()
+        self._mirror_telemetry()
         return result
 
     def _apply(self, ev: IngestionEvent, pending: Dict[str, Dict[str, Any]]) -> None:
@@ -251,7 +258,22 @@ class IngestionService:
                     obs.cost_currency = estimated["cost_currency"]
                     obs.cost_source = estimated["cost_source"]
         self.db.flush()
+        self._trace_ids.add(trace_id)
+        self._observation_ids.add(obs_id)
         self._aggregate_trace_cost(trace_id)
+
+    def _mirror_telemetry(self) -> None:
+        """Replicate only committed snapshots; ClickHouse outages never affect ingestion."""
+        from ..core.config import get_settings
+
+        if get_settings().telemetry_storage_backend != "clickhouse":
+            return
+        try:
+            traces = self.db.query(Trace).filter(Trace.id.in_(self._trace_ids)).all() if self._trace_ids else []
+            observations = self.db.query(Observation).filter(Observation.id.in_(self._observation_ids)).all() if self._observation_ids else []
+            get_clickhouse_telemetry_store().mirror(traces, observations)
+        except Exception:
+            logger.exception("ClickHouse telemetry mirror failed after PostgreSQL commit")
 
     def _aggregate_trace_cost(self, trace_id: str) -> None:
         """Keep a trace total only when every included amount shares one currency."""

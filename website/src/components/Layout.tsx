@@ -53,7 +53,7 @@ export default function Layout() {
       label: t.layout.examples,
       path: "/examples",
       children: categories.map((cat) => ({
-         label: `${getCategoryLabel(cat, lang)} (${examples.filter((e) => e.category === cat).length})`,
+          label: `${getCategoryLabel(cat, lang)} (${examples.filter((e) => e.category === cat).length})`,
         path: `/examples/category/${encodeURIComponent(cat)}`,
       })),
     },

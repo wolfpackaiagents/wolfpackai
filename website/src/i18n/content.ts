@@ -62,6 +62,11 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     description: "Cada execucao pode emitir spans no estilo OpenTelemetry. WolfpackObserver envia traces, chamadas de modelo, chamadas de ferramentas, uso e custo em lotes para o endpoint publico do AMP, sem interromper o processo do agente se o endpoint estiver indisponivel.",
     codeExamples: [{ title: "Envie uma execucao para o AMP" }],
   },
+  "ai-prediction": {
+    title: "AIPrediction (previsoes multiagente)",
+    description: "AIPrediction coordena um painel de agentes-persona para gerar previsoes estruturadas a partir de materiais de origem. Cada persona recebe o cenario e o contexto do seed, debatendo entre si. Os resultados sao sintetizados em um relatorio com analise de convergencia, grafo social com entidades tipadas e evidencias extraidas do material de origem, e avaliacao opcional contra um resultado observado para pontuar a acuracia.",
+    codeExamples: [{ title: "Preveja com personas auto-geradas e avaliacao de outcome" }],
+  },
 };
 
 const controlPlanePt: Record<string, Partial<ControlPlaneSection>> = {
@@ -73,6 +78,7 @@ const controlPlanePt: Record<string, Partial<ControlPlaneSection>> = {
   approvals: { title: "Aprovacoes", description: "A fila de aprovacoes resolve requisitos duraveis com participacao humana. Cada decisao fica vinculada a sua execucao, escopo de trace e contexto de auditoria." },
   guardrails: { title: "Guardrails e alertas", description: "Eventos de guardrail e regras gerenciadas de alerta oferecem uma visao operacional dos sinais de seguranca, das falhas de ingestao e do ciclo de resolucao." },
   scores: { title: "Scores e avaliacoes", description: "Configuracoes de score, scores manuais e execucoes de avaliacao vinculam evidencias de qualidade aos traces e exibem a cobertura e as tendencias." },
+predictions: { title: "Previsoes (Predictions)", description: "As runs de AIPrediction no AMP. Cada previsao persiste um grafo social simulado com entidades tipadas e relacoes extraidas do material de origem, com citacoes de evidencia. A timeline, os links de interacao, as revisoes de entidade e os snapshots dos agentes formam um registro auditavel da simulacao. A pontuacao de acuracia compara a previsao contra um resultado observado, transitando a run para o status evaluated." },
   schedules: { title: "Agendamentos", description: "Agendamentos executam runtimes registrados em um horario, intervalo ou cadencia cron. Politicas controlam as mudancas e o historico registra tentativas e resultados." },
   channels: { title: "Canais", description: "Conexoes com Telegram, Slack e Discord encaminham webhooks de provedores suportados para agentes registrados. Credenciais sao armazenadas como segredos de projeto criptografados." },
   privacy: { title: "Privacidade", description: "As configuracoes de privacidade removem informacoes de identificacao pessoal antes da persistencia de telemetria e permitem solicitacoes de exportacao ou exclusao de dados." },

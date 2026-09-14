@@ -21,7 +21,7 @@ from .core.config import get_settings
 from .core.database import Base, SessionLocal, engine
 from .core.rate_limit import InMemoryRateLimiter, RedisRateLimiter
 from .models.entities import ApiKey, Organization, Project
-from .routes import admin, alert_destinations, approvals, channels, chat, evals, governance, ingestion, mesh, observability, privacy, provider_secrets, queries, schedule_policies, schedules, scores, sessions
+from .routes import admin, alert_destinations, approvals, channels, chat, evals, governance, ingestion, mesh, observability, predictions, privacy, provider_secrets, queries, schedule_policies, schedules, scores, sessions
 from .services.ingestion_queue import (
     inngest_dispatch_configured,
     next_ingestion_job_id,
@@ -30,6 +30,7 @@ from .services.ingestion_queue import (
 )
 from .services.inngest import register_inngest_functions
 from .services.price_updater import check_and_update_prices
+from .services.telemetry_store import get_clickhouse_telemetry_store
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,9 @@ def seed_default() -> None:
 async def lifespan(app: FastAPI):
     import os
 
+    if get_settings().telemetry_storage_backend == "clickhouse":
+        # Fail readiness at startup rather than serving selected-store reads from an uninitialized replica.
+        await asyncio.to_thread(get_clickhouse_telemetry_store().bootstrap)
     if os.environ.get("WOLFPACK_AUTO_SEED", "1") == "1":
         try:
             seed_default()
@@ -192,6 +196,7 @@ def create_app() -> FastAPI:
     app.include_router(provider_secrets.router)
     app.include_router(observability.router)
     app.include_router(alert_destinations.router)
+    app.include_router(predictions.router)
 
     @app.get("/health")
     def health():

@@ -46,6 +46,7 @@ from wolfpack.mesh import MeshIdentity
 from wolfpack.evals import AmpScorePublisher, CallableEvaluator, EvalCase, EvalReport, EvalResult, EvalRunner, EvalScore
 from wolfpack.schedules import AmpScheduleClient, HttpRuntimeRunner, RuntimeContext, RuntimeDispatch, ScheduleTask, ScheduleTaskRequest, ScheduleToolkit
 from wolfpack.channels import AmpWebChatAdapter, ChannelIdentity, DeliveryReceipt, DiscordAdapter, InboundMessage, SlackAdapter, TelegramAdapter, WebChatAdapter
+from wolfpack.ai_prediction import AIPrediction, PredictionReport
 from wolfpack.data import AnalyticsToolkit, AthenaToolkit, BigQueryToolkit, ClickHouseToolkit, DataAccessPolicy, DataPolicyError, DatabricksToolkit, DocumentToolkit, ElasticsearchToolkit, GraphToolkit, KeyValueToolkit, Neo4jToolkit, RedisToolkit, SnowflakeToolkit, SqlToolkit, TrinoToolkit, ingest_rows
 
 __all__ = [
@@ -130,6 +131,9 @@ __all__ = [
     "SnowflakeToolkit",
     "TrinoToolkit",
     "ingest_rows",
+    # AI prediction
+    "AIPrediction",
+    "PredictionReport",
     # events
     "RunStartedEvent",
     "RunContentEvent",

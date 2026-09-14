@@ -743,3 +743,145 @@ class PolicyDecisionAudit(Base):
     approval_id = Column(String(64), nullable=True)
     actor_api_key_id = Column(String(32), ForeignKey("api_keys.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+
+
+class PredictionRun(Base):
+    """A multi-agent prediction execution with seed materials, personas, and report."""
+
+    __tablename__ = "prediction_runs"
+    __table_args__ = (Index("ix_prediction_runs_project_created", "project_id", "created_at"),)
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    name = Column(String(255), nullable=False)
+    seed_summary = Column(Text, nullable=True)
+    horizon_date = Column(DateTime(timezone=True), nullable=True)
+    scenario_params = Column(JSON, default=dict, nullable=False)
+    personas = Column(JSON, default=list, nullable=False)
+    status = Column(String(20), default="running", nullable=False)
+    report = Column(JSON, nullable=True)
+    accuracy_score = Column(Float, nullable=True)
+    metadata_field = Column("metadata", JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class PredictionAgentRun(Base):
+    """Individual persona's prediction and interactions within a prediction run."""
+
+    __tablename__ = "prediction_agent_runs"
+    __table_args__ = (Index("ix_prediction_agent_runs_run", "prediction_run_id"),)
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    entity_id = Column(String(32), ForeignKey("prediction_entities.id"), nullable=True)
+    persona_name = Column(String(128), nullable=False)
+    persona_profile = Column(JSON, default=dict, nullable=False)
+    trace_id = Column(String(64), nullable=True)
+    prediction = Column(JSON, nullable=True)
+    confidence = Column(Float, nullable=True)
+    interactions = Column(JSON, default=list, nullable=False)
+    status = Column(String(20), default="pending", nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+
+
+class PredictionEntity(Base):
+    """A durable simulation participant or domain object."""
+
+    __tablename__ = "prediction_entities"
+    __table_args__ = (
+        Index("ix_prediction_entities_run", "prediction_run_id"),
+        Index("ix_prediction_entities_project_run", "project_id", "prediction_run_id"),
+    )
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    entity_type = Column(String(64), nullable=False)
+    name = Column(String(255), nullable=False)
+    state = Column(JSON, default=dict, nullable=False)
+    metadata_field = Column("metadata", JSON, nullable=True)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+
+
+class PredictionRelationship(Base):
+    """A directed relationship between two entities in a simulation."""
+
+    __tablename__ = "prediction_relationships"
+    __table_args__ = (
+        Index("ix_prediction_relationships_run", "prediction_run_id"),
+        Index("ix_prediction_relationships_source", "source_entity_id"),
+        Index("ix_prediction_relationships_target", "target_entity_id"),
+    )
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    source_entity_id = Column(String(32), ForeignKey("prediction_entities.id"), nullable=False)
+    target_entity_id = Column(String(32), ForeignKey("prediction_entities.id"), nullable=False)
+    relationship_type = Column(String(64), nullable=False)
+    attributes = Column(JSON, default=dict, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+
+
+class PredictionRound(Base):
+    """An ordered, closeable phase of a simulation."""
+
+    __tablename__ = "prediction_rounds"
+    __table_args__ = (
+        UniqueConstraint("prediction_run_id", "number", name="uq_prediction_rounds_run_number"),
+        Index("ix_prediction_rounds_run", "prediction_run_id"),
+    )
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    number = Column(Integer, nullable=False)
+    status = Column(String(20), default="open", nullable=False)
+    data = Column(JSON, default=dict, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+    closed_at = Column(DateTime(timezone=True), nullable=True)
+
+
+class PredictionEvent(Base):
+    """Append-only, ordered simulation ledger entry."""
+
+    __tablename__ = "prediction_events"
+    __table_args__ = (
+        UniqueConstraint("prediction_run_id", "sequence", name="uq_prediction_events_run_sequence"),
+        UniqueConstraint("prediction_run_id", "idempotency_key", name="uq_prediction_events_run_idempotency"),
+        Index("ix_prediction_events_run_sequence", "prediction_run_id", "sequence"),
+        Index("ix_prediction_events_entity", "entity_id"),
+        Index("ix_prediction_events_round", "round_id"),
+    )
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    round_id = Column(String(32), ForeignKey("prediction_rounds.id"), nullable=True)
+    entity_id = Column(String(32), ForeignKey("prediction_entities.id"), nullable=True)
+    agent_run_id = Column(String(32), ForeignKey("prediction_agent_runs.id"), nullable=True)
+    sequence = Column(BigInteger, nullable=False)
+    event_type = Column(String(64), nullable=False)
+    payload = Column(JSON, default=dict, nullable=False)
+    idempotency_key = Column(String(128), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)
+
+
+class PredictionEntityRevision(Base):
+    """Append-only snapshot of an entity's state."""
+
+    __tablename__ = "prediction_entity_revisions"
+    __table_args__ = (
+        UniqueConstraint("entity_id", "revision", name="uq_prediction_entity_revisions_entity_revision"),
+        Index("ix_prediction_entity_revisions_run_entity", "prediction_run_id", "entity_id"),
+    )
+
+    id = Column(String(32), primary_key=True, default=_uuid)
+    prediction_run_id = Column(String(32), ForeignKey("prediction_runs.id"), nullable=False)
+    project_id = Column(String(32), ForeignKey("projects.id"), nullable=False)
+    entity_id = Column(String(32), ForeignKey("prediction_entities.id"), nullable=False)
+    revision = Column(Integer, nullable=False)
+    state = Column(JSON, default=dict, nullable=False)
+    created_at = Column(DateTime(timezone=True), default=_now, nullable=False)

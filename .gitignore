@@ -34,3 +34,4 @@ paper/
 
 # macOS
 .DS_Store
+.opencode/
