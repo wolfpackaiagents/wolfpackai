@@ -36,7 +36,7 @@ export default function ConceptObserverFlow() {
             </div>
           ) : (
             <div className="rounded-xl overflow-hidden bg-gray-800">
-              <img src="/diagrams/observer-flow.png" alt="Observer Data Flow" className="w-full h-auto" onError={() => setFailed(true)} />
+              <img src="/diagrams/observer-data-flow.png" alt="Observer Data Flow" className="w-full h-auto" onError={() => setFailed(true)} />
             </div>
           )}
         </div>
