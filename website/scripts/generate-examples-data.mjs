@@ -27,6 +27,7 @@ const categoryByDirectory = {
   "19_channels": "Channels",
   "20_team_with_knowledge": "Teams",
   "21_predictions": "AI Prediction",
+  "22_skills": "Skills",
 };
 
 const modelExamples = new Set([
@@ -116,6 +117,7 @@ const capturedOutput = {
   "19_channels/webchat_adapter.py": "webchat:acme-support:browser-tab-3:customer-7: Where is my order?\n{'delivery_id': 'local-run', 'status': 'accepted'}",
   "20_team_with_knowledge/01_team_with_knowledge.py": "Knowledge base loaded: 5 chunks\nUsing model: openai/gpt-4o-mini\nResult: password-reset troubleshooting guidance.",
   "21_predictions/01_ai_prediction.py": "Personas auto-geradas: 2\n  - Dra. Marcia: analista de mercado imobiliario (conservadora)\n  - Dr. Renato: especialista em licitacoes publicas (pragmatico)\nEntidades extraidas do seed: 5\nRelacoes extraidas: 5\nAcuracia: 100%\n--- RELATORIO SINTETIZADO ---\nPrevisao: Construtora Alvorada vence o leilao do Novo Horizonte.\n--- ITERACOES DO DEBATE (2 rodadas) ---",
+  "22_skills/01_skill_basics.py": "=== TOOL CALLS ===\n[{'name': 'activate_skill', 'arguments': {'name': 'risk-analysis'}}]\n\n=== ANSWER ===\nRisk: high. Probability: medium. Impact: high. Mitigation: add a rollout gate.",
 };
 
 const sourceData = {
@@ -158,6 +160,7 @@ function requirementsFor(relativePath) {
   if (relativePath === "13_data_connectors/11_elasticsearch_support_agent.py") requirements.push("Install the Elasticsearch extra: uv sync --extra elasticsearch. Configure ELASTICSEARCH_URL with a read-only account.");
   if (relativePath === "16_scheduled_tasks/03_http_runtime.py") requirements.push("Set WOLFPACK_SCHEDULER_DISPATCH_SECRET and WOLFPACK_SCHEDULER_CALLBACK_SECRET.");
   if (relativePath === "21_predictions/01_ai_prediction.py") requirements.push("No API key needed — uses a deterministic model.");
+  if (relativePath === "22_skills/01_skill_basics.py") requirements.push("No API key needed — uses a deterministic model.");
   return requirements;
 }
 

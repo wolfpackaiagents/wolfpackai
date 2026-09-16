@@ -56,10 +56,19 @@ class WolfpackObserver:
 
     # --- Tracker contract (used by the Agent) ---
 
-    def start_trace(self, name: str, run_id: Optional[str] = None) -> Dict[str, str]:
+    def start_trace(
+        self, name: str, run_id: Optional[str] = None, metadata: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         trace_id = run_id or f"trace_{uuid.uuid4().hex}"
         self._trace_for_span[trace_id] = trace_id
-        trace = {"id": trace_id, "name": name, "start": time.time(), "trace_id": trace_id, "kind": "TRACE"}
+        trace = {
+            "id": trace_id,
+            "name": name,
+            "start": time.time(),
+            "trace_id": trace_id,
+            "kind": "TRACE",
+            "metadata": metadata or {},
+        }
         self.start_event_for({
             "id": trace_id,
             "trace_id": trace_id,
@@ -67,7 +76,7 @@ class WolfpackObserver:
             "name": name,
             "start_time": _iso(trace["start"]),
             "environment": self.deployment.environment_slug if self.deployment else None,
-            "metadata": self._event_metadata(),
+            "metadata": self._event_metadata(metadata),
         })
         return trace
 
@@ -97,7 +106,7 @@ class WolfpackObserver:
             "name": name,
             "start_time": _iso(span["start"]),
             "model": name if span["kind"] == "GENERATION" else None,
-            "metadata": self._event_metadata(),
+            "metadata": self._event_metadata(span.get("metadata")),
         })
         return span
 
@@ -123,7 +132,7 @@ class WolfpackObserver:
             "name": span.get("name") or trace_id,
             "start_time": _iso(span.get("start")),
             "end_time": _iso(span.get("end") or time.time()),
-            "metadata": self._event_metadata(),
+            "metadata": self._event_metadata(span.get("metadata")),
         }
         if not span_only and kind == "TRACE":
             body["trace_id"] = trace_id
@@ -142,8 +151,7 @@ class WolfpackObserver:
                 body["session_id"] = self.session_id
             if self.user_id:
                 body["user_id"] = self.user_id
-            if self.metadata:
-                body["metadata"] = self._event_metadata()
+            body["metadata"] = self._event_metadata(span.get("metadata"))
             if self.deployment:
                 body["environment"] = self.deployment.environment_slug
         body["model"] = span.get("name") if span.get("kind") == "GENERATION" else None
@@ -177,8 +185,9 @@ class WolfpackObserver:
         ev = {"id": uuid.uuid4().hex, "type": event_type, "timestamp": _iso(), "body": body}
         self._enqueue(ev)
 
-    def _event_metadata(self) -> Dict[str, Any]:
+    def _event_metadata(self, extra: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         metadata = dict(self.metadata or {})
+        metadata.update(extra or {})
         if self.deployment:
             metadata["mesh"] = self.deployment.metadata()
         return metadata

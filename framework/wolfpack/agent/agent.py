@@ -33,6 +33,7 @@ from ..run.approval_store import ApprovalStore, default_store
 from ..run.requirement import RunRequirement, RunStatus
 from ..tools.function import Function, FunctionCall
 from ..tools.toolkit import Toolkit
+from .skill import Skill, SkillKnowledge
 from .events import (
     BaseRunEvent,
     RunCompletedEvent,
@@ -127,6 +128,7 @@ class Agent:
     max_iterations: int = field(default=20)
     description: Optional[str] = None
     instructions: Optional[List[str]] = None
+    skills: List[Any] = field(default_factory=list)
 
     def __post_init__(self):
         self.id = "agent_" + uuid.uuid4().hex[:8]
@@ -136,9 +138,53 @@ class Agent:
             from ..tools.factory import create_knowledge_search_tool
             k_tool = create_knowledge_search_tool(self.knowledge)
             self._tool_map[k_tool.name] = k_tool
+        self._skills_always: List[Skill] = []
+        self._skills_context: List[Skill] = []
+        for s in self.skills:
+            if isinstance(s, SkillKnowledge):
+                from ..tools.factory import create_knowledge_search_tool
+                k_tool = create_knowledge_search_tool(s.knowledge)
+                k_tool.name = f"search_knowledge_{s.name}"
+                k_tool.description = s.context
+                self._tool_map[k_tool.name] = k_tool
+            elif isinstance(s, Skill):
+                if s.context:
+                    self._skills_context.append(s)
+                else:
+                    self._skills_always.append(s)
+        if self._skills_context:
+            self._tool_map["activate_skill"] = Function(
+                name="activate_skill",
+                description="Activates a contextual skill by name before using its instructions.",
+                entrypoint=self._activate_skill,
+            )
         self._resolved_store = None
         self._last_run_output: Optional[RunOutput] = None
         self._apply_guardrail_defaults()
+
+    @property
+    def skills_metadata(self) -> List[str]:
+        """Names of skills configured on this agent for trace filtering."""
+        return [skill.name for skill in self.skills if isinstance(skill, (Skill, SkillKnowledge))]
+
+    def _activate_skill(self, name: str) -> str:
+        """Return a contextual skill's instructions for injection into the conversation."""
+        for skill in self._skills_context:
+            if skill.name == name:
+                return skill.content
+        raise ValueError(f"Unknown contextual skill: {name}")
+
+    def _start_trace(self) -> Any:
+        if not self.telemetry:
+            return None
+        try:
+            return self.telemetry.start_trace(
+                self.name,
+                run_id=self.run_id,
+                metadata={"skills": self.skills_metadata},
+            )
+        except TypeError:
+            return self.telemetry.start_trace(self.name, run_id=self.run_id)
 
     def _apply_guardrail_defaults(self) -> None:
         hooks: List[Any] = []
@@ -183,6 +229,25 @@ class Agent:
             parts.append("\n".join(lines))
         if self.instructions:
             parts.append("Instructions:\n" + "\n".join(f"- {i}" for i in self.instructions))
+
+        always = self._skills_always or []
+        if always:
+            skill_block = "\n\n".join(f"Skill [{s.name}]:\n{s.content}" for s in always)
+            parts.append(f"--- Active Skills ---\n{skill_block}\n---")
+
+        avail: List[str] = []
+        for s in self._skills_context:
+            avail.append(f"- {s.name}: {s.context}")
+        for sk in self.skills:
+            if isinstance(sk, SkillKnowledge):
+                avail.append(f"- {sk.name} (Knowledge): {sk.context}")
+        if avail:
+            parts.append(
+                "--- Available Skills (activate when context matches) ---\n"
+                + "\n".join(avail)
+                + "\nCall activate_skill with the skill name before following a contextual Skill's instructions."
+            )
+
         if self._tool_map:
             names = ", ".join(self._tool_map.keys())
             parts.append(f"Tools available: {names}. Their arguments must be passed as JSON.")
@@ -290,7 +355,7 @@ class Agent:
         self.session_store.save(session)
 
     def _run_sync(self, convo: List[Message], emit: Optional[Callable[[BaseRunEvent], None]] = None) -> RunOutput:
-        trace = self.telemetry.start_trace(self.name, run_id=self.run_id) if self.telemetry else None
+        trace = self._start_trace()
         usage: Dict[str, int] = {}
         calls: List[Dict[str, Any]] = []
         all_msgs: List[Message] = []
@@ -411,6 +476,10 @@ class Agent:
                     dur = (time.time() - t1) * 1000
                     if result.status == "success":
                         payload.append(Message(role="tool", tool_call_id=tc.id, name=fn.name, content=str(result.result)).to_dict())
+                        if fn.name == "activate_skill":
+                            payload.append(
+                                Message(role="system", content=f"Activated skill [{fc.arguments['name']}]:\n{result.result}").to_dict()
+                            )
                         calls.append({"name": fn.name, "arguments": fc.arguments})
                         if self.telemetry and tool_span:
                             self.telemetry.end_span(tool_span, input=fc.arguments, output=result.result, status="OK")
@@ -619,7 +688,7 @@ class Agent:
 
     # ------------------------------------------------------------ streaming
     def _stream(self, convo: List[Message]) -> Iterator[BaseRunEvent]:
-        trace = self.telemetry.start_trace(self.name, run_id=self.run_id) if self.telemetry else None
+        trace = self._start_trace()
         yield RunStartedEvent(run_id=self.run_id, agent_id=self.id, run_input="\n".join(m.get_text() for m in convo))
         usage: Dict[str, int] = {}
         calls: List[Dict[str, Any]] = []
@@ -709,6 +778,13 @@ class Agent:
                     duration_ms = (time.time() - started) * 1000
                     if result.status == "success":
                         payload.append(Message(role="tool", tool_call_id=tool_call.id, name=function.name, content=str(result.result)).to_dict())
+                        if function.name == "activate_skill":
+                            payload.append(
+                                Message(
+                                    role="system",
+                                    content=f"Activated skill [{function_call.arguments['name']}]:\n{result.result}",
+                                ).to_dict()
+                            )
                         calls.append({"name": function.name, "arguments": function_call.arguments})
                         if self.telemetry and tool_span:
                             self.telemetry.end_span(tool_span, input=function_call.arguments, output=result.result)

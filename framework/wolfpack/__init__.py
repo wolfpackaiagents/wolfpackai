@@ -6,6 +6,7 @@ spans with the GenAI semantic convention (`gen_ai.*`).
 """
 
 from wolfpack.agent.agent import Agent
+from wolfpack.agent.skill import Skill, SkillKnowledge
 from wolfpack.agent.events import (
     RunStartedEvent,
     RunContentEvent,
@@ -131,6 +132,9 @@ __all__ = [
     "SnowflakeToolkit",
     "TrinoToolkit",
     "ingest_rows",
+    # skills
+    "Skill",
+    "SkillKnowledge",
     # AI prediction
     "AIPrediction",
     "PredictionReport",
