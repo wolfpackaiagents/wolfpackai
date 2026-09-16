@@ -65,6 +65,7 @@ class ModelResponse:
     usage: Dict[str, Any] = field(default_factory=dict)
     cost: Optional[ReportedCost] = None
     raw: Any = None
+    routing: Optional[Dict[str, Any]] = None
 
 
 @dataclass
@@ -353,10 +354,11 @@ class AnthropicModel(BaseModel):
         server_tools = self._server_tools(tools)
         if server_tools:
             kwargs["tools"] = server_tools
+        if system_parts:
+            kwargs["system"] = "\n".join(system_parts)
         resp = self._client.messages.create(
             model=self.model_id,
             max_tokens=self.max_tokens,
-            system="\n".join(system_parts) if system_parts else None,
             messages=convo,
             **kwargs,
         )

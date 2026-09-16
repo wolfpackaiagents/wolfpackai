@@ -46,6 +46,7 @@ class Tracker(ABC):
         input: Optional[Any] = None,
         output: Optional[Any] = None,
         cost: Optional[Any] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Closes a child span."""
 
@@ -62,7 +63,7 @@ class NoopTracker(Tracker):
     def start_span(self, kind, name, **kwargs):
         return None
 
-    def end_span(self, span, usage=None, status="OK", error=None, input=None, output=None, cost=None):
+    def end_span(self, span, usage=None, status="OK", error=None, input=None, output=None, cost=None, metadata=None):
         return None
 
     def __bool__(self):
@@ -120,7 +121,7 @@ class OTelTracker(Tracker):
             )
         return self._tracer.start_span(name or kind)
 
-    def end_span(self, span, usage=None, status="OK", error=None, input=None, output=None, cost=None):
+    def end_span(self, span, usage=None, status="OK", error=None, input=None, output=None, cost=None, metadata=None):
         if span is None:
             return
         if error:
@@ -138,6 +139,8 @@ class OTelTracker(Tracker):
             span.set_attribute("wolfpack.cost.amount", reported_cost["amount"])
             span.set_attribute("wolfpack.cost.currency", reported_cost["currency"])
             span.set_attribute("wolfpack.cost.source", reported_cost["source"])
+        for key, value in (metadata or {}).items():
+            span.set_attribute(f"wolfpack.{key}", str(value))
         span.end()
 
 

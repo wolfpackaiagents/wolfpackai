@@ -28,6 +28,7 @@ const categoryByDirectory = {
   "20_team_with_knowledge": "Teams",
   "21_predictions": "AI Prediction",
   "22_skills": "Skills",
+  "23_model_routing": "Model Routing",
 };
 
 const modelExamples = new Set([
@@ -41,6 +42,7 @@ const modelExamples = new Set([
   "13_data_connectors/05_mysql_movie_agent.py", "13_data_connectors/06_mongodb_support_agent.py", "13_data_connectors/07_clickhouse_revenue_agent.py", "13_data_connectors/08_other_connectors_agents.py",
   "13_data_connectors/09_redis_inventory_agent.py", "13_data_connectors/10_neo4j_supplier_agent.py", "13_data_connectors/11_elasticsearch_support_agent.py",
   "20_team_with_knowledge/01_team_with_knowledge.py",
+  "23_model_routing/01_openai_ollama_policy.py",
 ]);
 
 const ampExamples = new Set([
@@ -118,6 +120,7 @@ const capturedOutput = {
   "20_team_with_knowledge/01_team_with_knowledge.py": "Knowledge base loaded: 5 chunks\nUsing model: openai/gpt-4o-mini\nResult: password-reset troubleshooting guidance.",
   "21_predictions/01_ai_prediction.py": "Personas auto-geradas: 2\n  - Dra. Marcia: analista de mercado imobiliario (conservadora)\n  - Dr. Renato: especialista em licitacoes publicas (pragmatico)\nEntidades extraidas do seed: 5\nRelacoes extraidas: 5\nAcuracia: 100%\n--- RELATORIO SINTETIZADO ---\nPrevisao: Construtora Alvorada vence o leilao do Novo Horizonte.\n--- ITERACOES DO DEBATE (2 rodadas) ---",
   "22_skills/01_skill_basics.py": "=== TOOL CALLS ===\n[{'name': 'activate_skill', 'arguments': {'name': 'risk-analysis'}}]\n\n=== ANSWER ===\nRisk: high. Probability: medium. Impact: high. Mitigation: add a rollout gate.",
+  "23_model_routing/01_openai_ollama_policy.py": "REASONING ROUTE: {'provider': 'openai', 'model': 'gpt-4.1-mini'}\nTASK ROUTE: {'provider': 'ollama', 'model': 'gemma4:e4b'}\nTASK SAVINGS: {'amount': 2.16e-05, 'currency': 'USD', 'method': 'equivalent_tokens'}",
 };
 
 const sourceData = {

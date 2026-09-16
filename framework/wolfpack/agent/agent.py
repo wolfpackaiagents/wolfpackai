@@ -33,6 +33,7 @@ from ..run.approval_store import ApprovalStore, default_store
 from ..run.requirement import RunRequirement, RunStatus
 from ..tools.function import Function, FunctionCall
 from ..tools.toolkit import Toolkit
+from ..models.routing import ModelPolicy, ModelRouter
 from .skill import Skill, SkillKnowledge
 from .events import (
     BaseRunEvent,
@@ -106,7 +107,7 @@ def _message_from_dict(data: Dict[str, Any]) -> Message:
 @dataclass
 class Agent:
     name: str
-    model: BaseModel
+    model: Optional[BaseModel] = None
     system: Optional[str] = None
     role: Optional[str] = None
     goal: Optional[str] = None
@@ -129,8 +130,14 @@ class Agent:
     description: Optional[str] = None
     instructions: Optional[List[str]] = None
     skills: List[Any] = field(default_factory=list)
+    model_policy: Optional[ModelPolicy] = None
+    task_selector: Optional[str] = None
 
     def __post_init__(self):
+        if self.model_policy is not None:
+            self.model = ModelRouter(self.model_policy)
+        if self.model is None:
+            raise ValueError("Agent requires model or model_policy")
         self.id = "agent_" + uuid.uuid4().hex[:8]
         self.run_id = "run_" + uuid.uuid4().hex
         self._tool_map = _normalize_tools(self.tools)
@@ -185,6 +192,45 @@ class Agent:
             )
         except TypeError:
             return self.telemetry.start_trace(self.name, run_id=self.run_id)
+
+    def _routing_purpose(self, payload: List[Dict[str, Any]], tools: Optional[List[Dict[str, Any]]]) -> str:
+        if not isinstance(self.model, ModelRouter) or self.model.policy.task is None or self.task_selector != "simple":
+            return "reasoning"
+        user_text = "\n".join(str(message.get("content", "")) for message in payload if message.get("role") == "user")
+        return "task" if not tools and len(user_text) <= 280 else "reasoning"
+
+    def _model_name_for_purpose(self, purpose: str) -> str:
+        if isinstance(self.model, ModelRouter):
+            return self.model.policy.route_for(purpose).primary.model_id
+        return self.model.model_id
+
+    def _invoke_model(self, payload: List[Dict[str, Any]], tools: Optional[List[Dict[str, Any]]], purpose: str):
+        if isinstance(self.model, ModelRouter):
+            return self.model.invoke(payload, tools=tools, purpose=purpose)
+        return self.model.invoke(payload, tools=tools)
+
+    def _stream_model(self, payload: List[Dict[str, Any]], tools: Optional[List[Dict[str, Any]]], purpose: str):
+        if isinstance(self.model, ModelRouter):
+            return self.model.stream(payload, tools=tools, purpose=purpose)
+        return self.model.stream(payload, tools=tools)
+
+    def _end_generation_span(self, span: Any, response: Any, input: Any) -> None:
+        if not self.telemetry or span is None:
+            return
+        kwargs = {
+            "input": input,
+            "output": response.message.to_dict(),
+            "usage": response.usage,
+            "cost": getattr(response, "cost", None),
+        }
+        routing = getattr(response, "routing", None)
+        if routing:
+            try:
+                self.telemetry.end_span(span, metadata={"routing": routing}, **kwargs)
+                return
+            except TypeError:
+                pass
+        self.telemetry.end_span(span, **kwargs)
 
     def _apply_guardrail_defaults(self) -> None:
         hooks: List[Any] = []
@@ -388,9 +434,10 @@ class Agent:
             for _ in range(self.max_iterations):
                 step_input = list(payload)
                 step_span = self.telemetry.start_span("agent_step", self.name) if self.telemetry else None
-                lc_span = self.telemetry.start_span("llm_call", self.model.model_id, parent=step_span) if self.telemetry else None
+                purpose = self._routing_purpose(payload, schemas)
+                lc_span = self.telemetry.start_span("llm_call", self._model_name_for_purpose(purpose), parent=step_span) if self.telemetry else None
                 try:
-                    resp = self.model.invoke(payload, tools=schemas)
+                    resp = self._invoke_model(payload, schemas, purpose)
                 except Exception as error:
                     if self.telemetry and lc_span:
                         self.telemetry.end_span(lc_span, input=step_input, error=str(error), status="ERROR")
@@ -400,7 +447,7 @@ class Agent:
                 _merge_usage(usage, resp.usage)
                 if self.telemetry:
                     if lc_span:
-                        self.telemetry.end_span(lc_span, input=step_input, output=resp.message.to_dict(), usage=resp.usage, cost=getattr(resp, "cost", None))
+                        self._end_generation_span(lc_span, resp, step_input)
 
                 assistant = resp.message
                 all_msgs.append(assistant)
@@ -572,22 +619,18 @@ class Agent:
                     payload.append(feedback)
                     all_msgs.append(Message(**feedback))
                     retry_input = list(payload)
-                    lc_span = self.telemetry.start_span("llm_call", self.model.model_id) if self.telemetry else None
+                    schemas = self.get_tool_schemas() if self._tool_map else None
+                    purpose = self._routing_purpose(payload, schemas)
+                    lc_span = self.telemetry.start_span("llm_call", self._model_name_for_purpose(purpose)) if self.telemetry else None
                     try:
-                        resp = self.model.invoke(payload, tools=self.get_tool_schemas() if self._tool_map else None)
+                        resp = self._invoke_model(payload, schemas, purpose)
                     except Exception as error:
                         if self.telemetry and lc_span:
                             self.telemetry.end_span(lc_span, input=retry_input, error=str(error), status="ERROR")
                         raise
                     _merge_usage(usage, resp.usage)
                     if self.telemetry and lc_span:
-                        self.telemetry.end_span(
-                            lc_span,
-                            input=retry_input,
-                            output=resp.message.to_dict(),
-                            usage=resp.usage,
-                            cost=getattr(resp, "cost", None),
-                        )
+                        self._end_generation_span(lc_span, resp, retry_input)
                     content = resp.message.get_text()
                     all_msgs.append(resp.message)
         if parsed is not None:
@@ -708,10 +751,11 @@ class Agent:
             for _ in range(self.max_iterations):
                 step_input = list(payload)
                 step_span = self.telemetry.start_span("agent_step", self.name) if self.telemetry else None
-                lc_span = self.telemetry.start_span("llm_call", self.model.model_id, parent=step_span) if self.telemetry else None
+                purpose = self._routing_purpose(payload, schemas)
+                lc_span = self.telemetry.start_span("llm_call", self._model_name_for_purpose(purpose), parent=step_span) if self.telemetry else None
                 response = None
                 streamed_content = ""
-                for chunk in self.model.stream(payload, tools=schemas):
+                for chunk in self._stream_model(payload, schemas, purpose):
                     if chunk.content:
                         streamed_content += chunk.content
                         yield RunContentEvent(run_id=self.run_id, agent_id=self.id, name=self.name, content=chunk.content, reasoning_content=chunk.reasoning_content)
@@ -728,7 +772,7 @@ class Agent:
                 all_msgs.append(assistant)
                 step_output: Dict[str, Any] = {"response": assistant.to_dict(), "tools": []}
                 if self.telemetry and lc_span:
-                    self.telemetry.end_span(lc_span, input=step_input, output=assistant.to_dict(), usage=response.usage, cost=getattr(response, "cost", None))
+                    self._end_generation_span(lc_span, response, step_input)
                 assistant_content = assistant.get_text()
                 if assistant_content and not streamed_content:
                     yield RunContentEvent(run_id=self.run_id, agent_id=self.id, name=self.name, content=assistant_content, reasoning_content=assistant.reasoning_content)

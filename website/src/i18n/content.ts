@@ -28,6 +28,23 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     description: "O decorador @tool transforma uma funcao Python tipada em uma ferramenta chamada pelo modelo. O Wolfpack deriva o esquema JSON das anotacoes de tipo e da docstring. Toolkit agrupa funcoes relacionadas em uma unidade reutilizavel.",
     codeExamples: [{ title: "Defina uma ferramenta" }],
   },
+  "model-routing": {
+    title: "Roteamento de modelos",
+    description: "ModelPolicy direciona raciocinio e tarefas simples por cadeias explicitas de modelos. ModelRouter repete apenas falhas que podem ser repetidas nos fallbacks configurados, registra cada tentativa e compara o custo real a uma referencia pelos mesmos tokens. Use task_selector=\"simple\" para habilitar a rota de tarefa somente em pedidos curtos e sem ferramentas.",
+    parameters: [
+      { name: "ModelPolicy.reasoning", type: "ModelRoute", required: true, description: "Rota principal para raciocinio, uso de ferramentas e trabalho complexo." },
+      { name: "ModelPolicy.task", type: "ModelRoute", required: false, description: "Rota para tarefas simples selecionadas explicitamente." },
+      { name: "ModelRoute.primary", type: "ModelTarget", required: true, description: "Primeiro modelo tentado na rota." },
+      { name: "ModelRoute.fallbacks", type: "list[ModelTarget]", required: false, default: "[]", description: "Alternativas ordenadas, usadas apenas apos falhas repetiveis do provedor." },
+      { name: "ModelTarget", type: "BaseModel | ModelSpec", required: true, description: "Modelo concreto ou configuracao declarativa de provedor, com precos de tokens opcionais." },
+      { name: "Agent.model_policy", type: "ModelPolicy", required: false, description: "Cria um ModelRouter para o Agent em vez de passar model diretamente." },
+      { name: "Agent.task_selector", type: "str", required: false, default: "None", description: "Use simple para a rota de tarefa em pedidos curtos sem ferramentas." },
+    ],
+    codeExamples: [{
+      title: "Envie raciocinio OpenAI para tarefas Ollama",
+      description: "A rota principal usa gpt-4.1-mini. Pedidos curtos sem ferramentas usam o modelo Ollama definido em OLLAMA_MODEL; os metadados registram modelo selecionado, tentativas, custos, referencia e economia estimada.",
+    }],
+  },
   knowledge: {
     title: "Conhecimento e memoria",
     description: "Knowledge indexa textos e arquivos em uma implementacao VectorDb. SessionMemory mantem o historico de uma conversa em um armazenamento de sessao em memoria ou SQLite. Sao capacidades separadas que podem ser combinadas em um Agent.",
@@ -116,7 +133,7 @@ const categoryPt: Record<string, string> = {
   Evals: "Avaliacoes", Privacy: "Privacidade", Resilience: "Resiliencia", Hardening: "Reforco",
   SQLToolkit: "SQLToolkit",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
-  "AI Prediction": "Predicao IA", Skills: "Skills",
+  "AI Prediction": "Predicao IA", Skills: "Skills", "Model Routing": "Roteamento de modelos",
 };
 
 export function getFrameworkSections(lang: Language) {

@@ -1214,5 +1214,29 @@ export const examples: Example[] = [
     "verificationClass": "Deterministic",
     "validatedAt": "2026-08-26",
     "validationStatus": "passed"
+  },
+  {
+    "id": "23_model_routing-01_openai_ollama_policy",
+    "title": "Openai Ollama Policy",
+    "category": "Model Routing",
+    "description": "Runnable source example from framework/examples/23_model_routing/01_openai_ollama_policy.py.",
+    "code": "\"\"\"Route reasoning to OpenAI and simple tasks to an Ollama model.\n\nRequired environment:\n    OPENAI_API_KEY\n    OLLAMA_BASE_URL\n    OLLAMA_MODEL\n\nUsage:\n    uv run python examples/23_model_routing/01_openai_ollama_policy.py\n\"\"\"\n\nfrom __future__ import annotations\n\nimport os\n\nfrom wolfpack import Agent, ModelPolicy, ModelRoute, ModelRouter, ModelTarget, get_model\n\n\ndef target(model, input_price_per_million: float, output_price_per_million: float) -> ModelTarget:\n    return ModelTarget(\n        model=model,\n        input_price_per_million=input_price_per_million,\n        output_price_per_million=output_price_per_million,\n    )\n\n\ndef main() -> None:\n    ollama_model = os.environ.get(\"OLLAMA_MODEL\")\n    if not ollama_model:\n        raise SystemExit(\"Set OLLAMA_MODEL to a model available from OLLAMA_BASE_URL.\")\n\n    policy = ModelPolicy(\n        name=\"openai-ollama\",\n        version=\"1\",\n        reasoning=ModelRoute(\n            primary=target(get_model(\"openai:gpt-4.1-mini\"), 0.40, 1.60),\n        ),\n        task=ModelRoute(\n            primary=target(get_model(f\"ollama:{ollama_model}\"), 0.0, 0.0),\n        ),\n    )\n\n    # Use the reasoning route directly when the request needs the primary model.\n    reasoning = ModelRouter(policy).invoke([\n        {\"role\": \"user\", \"content\": \"Give one reason that request tracing helps debug agents.\"},\n    ])\n    print(\"REASONING ANSWER:\", reasoning.message.get_text())\n    print(\"REASONING ROUTE:\", reasoning.routing[\"selected\"])\n\n    # A short, tool-free request uses the task route when task_selector is enabled.\n    agent = Agent(name=\"routed-assistant\", model_policy=policy, task_selector=\"simple\")\n    task = agent.run(\"Reply with the word ready.\")\n    print(\"TASK ANSWER:\", task.content)\n    print(\"TASK ROUTE:\", agent.model.last_routing[\"selected\"])\n    print(\"TASK SAVINGS:\", agent.model.last_routing[\"estimated_savings\"])\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/23_model_routing/01_openai_ollama_policy.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "REASONING ROUTE: {'provider': 'openai', 'model': 'gpt-4.1-mini'}\nTASK ROUTE: {'provider': 'ollama', 'model': 'gemma4:e4b'}\nTASK SAVINGS: {'amount': 2.16e-05, 'currency': 'USD', 'method': 'equivalent_tokens'}",
+    "sourcePath": "framework/examples/23_model_routing/01_openai_ollama_policy.py",
+    "command": "uv run python examples/23_model_routing/01_openai_ollama_policy.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/...",
+      "Configure OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, or OLLAMA_BASE_URL."
+    ],
+    "verificationClass": "LLM integration",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
   }
 ];

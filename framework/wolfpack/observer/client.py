@@ -110,7 +110,9 @@ class WolfpackObserver:
         })
         return span
 
-    def end_span(self, span: Dict[str, Any], usage=None, status="OK", error=None, input=None, output=None, cost=None):
+    def end_span(self, span: Dict[str, Any], usage=None, status="OK", error=None, input=None, output=None, cost=None, metadata: Optional[Dict[str, Any]] = None):
+        if metadata:
+            span["metadata"] = {**span.get("metadata", {}), **metadata}
         self._enqueue_update(span, input=input, output=output, usage=usage, error=error, cost=cost, span_only=True)
 
     def end_tool_span(self, span: Dict[str, Any], result=None, error=None):

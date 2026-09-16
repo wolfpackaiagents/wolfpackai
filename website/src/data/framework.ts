@@ -73,6 +73,47 @@ math_tools = Toolkit(name="math", functions=[add])`,
     }],
   },
   {
+    id: "model-routing",
+    title: "Model Routing",
+    description: "ModelPolicy routes reasoning and simple tasks through explicit model chains. ModelRouter retries only retryable failures on configured fallbacks, records every attempt, and compares actual cost with a baseline using equivalent token counts. Use task_selector=\"simple\" to opt an Agent into the task route only for short, tool-free requests.",
+    parameters: [
+      { name: "ModelPolicy.reasoning", type: "ModelRoute", required: true, description: "Primary route for reasoning, tool use, and complex work." },
+      { name: "ModelPolicy.task", type: "ModelRoute", required: false, description: "Route for explicitly selected simple tasks." },
+      { name: "ModelRoute.primary", type: "ModelTarget", required: true, description: "First model attempted for the route." },
+      { name: "ModelRoute.fallbacks", type: "list[ModelTarget]", required: false, default: "[]", description: "Ordered alternatives used only after retryable provider failures." },
+      { name: "ModelTarget", type: "BaseModel | ModelSpec", required: true, description: "A concrete model or declarative provider configuration with optional token prices." },
+      { name: "Agent.model_policy", type: "ModelPolicy", required: false, description: "Creates a ModelRouter for the Agent instead of passing model directly." },
+      { name: "Agent.task_selector", type: "str", required: false, default: "None", description: "Set to simple to use the task route for short requests without tools." },
+    ],
+    codeExamples: [{
+      title: "Route OpenAI reasoning to Ollama tasks",
+      language: "python",
+      description: "The primary route uses gpt-4.1-mini. Short tool-free requests use the Ollama model selected by OLLAMA_MODEL, and routing metadata records the selected model, attempts, costs, baseline, and estimated savings.",
+      code: `import os
+
+from wolfpack import Agent, ModelPolicy, ModelRoute, ModelTarget, get_model
+
+policy = ModelPolicy(
+    reasoning=ModelRoute(
+        primary=ModelTarget(get_model("openai:gpt-4.1-mini"), 0.40, 1.60),
+    ),
+    task=ModelRoute(
+        primary=ModelTarget(get_model(f"ollama:{os.environ['OLLAMA_MODEL']}"), 0.0, 0.0),
+    ),
+)
+
+agent = Agent(
+    name="routed-assistant",
+    model_policy=policy,
+    task_selector="simple",
+)
+
+result = agent.run("Reply with the word ready.")
+print(result.content)
+print(agent.model.last_routing["selected"])`,
+    }],
+  },
+  {
     id: "knowledge",
     title: "Knowledge and Memory",
     description: "Knowledge indexes text and files in a VectorDb implementation. SessionMemory keeps a conversation history through an in-memory or SQLite session store. These are separate capabilities that can be combined in an Agent.",

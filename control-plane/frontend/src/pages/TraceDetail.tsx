@@ -163,7 +163,20 @@ function TreeNode({ observation, depth, active, onSelect }: { observation: Obser
 function ObservationDetail({ obs }: { obs: Observation }) {
   const { t } = useTranslation()
   const tokens = (obs.usage?.input_tokens || 0) + (obs.usage?.output_tokens || 0)
-  return <div className="space-y-5"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="truncate text-lg font-semibold">{obs.name || obs.id}</h2><p className="mt-1 font-mono text-xs text-slate-500">{obs.type} · {obs.id}</p></div><span className={`rounded px-2 py-1 text-xs ${obs.level === 'ERROR' ? 'bg-red-500/15 text-red-300' : 'bg-slate-800 text-slate-300'}`}>{obs.level}</span></div><div className="grid grid-cols-3 gap-2 text-sm"><MiniStat label={t('traceDetail.metaModel')} value={obs.model || t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.metaTokens')} value={tokens ? String(tokens) : t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.metaCost')} value={formatCost(reportedCost(obs.cost, obs.cost_currency, obs.cost_coverage)) ?? t('traceDetail.notAvailable')} /></div><Block label={t('traceDetail.input')} value={obs.input} /><Block label={t('traceDetail.output')} value={obs.output} />{obs.metadata && <Block label={t('traceDetail.metadata')} value={obs.metadata} />}{obs.status_message && <Block label={t('traceDetail.message')} value={obs.status_message} />}</div>
+  return <div className="space-y-5"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="truncate text-lg font-semibold">{obs.name || obs.id}</h2><p className="mt-1 font-mono text-xs text-slate-500">{obs.type} · {obs.id}</p></div><span className={`rounded px-2 py-1 text-xs ${obs.level === 'ERROR' ? 'bg-red-500/15 text-red-300' : 'bg-slate-800 text-slate-300'}`}>{obs.level}</span></div><div className="grid grid-cols-3 gap-2 text-sm"><MiniStat label={t('traceDetail.metaModel')} value={obs.model || t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.metaTokens')} value={tokens ? String(tokens) : t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.metaCost')} value={formatCost(reportedCost(obs.cost, obs.cost_currency, obs.cost_coverage)) ?? t('traceDetail.notAvailable')} /></div><RoutingDetail metadata={obs.metadata} /><Block label={t('traceDetail.input')} value={obs.input} /><Block label={t('traceDetail.output')} value={obs.output} />{obs.metadata && <Block label={t('traceDetail.metadata')} value={obs.metadata} />}{obs.status_message && <Block label={t('traceDetail.message')} value={obs.status_message} />}</div>
+}
+
+function RoutingDetail({ metadata }: { metadata: Record<string, unknown> | null }) {
+  const { t } = useTranslation()
+  const routing = metadata?.routing
+  if (!routing || typeof routing !== 'object' || Array.isArray(routing)) return null
+  const details = routing as Record<string, unknown>
+  const selected = details.selected as Record<string, unknown> | undefined
+  const attempts = Array.isArray(details.attempts) ? details.attempts.length : 0
+  const actual = formatCost(reportedCost(details.actual_cost))
+  const baseline = formatCost(reportedCost(details.baseline_cost))
+  const savings = formatCost(reportedCost(details.estimated_savings))
+  return <section className="rounded border border-orange-500/20 bg-orange-500/5 p-3"><div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-orange-200">{t('traceDetail.modelRouting')}</div><div className="grid grid-cols-2 gap-2 text-sm"><MiniStat label={t('traceDetail.routedTo')} value={selected && typeof selected.provider === 'string' && typeof selected.model === 'string' ? `${selected.provider}/${selected.model}` : t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.routeAttempts')} value={attempts ? String(attempts) : t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.actualCost')} value={actual ?? t('traceDetail.notAvailable')} /><MiniStat label={t('traceDetail.baselineCost')} value={baseline ?? t('traceDetail.notAvailable')} /></div>{savings && <p className="mt-2 text-xs text-orange-100">{t('traceDetail.estimatedSavings')}: {savings}</p>}</section>
 }
 
 function Block({ label, value }: { label: string; value: unknown }) {
