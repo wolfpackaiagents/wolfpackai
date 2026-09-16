@@ -1,12 +1,12 @@
 import { controlPlaneSections, type SectionContent as ControlPlaneSection } from "../data/control-plane";
-import { frameworkSections, type Parameter, type SectionContent as FrameworkSection } from "../data/framework";
+import { frameworkSections, type CodeExample, type Parameter, type SectionContent as FrameworkSection } from "../data/framework";
 import type { Example } from "../data/examples.generated";
 
 export type Language = "en" | "pt-BR";
 
 type FrameworkTranslation = Partial<Omit<FrameworkSection, "parameters" | "codeExamples">> & {
   parameters?: Parameter[];
-  codeExamples?: Array<{ title?: string }>;
+  codeExamples?: Array<Partial<CodeExample>>;
 };
 
 const frameworkPt: Record<string, FrameworkTranslation> = {
@@ -32,6 +32,29 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     title: "Conhecimento e memoria",
     description: "Knowledge indexa textos e arquivos em uma implementacao VectorDb. SessionMemory mantem o historico de uma conversa em um armazenamento de sessao em memoria ou SQLite. Sao capacidades separadas que podem ser combinadas em um Agent.",
     codeExamples: [{ title: "Persista uma sessao" }],
+  },
+  skills: {
+    title: "Skills",
+    description: "Skills sao capacidades reutilizaveis de um Agent. Uma Skill sem context entra em todos os system prompts. Uma Skill contextual fica leve ate o modelo chamar activate_skill(name), que adiciona suas instrucoes como uma mensagem de sistema pelo restante da execucao. SkillKnowledge mantem a busca especializada separada do prompt ao registrar uma ferramenta de busca orientada a contexto. Os nomes das skills configuradas entram nos metadados do trace, e ativacoes e buscas aparecem como spans de ferramenta.",
+    parameters: [
+      { name: "skills", type: "list[Skill | SkillKnowledge]", required: false, default: "[]", description: "Capacidades configuradas no Agent, na ordem de declaracao." },
+      { name: "Skill.name", type: "str", required: true, description: "Nome unico usado na ativacao, nas chamadas de ferramenta e nos metadados do trace." },
+      { name: "Skill.content", type: "str", required: false, description: "Instrucoes informadas diretamente. Obrigatorio quando path nao for fornecido." },
+      { name: "Skill.path", type: "str | Path", required: false, description: "Caminho para um arquivo Markdown cujo conteudo se torna a instrucao da skill." },
+      { name: "Skill.context", type: "str", required: false, description: "Quando informado, torna a Skill contextual em vez de sempre ativa." },
+      { name: "SkillKnowledge.knowledge", type: "Knowledge", required: true, description: "Base especializada exposta por search_knowledge_{name}." },
+      { name: "SkillKnowledge.context", type: "str", required: true, description: "Descreve quando o modelo deve buscar na base especializada." },
+    ],
+    codeExamples: [
+      {
+        title: "Combine instrucoes sempre ativas e contextuais",
+        description: "A skill de escrita entra em todas as execucoes. A skill de risco fica disponivel por nome ate o modelo ativa-la pela ferramenta gerada.",
+      },
+      {
+        title: "Anexe conhecimento especializado sob demanda",
+        description: "SkillKnowledge nao adiciona documentos ao system prompt. Ela disponibiliza uma ferramenta de busca nomeada apenas quando seu contexto for relevante.",
+      },
+    ],
   },
   "data-connectors": {
     title: "Conectores de dados governados",

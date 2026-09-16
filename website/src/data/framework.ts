@@ -93,6 +93,67 @@ print(agent.run("What is my name?").content)`,
     }],
   },
   {
+    id: "skills",
+    title: "Skills",
+    description: "Skills are reusable Agent capabilities. A Skill without context is included in every system prompt. A contextual Skill stays lightweight until the model calls activate_skill(name), which adds its instructions as a system message for the rest of the run. SkillKnowledge keeps specialised retrieval separate from the prompt by registering a context-aware search tool. Configured skill names are recorded in trace metadata, while activations and searches are recorded as tool spans.",
+    parameters: [
+      { name: "skills", type: "list[Skill | SkillKnowledge]", required: false, default: "[]", description: "Capabilities configured on an Agent in declaration order." },
+      { name: "Skill.name", type: "str", required: true, description: "Unique name used for activation, tool calls, and trace metadata." },
+      { name: "Skill.content", type: "str", required: false, description: "Instructions supplied inline. Required when path is not provided." },
+      { name: "Skill.path", type: "str | Path", required: false, description: "Path to a Markdown file whose contents become the skill instructions." },
+      { name: "Skill.context", type: "str", required: false, description: "When provided, makes the Skill contextual instead of always active." },
+      { name: "SkillKnowledge.knowledge", type: "Knowledge", required: true, description: "Specialised knowledge base exposed through search_knowledge_{name}." },
+      { name: "SkillKnowledge.context", type: "str", required: true, description: "Describes when the model should search the specialised knowledge base." },
+    ],
+    codeExamples: [{
+      title: "Combine always-active and contextual instructions",
+      language: "python",
+      description: "The writing skill is included in every run. The risk skill remains available by name until the model activates it with the generated tool.",
+      code: `from wolfpack import Agent, Skill, get_model_from_env
+
+clear_writing = Skill(
+    name="clear-writing",
+    content="Use concise language and state assumptions explicitly.",
+)
+risk_analysis = Skill(
+    name="risk-analysis",
+    content="Use a probability by impact matrix. Classify risk as low, medium, high, or critical.",
+    context="Activate when the user asks for project or financial risk analysis.",
+)
+
+agent = Agent(
+    name="project-advisor",
+    model=get_model_from_env(),
+    skills=[clear_writing, risk_analysis],
+)
+
+result = agent.run("What is the delivery risk for this project?")
+print(result.tool_calls)  # activate_skill({"name": "risk-analysis"})
+print(result.content)`,
+    }, {
+      title: "Attach specialised knowledge on demand",
+      language: "python",
+      description: "SkillKnowledge does not add document content to the system prompt. It makes a named search tool available only when its context is relevant.",
+      code: `from wolfpack import Agent, SkillKnowledge, get_model_from_env
+
+# regulatory_knowledge is a Knowledge instance loaded with approved source documents.
+regulatory = SkillKnowledge(
+    name="telecom-regulations",
+    knowledge=regulatory_knowledge,
+    context="Use when the user asks about telecom regulations or ANATEL standards.",
+)
+
+agent = Agent(
+    name="compliance-advisor",
+    model=get_model_from_env(),
+    skills=[regulatory],
+)
+
+result = agent.run("Which ANATEL rules apply to this network change?")
+print(result.tool_calls)  # search_knowledge_telecom-regulations(...)`,
+    }],
+  },
+  {
     id: "data-connectors",
     title: "Governed Data Connectors",
     description: "Data connectors expose scoped, read-only access to approved relational, document, graph, key-value, and analytics sources. Pass a live SqlToolkit through Agent.tools, not Agent.knowledge. DataAccessPolicy restricts source objects, masks sensitive fields, and caps returned rows before data reaches the agent.",
