@@ -116,7 +116,7 @@ def test_ai_prediction_evaluates_observed_outcome_and_records_audit_fields():
     assert score == 1.0
     assert report.accuracy_score == 1.0
     assert report.observed_outcome == "Lula venceu a eleição."
-    assert report.evaluation_reason == "O vencedor previsto corresponde ao resultado."
+    assert report.evaluation_reason == "O vencedor previsto corresponde ao resultado observado."
 
 
 def test_persona_generation_uses_scenario_ingested_seed_and_knowledge():
