@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import sys
 import threading
+import uuid
 from pathlib import Path
 
 import pytest
@@ -31,7 +32,7 @@ def test_same_session_two_sequential_runs_preserves_order():
     agent = Agent(
         name="test",
         model=EchoModel(),
-        session_id="seq_test",
+        session_id=f"seq_test_{uuid.uuid4().hex}",
     )
     r1 = agent.run("first")
     assert r1.content == "echo: first"
