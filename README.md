@@ -105,8 +105,8 @@ Examples are organized by capability in `framework/examples/`.
 
 ## Author
 
-Created by [Álvaro Brito](https://www.linkedin.com/in/alvarogomes/).
+Created by [Álvaro Rogério Gomes de Brito](https://www.linkedin.com/in/alvarogomes/).
 
 ## License
 
-Wolfpack AI is released under the MIT License.
+Wolfpack AI is released under the [Apache License 2.0](LICENSE).

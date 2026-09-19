@@ -8,7 +8,7 @@ version = "0.2.3"
 description = "Python framework for AI agents with observability, governance, and a production control plane."
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = "Apache-2.0"
 authors = [{ name = "Álvaro Brito" }]
 keywords = ["agents", "ai", "llm", "observability", "rag", "workflow"]
 classifiers = [

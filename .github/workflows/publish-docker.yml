@@ -8,6 +8,9 @@ on:
       - "framework/**"
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   backend:
     if: ${{ github.event_name == 'push' }}
