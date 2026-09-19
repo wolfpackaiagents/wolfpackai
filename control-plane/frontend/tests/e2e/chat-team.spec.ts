@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test('team chat sends and receives response via SSE', async ({ page }) => {
   await page.addInitScript(() => {
@@ -39,10 +39,12 @@ test('team chat sends and receives response via SSE', async ({ page }) => {
   // 4. Verify conversation appears in sidebar
   await expect(page.getByText('New conversation')).toBeVisible()
 
-  // 5. Send a message  const textarea = page.getByRole('textbox', { name: /message/i })
+  // 5. Send a message
+  const textarea = page.getByRole('textbox', { name: /message/i })
   await textarea.fill('Help me reset my password')
 
-  // Wait for both the run creation and the SSE stream  const runPromise = waitForApi('/api/public/chat/conversations/', 'POST').then(r => r.json())
+  // Wait for both the run creation and the SSE stream.
+  const runPromise = waitForApi('/api/public/chat/conversations/', 'POST').then(r => r.json())
   const ssePromise = waitForApi('/api/public/chat/runs/', 'GET')
 
   await page.getByRole('button', { name: 'Send' }).click()
@@ -50,17 +52,20 @@ test('team chat sends and receives response via SSE', async ({ page }) => {
   const run = await runPromise
   console.log(`Created run: ${run.run_id}`)
 
-  // 6. Wait for SSE to complete  await ssePromise
+  // 6. Wait for SSE to complete.
+  await ssePromise
 
   // 7. Verify messages are displayed
   await page.waitForTimeout(2000)
   const messages = page.locator('.chat-messages article')
   await expect(messages).toHaveCount(2)
 
-  // 8. Verify assistant response has content  const assistant = messages.nth(1)
+  // 8. Verify assistant response has content.
+  const assistant = messages.nth(1)
   await expect(assistant).not.toHaveText('')
 
-  // Report any errors  if (errors.length) {
+  // Report any errors.
+  if (errors.length) {
     console.log('Browser errors:', errors.join('\n'))
     throw new Error(`Chat flow failed: ${errors.join('; ')}`)
   }

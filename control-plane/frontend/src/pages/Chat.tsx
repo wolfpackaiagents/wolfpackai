@@ -48,7 +48,7 @@ export default function Chat() {
       })
       .catch((reason) => active && setError(reason instanceof Error ? reason.message : t('chat.loadFailed')))
     return () => { active = false }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (!conversationId) {
