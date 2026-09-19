@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from app.models.entities import Approval, Base, Environment, EnvironmentRegistration, IngestionJob, MeshDefinition, MeshInteraction, Organization, PolicyDecisionAudit, Project, RegistrationHeartbeat, Score, Trace
+from app.models.entities import ApiKey, Approval, Base, Environment, EnvironmentRegistration, IngestionJob, MeshDefinition, MeshInteraction, Organization, PolicyDecisionAudit, Project, RegistrationHeartbeat, Score, Trace
 from app import main as app_main
 from app.models.model_price import ModelPrice
 from app.services import ingestion_queue

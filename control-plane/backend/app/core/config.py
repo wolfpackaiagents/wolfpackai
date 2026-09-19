@@ -14,6 +14,7 @@ class Settings(BaseSettings):
 
     app_name: str = "Wolfpack AMP"
     environment: str = "development"
+    background_workers_enabled: bool = True
 
     database_url: str = "postgresql+psycopg://wolfpack:wolfpack@localhost:5439/wolfpack"
     telemetry_storage_backend: Literal["postgres", "clickhouse"] = "postgres"

@@ -105,8 +105,9 @@ async def lifespan(app: FastAPI):
                 logger.exception("Schedule polling worker failed")
             await asyncio.sleep(get_settings().scheduler_poll_seconds)
 
-    worker = asyncio.create_task(recover_ingestion_jobs())
-    scheduler = asyncio.create_task(poll_schedules()) if get_settings().scheduler_dispatcher == "local" else None
+    workers_enabled = get_settings().background_workers_enabled
+    worker = asyncio.create_task(recover_ingestion_jobs()) if workers_enabled else None
+    scheduler = asyncio.create_task(poll_schedules()) if workers_enabled and get_settings().scheduler_dispatcher == "local" else None
 
     async def update_prices() -> None:
         while True:
@@ -122,22 +123,26 @@ async def lifespan(app: FastAPI):
                 logger.exception("Price updater worker failed")
             await asyncio.sleep(get_settings().price_update_interval_hours * 3600)
 
-    price_worker = asyncio.create_task(update_prices())
+    price_worker = asyncio.create_task(update_prices()) if workers_enabled else None
 
     try:
         yield
     finally:
-        price_worker.cancel()
-        worker.cancel()
+        if price_worker:
+            price_worker.cancel()
+        if worker:
+            worker.cancel()
         if scheduler:
             scheduler.cancel()
-        with suppress(asyncio.CancelledError):
-            await worker
+        if worker:
+            with suppress(asyncio.CancelledError):
+                await worker
         if scheduler:
             with suppress(asyncio.CancelledError):
                 await scheduler
-        with suppress(asyncio.CancelledError):
-            await price_worker
+        if price_worker:
+            with suppress(asyncio.CancelledError):
+                await price_worker
 
 
 def create_app() -> FastAPI:
