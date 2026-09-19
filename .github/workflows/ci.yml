@@ -1,0 +1,77 @@
+name: Continuous Integration
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  framework:
+    name: Framework tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: framework
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --extra test --group dev --locked
+      - run: uv run pytest
+
+  amp-backend:
+    name: AMP backend tests
+    runs-on: ubuntu-latest
+    env:
+      API_RATE_LIMIT_REQUESTS: 100000
+      WOLFPACK_AUTO_SEED: "0"
+      BACKGROUND_WORKERS_ENABLED: "false"
+    defaults:
+      run:
+        working-directory: control-plane/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --extra test --group dev --locked
+      - run: uv run pytest
+
+  amp-frontend:
+    name: AMP frontend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: control-plane/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: control-plane/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+  website:
+    name: Website build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - run: npm ci
+      - run: npm run build
