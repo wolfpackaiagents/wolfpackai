@@ -1,14 +1,19 @@
 name: Publish to PyPI
 
-# Publishes framework/ to PyPI and opens a pull request that records the new version on main.
+# Publishes framework/ to PyPI and records the new version on main through a pull request.
 #
 # main is protected (pull request, four required checks, linear history), so this workflow never
-# pushes to it. The version bump goes through a pull request named "Release X.Y.Z"; once that is
-# merged, the "Tag release" workflow creates the X.Y.Z-RELEASE tag on the merged commit.
+# pushes to it. It pushes a branch named release/X.Y.Z whose only commit is "Release X.Y.Z" and
+# that bumps the package version. Once that pull request is merged, the "Tag release" workflow
+# creates the X.Y.Z-RELEASE tag on the merged commit.
 #
-# Needs "Allow GitHub Actions to create and approve pull requests" enabled in Settings > Actions >
-# General. The pull request is opened before publishing, so a missing permission stops the release
-# before the irreversible upload.
+# The organization does not let GitHub Actions open pull requests with the workflow token, and a
+# pull request opened that way would not trigger CI anyway. So:
+#   - if the secret RELEASE_PR_TOKEN (a personal access token or app token that can open pull
+#     requests on this repository) is set, the workflow opens the pull request with it, before the
+#     upload, so a bad token stops the release before the irreversible step;
+#   - otherwise it only pushes the branch and prints the command that opens the pull request.
+# Either way, a pull request opened by a person or by that token triggers CI like any other.
 
 on:
   workflow_dispatch:
@@ -18,7 +23,7 @@ on:
         required: true
         type: string
       dry_run:
-        description: "Test everything except the upload to PyPI (the version pull request is still opened, and should be closed)"
+        description: "Test everything except the upload to PyPI (the version branch is still pushed and must be deleted)"
         required: false
         default: false
         type: boolean
@@ -26,7 +31,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 concurrency:
   group: publish-pypi
@@ -89,11 +93,12 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Open the version pull request
+      - name: Push the version branch and open its pull request when a token is set
         id: pr
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_PR_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
           VERSION: ${{ steps.release.outputs.version }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
@@ -118,55 +123,71 @@ jobs:
           fi
           git commit -m "${subject}"
           git push origin "${branch}"
-
-          {
-            echo "Sets the package version to ${VERSION} and refreshes framework/uv.lock and control-plane/backend/uv.lock."
-            echo
-            if [ "${DRY_RUN}" = "true" ]; then
-              echo "This is a dry run: nothing was published to PyPI. Close this pull request and delete the branch."
-            else
-              echo "wolfpackai ${VERSION} is published to PyPI by workflow run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}."
-              echo
-              echo 'Merge it with a rebase once the four required checks pass. Pull requests opened with the workflow token do not trigger CI, so the workflow dispatched it on this branch. After the merge the "Tag release" workflow creates the '"${VERSION}-RELEASE"' tag on the merged commit.'
-            fi
-          } > "${RUNNER_TEMP}/pr-body.md"
-
-          if ! url="$(gh pr create --base main --head "${branch}" --title "${title}" --body-file "${RUNNER_TEMP}/pr-body.md" 2>"${RUNNER_TEMP}/pr-error.txt")"; then
-            cat "${RUNNER_TEMP}/pr-error.txt"
-            git push origin --delete "${branch}" || true
-            echo "::error::Could not open the version pull request. If the message above says Actions is not permitted to create pull requests, run: gh api -X PUT repos/${GITHUB_REPOSITORY}/actions/permissions/workflow -F can_approve_pull_request_reviews=true -f default_workflow_permissions=read. Nothing was published to PyPI."
-            exit 1
-          fi
-          number="${url##*/}"
-          echo "number=${number}" >> "$GITHUB_OUTPUT"
-          echo "url=${url}" >> "$GITHUB_OUTPUT"
           echo "branch=${branch}" >> "$GITHUB_OUTPUT"
 
-          gh workflow run ci.yml --ref "${branch}"
+          body="Sets the package version to ${VERSION} and refreshes framework/uv.lock and control-plane/backend/uv.lock."
+          if [ "${DRY_RUN}" = "true" ]; then
+            body="${body} This is a dry run: nothing was published to PyPI. Close this pull request and delete the branch."
+          else
+            body="${body} wolfpackai ${VERSION} is published to PyPI by workflow run ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}. Merge with a rebase once the four required checks pass; the Tag release workflow then creates ${VERSION}-RELEASE on the merged commit."
+          fi
 
-          {
-            echo "### Version pull request"
-            echo
-            echo "${url}"
-            echo
-            echo "CI was dispatched on \`${branch}\`. When the four required checks are green, merge with:"
-            echo
-            echo '```bash'
-            echo "gh pr merge ${number} --repo ${GITHUB_REPOSITORY} --rebase --admin"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${RELEASE_PR_TOKEN}" != "" ]; then
+            if ! url="$(GH_TOKEN="${RELEASE_PR_TOKEN}" gh pr create --base main --head "${branch}" --title "${title}" --body "${body}" 2>"${RUNNER_TEMP}/pr-error.txt")"; then
+              cat "${RUNNER_TEMP}/pr-error.txt"
+              git push origin --delete "${branch}" || true
+              echo "::error::Could not open the version pull request with RELEASE_PR_TOKEN. Check that the token can open pull requests on this repository. Nothing was published to PyPI."
+              exit 1
+            fi
+            number="${url##*/}"
+            echo "number=${number}" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Version pull request"
+              echo
+              echo "${url}"
+              echo
+              echo "When the four required checks are green, merge with:"
+              echo
+              echo '```bash'
+              echo "gh pr merge ${number} --repo ${GITHUB_REPOSITORY} --rebase --admin"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "### Version branch pushed"
+              echo
+              echo "The branch \`${branch}\` has the version commit. The organization does not let this workflow open pull requests, and no RELEASE_PR_TOKEN secret is set, so open the pull request yourself"
+              if [ "${DRY_RUN}" = "true" ]; then
+                echo "(and, since this is a dry run, delete the branch instead: \`git push origin --delete ${branch}\`):"
+              else
+                echo "after the upload finishes:"
+              fi
+              echo
+              echo '```bash'
+              echo "gh pr create --repo ${GITHUB_REPOSITORY} --base main --head ${branch} --title \"${title}\" --body \"${body}\""
+              echo "gh pr checks --repo ${GITHUB_REPOSITORY} --watch <pull request number>"
+              echo "gh pr merge <pull request number> --repo ${GITHUB_REPOSITORY} --rebase --admin"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Publish to PyPI
         id: publish
         if: ${{ !inputs.dry_run }}
         run: uv publish --token ${{ secrets.PYPI_TOKEN }}
 
-      # The upload is the only irreversible step. If it fails, the version pull request describes a
-      # release that did not happen, so it is closed and its branch removed.
-      - name: Withdraw the version pull request after a failed upload
-        if: ${{ failure() && steps.publish.outcome == 'failure' && steps.pr.outputs.number != '' }}
+      # The upload is the only irreversible step. If it fails, the version branch describes a release
+      # that did not happen, so its pull request (if one was opened) is closed and the branch removed.
+      - name: Withdraw the version branch after a failed upload
+        if: ${{ failure() && steps.publish.outcome == 'failure' && steps.pr.outputs.branch != '' }}
         working-directory: .
         env:
           GH_TOKEN: ${{ github.token }}
           NUMBER: ${{ steps.pr.outputs.number }}
-        run: gh pr close "${NUMBER}" --delete-branch --comment "The upload to PyPI failed, so this release did not happen."
+          BRANCH: ${{ steps.pr.outputs.branch }}
+        run: |
+          if [ "${NUMBER}" != "" ]; then
+            gh pr close "${NUMBER}" --delete-branch --comment "The upload to PyPI failed, so this release did not happen."
+          else
+            git push origin --delete "${BRANCH}"
+          fi
