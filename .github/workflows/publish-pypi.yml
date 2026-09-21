@@ -76,16 +76,23 @@ jobs:
           fi
 
       - name: Set package version
-        run: uv version "${{ steps.release.outputs.version }}" --no-sync
+        run: uv version "${{ steps.release.outputs.version }}" --frozen
 
-      # The AMP backend depends on the local framework, so its lockfile records the framework
-      # version. Without this the next "uv sync --locked" in the AMP backend tests would fail.
-      - name: Refresh the AMP backend lockfile for the new framework version
-        working-directory: control-plane/backend
-        run: uv lock
+      # Only the version line changes. Re-running "uv lock" would reformat the whole file whenever the
+      # uv on the runner is newer than the one that wrote it. The AMP backend depends on the local
+      # framework, so its lockfile records the framework version too; a stale one fails the next
+      # "uv sync --locked" in the AMP backend tests.
+      - name: Record the new version in the lockfiles
+        working-directory: .
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          python3 .github/scripts/set_lock_version.py framework/uv.lock wolfpackai "${VERSION}"
+          python3 .github/scripts/set_lock_version.py control-plane/backend/uv.lock wolfpackai "${VERSION}"
 
+      # --locked also proves that the edited lockfile still matches pyproject.toml.
       - name: Install dependencies
-        run: uv sync --extra test --group dev
+        run: uv sync --extra test --group dev --locked
 
       - name: Run tests
         run: uv run pytest
