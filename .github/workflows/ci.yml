@@ -24,6 +24,10 @@ jobs:
           enable-cache: true
       - run: uv sync --extra test --group dev --locked
       - run: uv run pytest
+      # The release scripts live in .github/scripts and were never run by CI.
+      - name: Release script tests
+        working-directory: .
+        run: uv run --no-project --python 3.12 --with packaging python -m unittest discover -s .github/scripts -p 'test_*.py'
 
   amp-backend:
     name: AMP backend tests
