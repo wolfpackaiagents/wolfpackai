@@ -1,0 +1,40 @@
+name: Tag release
+
+# Creates the X.Y.Z-RELEASE tag when the version pull request opened by "Publish to PyPI" reaches main.
+# The tag lands on the merged commit, so `git checkout X.Y.Z-RELEASE` has the version that was published.
+# A commit only counts as a release when its subject is exactly "Release X.Y.Z" and
+# framework/pyproject.toml declares that same version (see .github/scripts/release_metadata.py).
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read the release from the head commit
+        id: release
+        run: python3 .github/scripts/release_metadata.py "$(git log -1 --format=%s)" framework/pyproject.toml
+
+      - name: Create the release tag
+        if: ${{ steps.release.outputs.is_release == 'true' }}
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_TAG: ${{ steps.release.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if git ls-remote --exit-code --tags origin "refs/tags/${RELEASE_TAG}" >/dev/null; then
+            echo "Tag ${RELEASE_TAG} already exists; nothing to do."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${RELEASE_TAG}" -m "Release ${VERSION}" "${GITHUB_SHA}"
+          git push origin "${RELEASE_TAG}"
+          echo "Created ${RELEASE_TAG} on ${GITHUB_SHA}." >> "$GITHUB_STEP_SUMMARY"
