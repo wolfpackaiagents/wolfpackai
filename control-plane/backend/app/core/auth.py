@@ -35,7 +35,7 @@ class AuthContext:
 
 
 def hash_secret(secret: str) -> str:
-    return hashlib.sha3_256(secret.encode()).hexdigest()
+    return hashlib.sha256(secret.encode()).hexdigest()  # nosec - usado para chaves de API (tokens aleatórios de alta entropia), não para senhas de usuário (que usam bcrypt)
 
 
 def generate_api_key() -> Tuple[str, str, str]:
