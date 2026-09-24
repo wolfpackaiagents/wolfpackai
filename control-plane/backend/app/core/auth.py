@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from ..core.config import get_settings
 from ..core.database import get_db
-from ..models.entities import ApiKey
+from ..models.entities import ApiKey, Project
 
 ROLE_LEVELS = {"read_only": 0, "editor": 1, "admin": 2}
 
@@ -52,10 +52,14 @@ def resolve_project_id(
 ) -> AuthContext:
     admin_key = get_settings().admin_api_key
     if x_api_key == admin_key:
-        # admin-only mode: requires the X-Wolfpack-Project-Id header
+        # admin-only mode: uses X-Wolfpack-Project-Id header or defaults to first project
         project = request.headers.get("X-Wolfpack-Project-Id")
         if not project:
-            raise HTTPException(status_code=401, detail="Admin key requires X-Wolfpack-Project-Id")
+            first_project = db.query(Project).first()
+            if first_project:
+                project = first_project.id
+            else:
+                raise HTTPException(status_code=401, detail="Admin key requires X-Wolfpack-Project-Id")
         _enforce_rate_limit(request, "admin")
         return AuthContext(project, db, "admin", "admin")
     public_key, _, provided_secret = x_api_key.partition(":")

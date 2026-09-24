@@ -1,0 +1,30 @@
+# Override local do staging: remapea as portas publicadas que colidiriam
+# com os serviços já rodando (Studio + AMP-dev). Uso:
+#   docker compose --env-file .env.staging -f docker-compose.staging.yml \
+#     -f docker-compose.staging.override.yml up -d
+services:
+  minio:
+    ports: !override
+      - "9095:9000"
+      - "9096:9001"
+
+  qdrant:
+    ports: !override
+      - "6335:6333"
+      - "6336:6334"
+
+  prometheus:
+    ports: !override
+      - "9091:9090"
+
+  inngest:
+    ports: !override
+      - "8290:8288"
+
+  backend:
+    ports: !override
+      - "8010:8000"
+
+  frontend:
+    ports: !override
+      - "8080:80"

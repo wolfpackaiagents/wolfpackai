@@ -29,7 +29,13 @@ def create_knowledge_search_tool(knowledge: Any, name: str = "search_knowledge")
             doc = r.document if hasattr(r, "document") else r
             content = doc.content if hasattr(doc, "content") else str(doc)
             score = getattr(r, "score", 0)
-            lines.append(f"[score={score:.3f}] {content[:500]}")
+            metadata = getattr(doc, "metadata", {}) or {}
+            provenance = [f"score={score:.3f}"]
+            for key in ("source", "document_id", "chunk_index", "heading"):
+                value = metadata.get(key)
+                if value is not None:
+                    provenance.append(f"{key}={value}")
+            lines.append(f"[{' ; '.join(provenance)}]\n{content[:500]}")
         return "\n\n".join(lines)
 
     return getattr(_search, "function")

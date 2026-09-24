@@ -1,0 +1,155 @@
+{{- if .Values.prometheus.enabled -}}
+{{- $fullName := include "wolfpack-control-plane.fullname" . -}}
+{{- $backendName := include "wolfpack-control-plane.backendName" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullName }}-prometheus-config
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+
+    scrape_configs:
+      - job_name: wolfpack-amp
+        static_configs:
+          - targets: ["{{ $backendName }}:{{ .Values.backend.service.port }}"]
+      {{- if .Values.redis.enabled }}
+      - job_name: redis
+        static_configs:
+          - targets: ["{{ $fullName }}-redis-exporter:9121"]
+      {{- end }}
+---
+{{- if .Values.redis.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-redis-exporter
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "wolfpack-control-plane.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: redis-exporter
+  template:
+    metadata:
+      labels:
+        {{- include "wolfpack-control-plane.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: redis-exporter
+    spec:
+      containers:
+        - name: redis-exporter
+          image: oliver006/redis_exporter:v1.66.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: metrics
+              containerPort: 9121
+              protocol: TCP
+          env:
+            - name: REDIS_ADDR
+              value: "redis://{{ $fullName }}-redis:6379/0"
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "25m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-redis-exporter
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-exporter
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9121
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "wolfpack-control-plane.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: redis-exporter
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-prometheus
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "wolfpack-control-plane.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: prometheus
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/prometheus.yaml") . | sha256sum }}
+      labels:
+        {{- include "wolfpack-control-plane.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: prometheus
+    spec:
+      containers:
+        - name: prometheus
+          image: prom/prometheus:v2.54.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+          ports:
+            - name: http
+              containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: data
+              mountPath: /prometheus
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      volumes:
+        - name: config
+          configMap:
+            name: {{ $fullName }}-prometheus-config
+        - name: data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-prometheus
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9090
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "wolfpack-control-plane.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+{{- end }}

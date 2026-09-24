@@ -46,7 +46,11 @@
     "last24Hours": "Últimas 24 horas",
     "last7Days": "Últimos 7 dias",
     "last30Days": "Últimos 30 dias",
-    "noMatchingOptions": "Nenhuma opção encontrada"
+    "noMatchingOptions": "Nenhuma opção encontrada",
+    "skipToContent": "Ir para o conteúdo",
+    "mainNavigation": "Navegação principal",
+    "productName": "Wolfpack Control",
+    "control": "Control"
   },
   "format": {
     "milliseconds": "{{value}} ms",
@@ -58,7 +62,9 @@
     "apiKeyLabel": "API Key (pk-…:secret)",
     "placeholder": "pk-…:secret",
     "submit": "Entrar",
-    "hint": "Use uma chave criada no Admin, ou a chave de dev pk-wp-dev:dev-secret"
+    "hint": "Use uma chave criada no Admin, ou a chave de dev pk-wp-dev:dev-secret",
+    "heroTitle": "Opere agentes com confiança.",
+    "heroSubtitle": "Observe execuções, governe o acesso e mantenha cada conversa de produção ao alcance."
   },
   "dashboard": {
     "eyebrow": "Operar / Visão geral",

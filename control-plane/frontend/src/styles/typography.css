@@ -1,0 +1,9 @@
+body {
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+code, pre, .amp-mono {
+  font-family: 'Roboto Mono', ui-monospace, monospace;
+}
