@@ -1,0 +1,23 @@
+================================================================================
+Wolfpack Control Plane (AMP) instalado com sucesso!
+================================================================================
+
+1. Obter o endereco da aplicacao:
+{{- if .Values.ingress.enabled }}
+  Acesse a interface pelo navegador no host configurado:
+  {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}
+
+  Para testes locais, garanta que o host esta mapeado no seu /etc/hosts:
+  127.0.0.1 {{ .Values.ingress.host }}
+{{- else }}
+  Para acessar o frontend localmente sem Ingress, execute o port-forward:
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "wolfpack-control-plane.frontendName" . }} 8080:{{ .Values.frontend.service.port }}
+  E acesse em: http://localhost:8080
+{{- end }}
+
+2. Documentacao da API (Swagger / OpenAPI):
+  Acesse os endpoints do backend pelo prefixo /api:
+  {{ if .Values.ingress.tls }}https{{ else }}http{{ end }}://{{ .Values.ingress.host }}/api/docs
+
+3. Verificar os pods:
+  kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/instance={{ .Release.Name }}"

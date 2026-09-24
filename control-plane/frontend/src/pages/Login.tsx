@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '../stores/auth'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import networkImage from '../assets/amp-login-network.webp'
 
 export default function Login() {
   const [key, setKey] = useState('')
@@ -17,40 +18,26 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="absolute top-4 right-4">
-          <LanguageSwitcher />
+    <main className="amp-login">
+      <section className="amp-login-hero" aria-hidden="true">
+        <img className="amp-login-art" src={networkImage} alt="" />
+        <div className="amp-login-brand"><span className="amp-login-mark">W</span> {t('layout.productName')}</div>
+        <div className="amp-login-copy">
+          <h1>{t('login.heroTitle')}</h1>
+          <p>{t('login.heroSubtitle')}</p>
         </div>
-        <div className="mb-8 text-center">
-          <div className="inline-block w-3 h-3 rounded-full bg-orange-500 mb-3" />
-          <h1 className="text-2xl font-semibold">
-            Wolfpack <span className="text-orange-400">AMP</span>
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">{t('login.subtitle')}</p>
-        </div>
-        <form onSubmit={submit} className="space-y-4">
-          <div>
-            <label className="block text-xs uppercase tracking-wide text-slate-400 mb-1">
-              {t('login.apiKeyLabel')}
-            </label>
-            <input
-              type="password"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder={t('login.placeholder')}
-              className="w-full rounded-lg bg-slate-900 border border-slate-700 px-3 py-2 text-sm outline-none focus:border-orange-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full rounded-lg bg-orange-600 hover:bg-orange-500 py-2 text-sm font-medium"
-          >
-            {t('login.submit')}
-          </button>
-          <p className="text-xs text-slate-600 text-center">{t('login.hint')}</p>
+      </section>
+      <section className="amp-login-panel">
+        <div className="amp-login-language"><LanguageSwitcher /></div>
+        <form onSubmit={submit} className="amp-login-form">
+          <h2>{t('login.title')}</h2>
+          <p>{t('login.subtitle')}</p>
+          <label htmlFor="api-key">{t('login.apiKeyLabel')}</label>
+          <input id="api-key" type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder={t('login.placeholder')} autoComplete="current-password" />
+          <button type="submit" className="amp-login-submit">{t('login.submit')}</button>
+          <p className="text-center text-xs">{t('login.hint')}</p>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }

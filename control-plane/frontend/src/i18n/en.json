@@ -104,7 +104,11 @@
     "last24Hours": "Last 24 hours",
     "last7Days": "Last 7 days",
     "last30Days": "Last 30 days",
-    "noMatchingOptions": "No matching options"
+    "noMatchingOptions": "No matching options",
+    "skipToContent": "Skip to content",
+    "mainNavigation": "Main navigation",
+    "productName": "Wolfpack Control",
+    "control": "Control"
   },
   "format": {
     "milliseconds": "{{value}} ms",
@@ -116,7 +120,9 @@
     "apiKeyLabel": "API Key (pk-…:secret)",
     "placeholder": "pk-…:secret",
     "submit": "Sign in",
-    "hint": "Use an Admin-created key or the dev key pk-wp-dev:dev-secret"
+    "hint": "Use an Admin-created key or the dev key pk-wp-dev:dev-secret",
+    "heroTitle": "Operate agents with confidence.",
+    "heroSubtitle": "Observe runs, govern access, and keep every production conversation within reach."
   },
   "dashboard": {
     "eyebrow": "Operate / Overview",

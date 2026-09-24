@@ -1,0 +1,16 @@
+# Patterns to ignore when packaging a Helm chart.
+*.tgz
+.git
+.gitignore
+.gitmodules
+.*.swp
+*.bak
+*.tmp
+*.orig
+*~
+.DS_Store
+.project
+.idea
+*.sublime-project
+*.sublime-workspace
+.vscode/

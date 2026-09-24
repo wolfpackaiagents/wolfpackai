@@ -91,9 +91,12 @@ class Knowledge:
         self._paths.append(path)
         base_meta = {"source": path, **(metadata or {})}
         if path.lower().endswith(".md"):
-            for sec in _split_markdown_sections(content):
-                chunks = _default_chunk_size(sec, self.chunk_size)
-                self._load_chunks(chunks, {**base_meta, "section": True})
+            chunks = [
+                chunk
+                for section in _split_markdown_sections(content)
+                for chunk in _default_chunk_size(section, self.chunk_size)
+            ]
+            self._load_chunks(chunks, {**base_meta, "section": True})
         else:
             chunks = _default_chunk_size(content, self.chunk_size)
             self._load_chunks(chunks, base_meta)
@@ -101,7 +104,10 @@ class Knowledge:
     def _load_chunks(self, chunks: List[str], metadata: Optional[Dict[str, Any]]):
         from ..vectordb.base import Document
 
-        docs = [Document(content=c, metadata=metadata) for c in chunks]
+        docs = [
+            Document(content=content, metadata={**(metadata or {}), "chunk_index": index})
+            for index, content in enumerate(chunks, start=1)
+        ]
         embeddings = self.embedding_model.embed(chunks)
         self.vector_db.upsert(docs, embeddings)
         self._contents.extend(chunks)

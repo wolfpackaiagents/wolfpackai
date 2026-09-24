@@ -55,11 +55,11 @@ export default function Dashboard() {
           <p className="dashboard-chart-label">{t('dashboard.runsByTimeBucket')}</p>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={metrics}>
-              <CartesianGrid stroke="#294038" vertical={false} />
-              <XAxis dataKey="bucket" tickFormatter={formatTime} stroke="#789087" fontSize={10} />
-              <YAxis stroke="#789087" fontSize={10} />
-              <Tooltip labelFormatter={(value) => formatTime(String(value))} formatter={(value: number) => [formatNumber(value), t('dashboard.executions')]} contentStyle={{ background: '#10201c', border: '1px solid #365047', borderRadius: '8px', color: '#eff9f4' }} />
-              <Bar dataKey="count" fill="#ff6b35" radius={[4, 4, 0, 0]} />
+              <CartesianGrid stroke="var(--color-line)" vertical={false} />
+              <XAxis dataKey="bucket" tickFormatter={formatTime} stroke="var(--color-text-secondary)" fontSize={10} />
+              <YAxis stroke="var(--color-text-secondary)" fontSize={10} />
+              <Tooltip labelFormatter={(value) => formatTime(String(value))} formatter={(value: number) => [formatNumber(value), t('dashboard.executions')]} contentStyle={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-line)', borderRadius: '8px', color: 'var(--color-text)' }} />
+              <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -67,12 +67,12 @@ export default function Dashboard() {
           <p className="dashboard-chart-label">{t('dashboard.latencyHint')}</p>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={metrics}>
-              <CartesianGrid stroke="#294038" vertical={false} />
-              <XAxis dataKey="bucket" tickFormatter={formatTime} stroke="#789087" fontSize={10} />
-              <YAxis stroke="#789087" fontSize={10} />
-              <Tooltip labelFormatter={(value) => formatTime(String(value))} formatter={(value: number, name) => [formatDuration(value) || '—', name === 'latency_p50' ? t('dashboard.p50Latency') : t('dashboard.p95Latency')]} contentStyle={{ background: '#10201c', border: '1px solid #365047', borderRadius: '8px', color: '#eff9f4' }} />
-              <Line type="monotone" dataKey="latency_p50" stroke="#c7f36b" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="latency_p95" stroke="#ff6b35" strokeWidth={2} dot={false} />
+              <CartesianGrid stroke="var(--color-line)" vertical={false} />
+              <XAxis dataKey="bucket" tickFormatter={formatTime} stroke="var(--color-text-secondary)" fontSize={10} />
+              <YAxis stroke="var(--color-text-secondary)" fontSize={10} />
+              <Tooltip labelFormatter={(value) => formatTime(String(value))} formatter={(value: number, name) => [formatDuration(value) || '—', name === 'latency_p50' ? t('dashboard.p50Latency') : t('dashboard.p95Latency')]} contentStyle={{ background: 'var(--color-surface-alt)', border: '1px solid var(--color-line)', borderRadius: '8px', color: 'var(--color-text)' }} />
+              <Line type="monotone" dataKey="latency_p50" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="latency_p95" stroke="var(--color-primary)" strokeWidth={2} dot={false} />
               <Legend formatter={(value) => value === 'latency_p50' ? t('dashboard.p50Latency') : t('dashboard.p95Latency')} wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
             </LineChart>
           </ResponsiveContainer>

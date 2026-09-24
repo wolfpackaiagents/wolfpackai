@@ -1,0 +1,43 @@
+{{- $fullName := include "wolfpack-control-plane.fullname" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullName }}-config
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+data:
+  {{- range $key, $value := .Values.configmapData }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+  {{- if .Values.clickhouse.enabled }}
+  CLICKHOUSE_HOST: {{ include "wolfpack-control-plane.clickhouseHost" . | quote }}
+  CLICKHOUSE_PORT: {{ .Values.clickhouse.service.httpPort | default "8123" | quote }}
+  CLICKHOUSE_DATABASE: {{ .Values.clickhouse.auth.database | quote }}
+  CLICKHOUSE_USERNAME: {{ .Values.clickhouse.auth.username | quote }}
+  {{- else if .Values.externalClickhouse.host }}
+  CLICKHOUSE_HOST: {{ .Values.externalClickhouse.host | quote }}
+  CLICKHOUSE_PORT: {{ .Values.externalClickhouse.port | default "8123" | quote }}
+  CLICKHOUSE_DATABASE: {{ .Values.externalClickhouse.database | default "wolfpack" | quote }}
+  CLICKHOUSE_USERNAME: {{ .Values.externalClickhouse.username | default "wolfpack" | quote }}
+  {{- end }}
+  {{- if .Values.qdrant.enabled }}
+  QDRANT_URL: {{ include "wolfpack-control-plane.qdrantHost" . | quote }}
+  {{- else if .Values.externalQdrant.url }}
+  QDRANT_URL: {{ .Values.externalQdrant.url | quote }}
+  {{- end }}
+  {{- if .Values.redis.enabled }}
+  REDIS_URL: "redis://{{ $fullName }}-redis:6379/0"
+  {{- else if .Values.externalRedis.url }}
+  REDIS_URL: {{ .Values.externalRedis.url | quote }}
+  {{- end }}
+  {{- if .Values.minio.enabled }}
+  MINIO_ENDPOINT: "http://{{ $fullName }}-minio:9000"
+  MINIO_BUCKET: {{ .Values.minio.bucket | quote }}
+  {{- else if .Values.externalMinio.endpoint }}
+  MINIO_ENDPOINT: {{ .Values.externalMinio.endpoint | quote }}
+  {{- end }}
+  {{- if .Values.inngest.enabled }}
+  INNGEST_BASE_URL: "http://{{ $fullName }}-inngest:8288"
+  {{- else if .Values.externalInngest.url }}
+  INNGEST_BASE_URL: {{ .Values.externalInngest.url | quote }}
+  {{- end }}

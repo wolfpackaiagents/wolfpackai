@@ -1,0 +1,10 @@
+apiVersion: v2
+name: wolfpack-control-plane
+description: Helm chart do Wolfpack Control Plane (AMP), plataforma de gestao, observabilidade e governanca de agentes de IA
+type: application
+version: 0.1.0
+appVersion: "0.1.1"
+home: https://github.com/alvaro-brito-products/wolfpack-ai
+maintainers:
+  - name: Wolfpack AI
+    email: contact@wolfpack.ai

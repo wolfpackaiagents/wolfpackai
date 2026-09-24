@@ -1,0 +1,118 @@
+{{- if and .Values.inngest.enabled .Values.inngestPostgres.enabled -}}
+{{- $fullName := include "wolfpack-control-plane.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-inngest-postgres
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: inngest-postgres
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "wolfpack-control-plane.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: inngest-postgres
+  template:
+    metadata:
+      labels:
+        {{- include "wolfpack-control-plane.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: inngest-postgres
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: inngest-postgres
+          image: "{{ .Values.inngestPostgres.image.repository }}:{{ .Values.inngestPostgres.image.tag }}"
+          imagePullPolicy: {{ .Values.inngestPostgres.image.pullPolicy }}
+          ports:
+            - name: tcp
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.inngestPostgres.auth.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $fullName }}-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: {{ .Values.inngestPostgres.auth.database | quote }}
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.inngestPostgres.auth.username }}
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - {{ .Values.inngestPostgres.auth.username }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.inngestPostgres.resources | nindent 12 }}
+      volumes:
+        - name: data
+          {{- if .Values.inngestPostgres.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}-inngest-postgres
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-inngest-postgres
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: inngest-postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+      targetPort: tcp
+      protocol: TCP
+      name: tcp
+  selector:
+    {{- include "wolfpack-control-plane.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: inngest-postgres
+{{- if .Values.inngestPostgres.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $fullName }}-inngest-postgres
+  labels:
+    {{- include "wolfpack-control-plane.labels" . | nindent 4 }}
+    app.kubernetes.io/component: inngest-postgres
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.inngestPostgres.persistence.storageClass }}
+  storageClassName: {{ .Values.inngestPostgres.persistence.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.inngestPostgres.persistence.size | quote }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,816 @@
+/* Compatibility layer: it moves existing AMP pages to Studio surfaces without changing their data contracts. */
+.app-shell { min-height: 100vh; display: flex; background: var(--color-surface); color: var(--color-text); }
+.app-sidebar { position: sticky; top: 0; width: var(--sidenav-width); height: 100vh; flex: none; overflow-y: auto; border-right: 1px solid var(--color-line); padding: 8px; background: var(--color-surface-alt); }
+.app-brand { display: flex; align-items: center; gap: 10px; margin: 8px 8px 24px; color: var(--color-text); letter-spacing: 0; font-size: 16px; }
+.app-brand span { display: grid; width: 28px; height: 28px; place-items: center; border-radius: var(--radius); background: var(--color-primary); color: #fff; font-weight: 700; }
+.app-brand small { color: var(--color-text-secondary); font-size: 10px; letter-spacing: .08em; }
+.nav-group { margin: 0 0 16px; }
+.nav-group p { margin: 8px 12px 4px; color: var(--color-text-secondary); font: 500 11px 'Roboto Mono', ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.nav-group a { display: flex; align-items: center; gap: 12px; min-height: 40px; margin: 2px 0; border-radius: var(--radius); padding: 8px 12px; color: var(--color-text-secondary); font-size: 14px; text-decoration: none; }
+.nav-group a:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.nav-group a.is-active { background: var(--color-primary-tint); color: var(--color-primary-on-tint); box-shadow: inset 3px 0 var(--color-primary); }
+.nav-icon { flex: none; }
+.sidebar-footer { position: static; margin: 24px 12px 8px; color: var(--color-text-secondary); font: 11px 'Roboto Mono', ui-monospace, monospace; }
+.status-dot { background: var(--color-success); }
+.app-main { min-width: 0; flex: 1; }
+.context-bar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 8px; min-height: var(--header-height); border-bottom: 1px solid var(--color-line); padding: 8px 24px; background: rgb(255 255 255 / 94%); backdrop-filter: blur(10px); }
+.context-label { color: var(--color-text-secondary); font: 500 11px 'Roboto Mono', ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.context-bar select, .context-bar button, .context-combobox-input { border: 1px solid var(--color-line); border-radius: var(--radius); background: var(--color-surface); color: var(--color-text); }
+.context-bar button:hover { background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.context-actions { gap: 8px; }
+.app-content { max-width: 1440px; padding: 32px; }
+.context-combobox-input { padding: 8px 10px; font-size: 13px; }
+.context-combobox-input:focus { border-color: var(--color-primary); }
+.context-combobox-options { border-color: var(--color-line); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--elevation-2); }
+.context-combobox-option { color: var(--color-text); font-size: 13px; }
+.context-combobox-option:hover, .context-combobox-option.is-active { background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.context-combobox-option[aria-selected="true"]::after { color: var(--color-primary); }
+
+/* Common operational surfaces shared by all existing page modules. */
+.quality-kpis article, .quality-panel, .quality-table, .ops-table, .overview-kpis article, .overview-grid > section, .overview-ledger, .operations-ledger, .dashboard-chart, .throughput-summary, .chat-layout, .mesh-environment-card, .mesh-inventory, .mesh-graph, .policy-hero, .policy-patterns, .settings-role-matrix, .confirmation-dialog, .channel-editor { border-color: var(--color-line); background: var(--color-surface); box-shadow: none; }
+.quality-header h1, .ops-header h1, .session-console h1, .overview-console h1, .chat-console h1, .operations-hero h1, .policy-hero h1 { color: var(--color-text); font-size: 28px; font-weight: 500; letter-spacing: -.02em; }
+.quality-header p, .ops-header p, .session-console header p, .overview-console header p, .chat-console header p, .operations-eyebrow, .policy-eyebrow, .operations-section-heading p, .trace-kicker { color: var(--color-text-secondary); }
+.quality-header span, .ops-header span, .session-console header span, .overview-console header span, .chat-console header span, .operations-hero p, .policy-hero p, .quality-panel p, .overview-grid p { color: var(--color-text-secondary); }
+.quality-kpis strong, .overview-kpis strong, .throughput-summary strong, .quality-panel h2, .quality-table h2, .overview-grid h2, .overview-ledger h2, .operations-ledger-row, .operations-message, .confirmation-dialog h2, .channel-editor h2 { color: var(--color-text); }
+.quality-kpis span, .quality-kpis small, .overview-kpis span, .overview-kpis small, .quality-panel p, .quality-table th, .ops-table th, .overview-ledger p, .overview-ledger th, .operations-ledger-head, .operations-time, .operations-muted { color: var(--color-text-secondary); }
+.quality-table th, .ops-table th, .overview-ledger th, .operations-ledger-head, .mesh-inventory-header { background: var(--color-surface-alt); color: var(--color-text-secondary); }
+.quality-table th, .quality-table td, .ops-table th, .ops-table td, .overview-ledger th, .overview-ledger td, .operations-ledger-row, .operations-ledger-head, .mesh-inventory-row, .mesh-inventory-header { border-color: var(--color-line); }
+.quality-table a, .ops-table a, .overview-ledger a, .operations-link, .operations-count, .quality-scope, .ops-header > strong, .chat-status, .mesh-text-button, .mesh-card-footer b { color: var(--color-primary); }
+.ops-chip, .ops-count, .operations-status.is-approved, .operations-severity.is-info, .mesh-type.agent, .mesh-coverage span { background: var(--color-primary-tint); color: var(--color-primary-on-tint); border-color: var(--color-primary-tint-strong); }
+.operations-status.is-rejected, .operations-severity.is-critical { background: var(--color-error-tint); color: var(--color-error); }
+.operations-severity.is-warning { background: var(--color-warning-tint); color: var(--color-warning); }
+.chat-layout > aside, .chat-messages article, .chat-messages article.user, .mesh-flow-scroll, .mesh-flow-node rect, .operations-hero, .policy-hero { background: var(--color-surface-alt); color: var(--color-text); }
+.chat-messages article.user { background: var(--color-primary-tint); }
+.new-thread, .operations-refresh, .context-bar button, .ops-pagination button { border-color: var(--color-line); color: var(--color-primary); }
+.new-thread:hover, .operations-refresh:hover:not(:disabled), .ops-pagination button:hover:not(:disabled) { background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.confirmation-backdrop { background: rgb(32 33 36 / 32%); }
+.confirmation-dialog { color: var(--color-text); }
+.confirmation-dialog p, .channel-editor label, .channel-editor small { color: var(--color-text-secondary); }
+.confirmation-cancel { border-color: var(--color-line); color: var(--color-text); }
+.confirmation-destructive { background: var(--color-error); }
+.channel-editor input, .channel-editor textarea, .operations-filter select, .ops-filterbar input, .policy-pattern-row input { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.channel-editor input:focus, .channel-editor textarea:focus, .operations-filter select:focus, .policy-pattern-row input:focus { border-color: var(--color-primary); }
+.operations-hero, .policy-hero { border-color: var(--color-line); background-image: none; }
+.operations-pulse, .policy-pulse, .mesh-pulse { background: var(--color-primary); box-shadow: 0 0 0 4px var(--color-primary-tint); }
+.operations-hero h1 span, .policy-hero h1 span { color: var(--color-text-secondary); }
+.mesh-environment-card:hover { border-color: var(--color-primary); }
+.mesh-env-icon, .mesh-kind { background: var(--color-primary-tint); color: var(--color-primary); }
+.mesh-card-footer b { color: var(--color-primary); }
+.mesh-graph-nodes code, .mesh-coverage span { color: var(--color-primary-on-tint); }
+
+/* Mesh status badge */
+.mesh-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-tint-strong);
+}
+.mesh-status::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+.mesh-status.is-muted {
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-line);
+}
+.mesh-status.is-muted::before {
+  background: var(--color-text-secondary);
+}
+
+/* Mesh used a standalone dark, orange and lime palette. Keep its dense operational layout while
+   bringing every surface and interactive state into the shared blue Studio system. */
+.mesh-console { --mesh-orange: var(--color-primary); --mesh-lime: var(--color-primary); --mesh-ink: var(--color-surface); --mesh-panel: var(--color-surface); --mesh-line: var(--color-line); color: var(--color-text); }
+.mesh-hero { border-color: var(--color-line); background: radial-gradient(circle at 90% 8%, rgb(26 115 232 / 14%), transparent 30%), linear-gradient(135deg, var(--color-surface-alt), var(--color-surface)); }
+.mesh-hero-grid { opacity: .55; background-image: linear-gradient(rgb(26 115 232 / 7%) 1px, transparent 1px), linear-gradient(90deg, rgb(26 115 232 / 7%) 1px, transparent 1px); }
+.mesh-eyebrow, .mesh-section-index { color: var(--color-text-secondary); }
+.mesh-pulse { background: var(--color-primary); box-shadow: 0 0 0 4px var(--color-primary-tint); }
+.mesh-hero h1, .mesh-section-heading h2, .mesh-environment-card h3, .mesh-dialog h2 { color: var(--color-text); }
+.mesh-hero h1 span { color: var(--color-text-secondary); }
+.mesh-hero p, .mesh-environment-card p, .mesh-env-stats, .mesh-card-footer, .mesh-legend, .mesh-graph-summary, .mesh-memory-profile { color: var(--color-text-secondary); }
+.mesh-primary { background: var(--color-primary); color: #fff; }
+.mesh-primary:hover { background: var(--color-primary-hover); }
+.mesh-secondary { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.mesh-secondary:hover { border-color: var(--color-primary); background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.mesh-kpis { border-color: var(--color-line); background: rgb(255 255 255 / 68%); }
+.mesh-kpis > div { border-color: var(--color-line); }
+.mesh-kpis span, .mesh-kpis small { color: var(--color-text-secondary); }
+.mesh-kpis strong, .mesh-env-stats b { color: var(--color-text); }
+.mesh-environment-card, .mesh-inventory, .mesh-graph { border-color: var(--color-line); background: var(--color-surface); }
+.mesh-environment-card { background: var(--color-surface); }
+.mesh-environment-card:hover { border-color: var(--color-primary); box-shadow: var(--elevation-1); }
+.mesh-env-icon, .mesh-kind { background: var(--color-primary-tint); color: var(--color-primary); }
+.mesh-card-footer, .mesh-registration-list, .mesh-registration { border-color: var(--color-line); }
+.mesh-card-footer code, .mesh-inventory-row code, .mesh-graph-edge code { color: var(--color-text-secondary); }
+
+/* Health badges & status */
+.health-online { color: var(--color-text) !important; }
+.health-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: .4rem;
+  border: 1px solid var(--color-primary-tint-strong) !important;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-style: normal;
+  font-size: 9px;
+  text-transform: uppercase;
+  background: var(--color-primary-tint);
+  color: var(--color-primary) !important;
+  font-weight: 500;
+}
+.health-badge::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  content: '';
+}
+.health-degraded { color: var(--color-text) !important; }
+.health-degraded .health-badge, .health-badge.health-degraded {
+  border-color: var(--color-warning-tint-strong) !important;
+  background: var(--color-warning-tint);
+  color: var(--color-warning) !important;
+}
+.health-degraded .health-badge::before, .health-badge.health-degraded::before {
+  background: var(--color-warning);
+}
+.health-offline { color: var(--color-text) !important; }
+.health-offline .health-badge, .health-badge.health-offline {
+  border-color: var(--color-error-tint-strong) !important;
+  background: var(--color-error-tint);
+  color: var(--color-error) !important;
+}
+.health-offline .health-badge::before, .health-badge.health-offline::before {
+  background: var(--color-error);
+}
+.health-unknown { color: var(--color-text-secondary) !important; }
+.health-unknown .health-badge, .health-badge.health-unknown {
+  border-color: var(--color-line) !important;
+  background: var(--color-surface-hover);
+  color: var(--color-text-secondary) !important;
+}
+.health-unknown .health-badge::before, .health-badge.health-unknown::before {
+  background: var(--color-text-secondary);
+}
+.mesh-legend .agent, .mesh-kind.agent, .mesh-legend .team, .mesh-kind.team, .mesh-legend .workflow, .mesh-kind.workflow { background: var(--color-primary); }
+.mesh-type.agent, .mesh-type.team, .mesh-type.workflow, .mesh-graph-edge span { border-color: var(--color-primary-tint-strong); background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.mesh-coverage span, .mesh-graph-nodes code { border-color: var(--color-primary-tint-strong); background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.mesh-inventory-header { background: var(--color-surface-alt); color: var(--color-text-secondary); }
+.mesh-inventory-row, .mesh-inventory-header, .mesh-graph-edge { border-color: var(--color-line); }
+.mesh-inventory-row:hover, .mesh-graph-edge:hover { background: var(--color-surface-hover); }
+.mesh-graph-toolbar { border-color: var(--color-line); background: var(--color-surface-alt); }
+.mesh-graph-toolbar button { color: var(--color-text-secondary); }
+.mesh-graph-toolbar button:hover, .mesh-graph-toolbar button.is-active { background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.mesh-graph-edge:hover, .mesh-graph-edge.is-selected { background: var(--color-primary-tint); }
+.mesh-graph-edge.is-selected { box-shadow: inset 3px 0 var(--color-primary); }
+.mesh-flow-scroll { background: linear-gradient(90deg, rgb(26 115 232 / 5%) 1px, transparent 1px), var(--color-surface-alt); }
+.mesh-flow-lane, .mesh-flow-edge-label { fill: var(--color-text-secondary); }
+.mesh-flow-path { stroke: var(--color-line); }
+.mesh-flow-connector:hover .mesh-flow-path, .mesh-flow-connector.is-selected .mesh-flow-path { stroke: var(--color-primary); }
+.mesh-flow-connector:hover .mesh-flow-edge-label, .mesh-flow-connector.is-selected .mesh-flow-edge-label { fill: var(--color-primary-on-tint); }
+.mesh-flow marker path, .mesh-flow-connector.is-selected marker path { fill: var(--color-primary); }
+.mesh-flow-node rect { fill: var(--color-surface); stroke: var(--color-line); }
+.mesh-flow-node text { fill: var(--color-text); }
+.mesh-dialog-backdrop { background: rgb(32 33 36 / 32%); }
+.mesh-dialog { border-color: var(--color-line); background: var(--color-surface); box-shadow: var(--elevation-2); }
+.mesh-dialog p, .mesh-dialog label { color: var(--color-text-secondary); }
+.mesh-dialog input, .mesh-dialog textarea, .mesh-dialog select { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.mesh-dialog input:focus, .mesh-dialog textarea:focus, .mesh-dialog select:focus { border-color: var(--color-primary); }
+.mesh-close { color: var(--color-text-secondary); }
+.mesh-close:hover { color: var(--color-text); }
+.mesh-card-actions button, .mesh-registration button { color: var(--color-primary); }
+
+/* Operations console / Resilience */
+.operations-console { --op-line: var(--color-line); --op-panel: var(--color-surface); --op-muted: var(--color-text-secondary); color: var(--color-text); }
+.operations-hero-grid, .policy-hero-grid { opacity: .55; background-image: linear-gradient(rgb(26 115 232 / 5%) 1px, transparent 1px), linear-gradient(90deg, rgb(26 115 232 / 5%) 1px, transparent 1px); }
+.operations-kpis { border-top-color: var(--color-line); }
+.operations-kpis > div { border-color: var(--color-line); }
+.operations-kpis strong, .operations-kpis .is-danger strong, .operations-kpis .is-warning strong, .operations-kpis .is-muted strong { color: var(--color-text); }
+.operations-kpis span, .operations-kpis small { color: var(--color-text-secondary); }
+.operations-metric { background: var(--color-surface); }
+.operations-metric strong, .operations-metric.is-warning strong, .operations-metric.is-danger strong, .operations-metric.is-blue strong, .operations-metric.is-success strong, .operations-metric.is-muted strong { color: var(--color-text); }
+.operations-feedback { border-color: var(--color-line); background: var(--color-surface-alt); color: var(--color-text); }
+.operations-feedback.is-error { border-color: var(--color-error-tint-strong); background: var(--color-error-tint); color: var(--color-error); }
+.operations-feedback.is-warning { border-color: var(--color-warning-tint-strong); background: var(--color-warning-tint); color: var(--color-warning); }
+.operations-rule-form input, .operations-rule-form select { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.operations-rule-form input:focus, .operations-rule-form select:focus { border-color: var(--color-primary); }
+.operations-severity.is-error { background: var(--color-error-tint); color: var(--color-error); }
+
+.operations-approve {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 6px;
+  padding: .5rem .85rem;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.operations-approve:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.operations-approve:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.operations-reject {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 6px;
+  padding: .5rem .85rem;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.operations-reject:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-line);
+}
+.operations-reject:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Policy & Settings */
+.policy-console { --policy-orange: var(--color-primary); --policy-lime: var(--color-primary); --policy-line: var(--color-line); color: var(--color-text); }
+.policy-panel {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface);
+  box-shadow: none;
+}
+.policy-panel-footer {
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface-alt);
+  color: var(--color-text-secondary);
+}
+.policy-primary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.policy-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  border-color: var(--color-primary-hover);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.policy-secondary {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.policy-secondary:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+  border-color: var(--color-line);
+}
+.policy-text-button {
+  color: var(--color-primary);
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  cursor: pointer;
+}
+.policy-text-button:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+.policy-danger {
+  border: 1px solid var(--color-error-tint-strong);
+  background: var(--color-error-tint);
+  color: var(--color-error);
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.policy-danger:hover:not(:disabled) {
+  background: var(--color-error);
+  color: #fff;
+}
+.settings-access label,
+.settings-governance label,
+.settings-admin label {
+  color: var(--color-text-secondary);
+}
+.settings-access input,
+.settings-governance input,
+.settings-governance textarea,
+.settings-admin input,
+.policy-rights-form input {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.settings-access input:focus,
+.settings-governance input:focus,
+.settings-governance textarea:focus,
+.settings-admin input:focus,
+.policy-rights-form input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+.settings-admin pre {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border-radius: 6px;
+}
+.settings-permission-row {
+  border-top: 1px solid var(--color-line);
+  color: var(--color-text);
+}
+.settings-permission-row strong {
+  color: var(--color-text);
+}
+.settings-permission-row input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+.policy-rights-intro {
+  border-right: 1px solid var(--color-line);
+}
+.policy-rights-intro h3 {
+  color: var(--color-text);
+}
+.policy-rights-intro p {
+  color: var(--color-text-secondary);
+}
+.ops-filterbar select {
+  border-color: var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.policy-hero-status strong { color: var(--color-text); }
+.policy-hero-status strong::before { background: var(--color-success); }
+.policy-hero-status .is-live { color: var(--color-success); }
+.policy-hero-status .is-muted { color: var(--color-text-secondary); }
+.policy-patterns legend, .settings-role-matrix legend { color: var(--color-text); }
+.policy-section-heading > div > span, .policy-panel-footer small, .policy-unavailable span, .policy-toggle em, .policy-index { color: var(--color-text-secondary); }
+.policy-pulse { background: var(--color-primary); box-shadow: 0 0 0 4px var(--color-primary-tint); }
+.policy-pattern-row label > span { color: var(--color-text-secondary); }
+.settings-auth-note, .settings-role-matrix > p, .policy-patterns p, .policy-patterns-empty { color: var(--color-text-secondary); }
+.operations-ledger-row [data-label]::before { color: var(--color-text-secondary); }
+.settings-permission-header { color: var(--color-text-secondary); }
+.settings-permission-row label { color: var(--color-text); }
+
+/* Chat */
+.chat-console header p, .chat-console aside > strong { color: var(--color-text-secondary); }
+.chat-console header span { color: var(--color-text-secondary); }
+.chat-status { color: var(--color-primary); }
+.chat-target span, .chat-target small { color: var(--color-text-secondary); }
+
+.chat-layout { border-color: var(--color-line); background: var(--color-surface); }
+.chat-layout > aside { background: var(--color-surface-alt); border-color: var(--color-line); }
+.chat-layout > aside:first-child { border-right: 1px solid var(--color-line); }
+.run-inspector { border-left: 1px solid var(--color-line); background: var(--color-surface-alt); }
+.run-inspector strong { color: var(--color-text-secondary); }
+.run-inspector p { color: var(--color-text-secondary); }
+.run-inspector div { border-top: 1px solid var(--color-line); }
+.run-inspector span { color: var(--color-text-secondary); }
+.run-inspector b { color: var(--color-text); }
+.run-inspector a { color: var(--color-primary); }
+
+.chat-messages { background: var(--color-surface); }
+.chat-messages article {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-line);
+}
+.chat-messages article b { color: var(--color-text-secondary); }
+.chat-messages article.user {
+  background: var(--color-primary-tint);
+  color: var(--color-text);
+  border: 1px solid var(--color-primary-tint-strong);
+}
+.chat-messages article.user b { color: var(--color-primary); }
+
+.chat-empty span { background: var(--color-primary); color: #fff; }
+.chat-empty h2 { color: var(--color-text); }
+.chat-empty p { color: var(--color-text-secondary); }
+
+.chat-threads .thread-row.is-active { border-color: var(--color-primary); background: var(--color-primary-tint); }
+.chat-threads .thread-select { color: var(--color-text); }
+.chat-threads .thread-select strong { color: var(--color-text); }
+.chat-threads .thread-select small { color: var(--color-text-secondary); }
+.chat-threads .thread-actions button { color: var(--color-text-secondary); }
+.chat-threads .thread-actions button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.chat-threads .thread-actions .thread-delete:hover { border-color: var(--color-error-tint-strong); color: var(--color-error); }
+
+.chat-conversation-header { border-bottom: 1px solid var(--color-line); background: var(--color-surface); }
+.chat-title-row span { color: var(--color-text-secondary); }
+.chat-title-row h2 { color: var(--color-text); }
+.chat-rename-action, .chat-rename-form button { border-color: var(--color-line); background: var(--color-surface); color: var(--color-primary); }
+.chat-rename-action:hover { border-color: var(--color-primary); background: var(--color-primary-tint); }
+.chat-rename-form label { color: var(--color-text-secondary); }
+.chat-rename-form input { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+
+/* Chat composer & input form */
+.chat-layout form, .chat-composer {
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface);
+  display: flex;
+  gap: .6rem;
+  padding: .8rem;
+}
+.chat-layout textarea, .chat-composer textarea {
+  min-height: 48px;
+  flex: 1;
+  resize: none;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  padding: .65rem .85rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.chat-layout textarea:focus, .chat-composer textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-tint);
+}
+.chat-layout textarea::placeholder, .chat-composer textarea::placeholder {
+  color: var(--color-text-secondary);
+}
+.chat-layout textarea:disabled, .chat-composer textarea:disabled {
+  background: var(--color-surface-alt);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}
+.chat-layout form button, .chat-composer button {
+  border: none;
+  border-radius: 8px;
+  padding: 0 1.1rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.chat-layout form button:hover:not(:disabled), .chat-composer button:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+.chat-layout form button:disabled, .chat-composer button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+/* Schedules */
+.schedule-editor label { color: var(--color-text-secondary); }
+.schedule-editor input, .schedule-editor textarea { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.schedule-editor small { color: var(--color-text-secondary); }
+.schedule-instruction { color: var(--color-text); }
+.schedule-run-row small { color: var(--color-error); }
+.schedule-details-body span { color: var(--color-text-secondary); }
+.schedule-details-body p { color: var(--color-text); }
+.schedule-details-body code { color: var(--color-text-secondary); }
+.schedules-page .operations-hero-action button { background: var(--color-primary); color: #fff; }
+
+/* Trace detail */
+.trace-view-tabs { border-color: var(--color-line); background: var(--color-surface-alt); }
+.trace-view-tabs button { color: var(--color-text-secondary); }
+.trace-view-tabs button:hover { color: var(--color-text); }
+.trace-view-tabs button.is-active { background: var(--color-primary-tint); color: var(--color-primary-on-tint); box-shadow: none; }
+.trace-flow-scroll { border-color: var(--color-line); background: var(--color-surface); }
+.trace-flow-edge { stroke: var(--color-line); }
+.trace-flow-node rect { fill: var(--color-surface-alt); stroke: var(--color-line); }
+.trace-flow-node:hover rect, .trace-flow-node:focus rect, .trace-flow-node.is-active rect { fill: var(--color-primary-tint); stroke: var(--color-primary); }
+.trace-flow-name { fill: var(--color-text); }
+.trace-flow-type { fill: var(--color-text-secondary); }
+.trace-timeline-row:hover, .trace-timeline-row.is-active { background: var(--color-surface-hover); }
+.trace-timeline-track { background: var(--color-surface-alt); }
+.trace-tree-node:hover, .trace-tree-node.is-active { background: var(--color-surface-hover); }
+.trace-tree-node.is-active { box-shadow: inset 2px 0 var(--color-primary); }
+.trace-console .trace-view-tabs { background: var(--color-surface-alt); }
+
+/* Overview / Sessions */
+.overview-console h1 { color: var(--color-text); }
+.overview-console header p { color: var(--color-text-secondary); }
+.overview-console header span { color: var(--color-text-secondary); }
+.overview-console header strong { color: var(--color-primary); }
+.overview-ledger code { color: var(--color-text-secondary); }
+
+/* Dashboard */
+.dashboard-hero-subtitle { color: var(--color-text-secondary); }
+.dashboard-chart-label { color: var(--color-text); }
+
+/* Throughput */
+.throughput-summary { background: var(--color-surface); }
+
+/* Primary hero action */
+.primary-hero-action { background: var(--color-primary); color: #fff; }
+.primary-hero-action:hover { background: var(--color-primary-hover); }
+
+/* Provider guide modal */
+.provider-guide-modal { border-color: var(--color-line); background: var(--color-surface); box-shadow: var(--elevation-2); color: var(--color-text); }
+.provider-guide-modal h2 { color: var(--color-text); }
+.provider-guide-modal p, .provider-guide-modal li { color: var(--color-text-secondary); }
+.provider-guide-modal strong { color: var(--color-primary); }
+.provider-guide-modal code { background: var(--color-surface-alt); color: var(--color-text); }
+.channel-guide-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.channel-editor-section-heading > span { color: var(--color-primary); }
+.channel-editor-section-heading h3 { color: var(--color-text); }
+.channel-enabled { border-color: var(--color-line); background: var(--color-surface-alt); }
+.channel-enabled input { accent-color: var(--color-primary); }
+.channel-enabled strong { color: var(--color-text); }
+.channel-enabled small, .channel-editor small { color: var(--color-text-secondary); }
+.channel-selection { color: var(--color-primary); }
+.channels-page .operations-hero-action button { background: var(--color-primary); color: #fff; }
+.channels-page .operations-actions button { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.channels-page .operations-actions button:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.channels-page .operations-actions .confirmation-destructive { border-color: var(--color-error-tint-strong); background: var(--color-error-tint); color: var(--color-error); }
+.channels-page .operations-actions .confirmation-destructive:hover { border-color: var(--color-error); color: var(--color-error); }
+
+/* Channel Editor & Credentials Vault */
+.channel-editor {
+  border-color: var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--elevation-2);
+}
+.channel-editor-header {
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+}
+.channel-editor-header h2 {
+  color: var(--color-text);
+}
+.channel-editor-header p {
+  color: var(--color-text-secondary);
+}
+.channel-editor-section {
+  border-bottom: 1px solid var(--color-line);
+}
+.channel-editor label {
+  color: var(--color-text-secondary);
+}
+.channel-editor input,
+.channel-editor textarea {
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.channel-editor input:focus,
+.channel-editor textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-primary-tint);
+}
+.channel-credential {
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  padding: .85rem 1rem;
+}
+.channel-credential legend {
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 .4rem;
+}
+.channel-credential small {
+  color: var(--color-text-secondary);
+}
+.channel-credential .operations-actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: .75rem;
+}
+.channel-credential .operations-actions button {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 6px;
+  padding: .45rem .8rem;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.channel-credential .operations-actions button:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-primary-on-tint);
+}
+.channel-secret-form {
+  border-top: 1px solid var(--color-line);
+  margin-top: .75rem;
+  padding-top: .75rem;
+}
+.channel-secret-form label {
+  color: var(--color-text-secondary);
+}
+.channel-editor .confirmation-actions {
+  border-top: 1px solid var(--color-line);
+  background: var(--color-surface-alt);
+}
+.channel-editor .confirmation-cancel {
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.channel-editor .confirmation-cancel:hover {
+  background: var(--color-surface-hover);
+}
+
+/* Confirmation Dialog */
+.confirmation-dialog {
+  border: 1px solid var(--color-line) !important;
+  border-radius: 12px !important;
+  background: var(--color-surface) !important;
+  box-shadow: var(--elevation-2) !important;
+  color: var(--color-text) !important;
+}
+.confirmation-dialog h2 {
+  color: var(--color-text) !important;
+}
+.confirmation-dialog p {
+  color: var(--color-text-secondary) !important;
+}
+.confirmation-cancel {
+  border: 1px solid var(--color-line) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+.confirmation-cancel:hover {
+  background: var(--color-surface-hover) !important;
+}
+.confirmation-actions button {
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Schedule Editor Modal */
+.schedule-editor {
+  border: 1px solid var(--color-line) !important;
+  border-radius: 12px !important;
+  background: var(--color-surface) !important;
+  box-shadow: var(--elevation-2) !important;
+  color: var(--color-text) !important;
+}
+.schedule-editor h2 {
+  color: var(--color-text) !important;
+}
+.schedule-editor label {
+  color: var(--color-text-secondary) !important;
+}
+.schedule-editor input,
+.schedule-editor textarea {
+  border: 1px solid var(--color-line) !important;
+  border-radius: 6px !important;
+  padding: .55rem .75rem !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  font-size: 13px !important;
+}
+.schedule-editor input:focus,
+.schedule-editor textarea:focus {
+  border-color: var(--color-primary) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--color-primary-tint) !important;
+}
+.schedule-editor small {
+  color: var(--color-text-secondary) !important;
+}
+.schedule-editor .confirmation-actions {
+  border-top: 1px solid var(--color-line) !important;
+  background: var(--color-surface-alt) !important;
+}
+.schedule-editor .confirmation-cancel {
+  border: 1px solid var(--color-line) !important;
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+}
+.schedule-editor .confirmation-cancel:hover {
+  background: var(--color-surface-hover) !important;
+}
+
+/* Confirmation focus */
+.confirmation-actions button:focus-visible { outline-color: var(--color-primary); }
+
+/* Approval context */
+.approval-context-trace { color: var(--color-text); }
+.approval-context-trace:hover strong { color: var(--color-primary); }
+.approval-context-trace:focus-visible { outline-color: var(--color-primary); }
+.approval-context-trace .approval-context-icon { stroke: var(--color-primary); }
+.approval-context-badge { border-color: var(--color-primary-tint-strong); background: var(--color-primary-tint); color: var(--color-primary-on-tint); }
+.approval-context-item .approval-context-badge { border-color: rgb(183 170 255 / .22); background: rgb(183 170 255 / .09); color: #b7aaff; }
+
+.amp-login { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, 32vw); background: var(--color-surface); }
+.amp-login-hero { position: relative; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; padding: 48px; background: #041229; color: #fff; }
+.amp-login-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.amp-login-hero::after { position: absolute; inset: 0; background: linear-gradient(90deg, rgb(4 18 41 / 22%) 0%, transparent 48%, rgb(4 18 41 / 10%) 100%); content: ''; }
+.amp-login-brand { position: relative; z-index: 1; display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 500; }
+.amp-login-mark { display: grid; width: 32px; height: 32px; place-items: center; border-radius: var(--radius); background: #1a73e8; font-weight: 700; }
+.amp-login-copy { position: relative; z-index: 1; max-width: 540px; margin-bottom: 12vh; }
+.amp-login-copy h1 { margin: 0; font-size: clamp(36px, 5vw, 64px); line-height: 1; letter-spacing: -.04em; }
+.amp-login-copy p { max-width: 440px; color: #c9d6ea; font-size: 17px; line-height: 1.6; }
+.amp-login-panel { position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; }
+.amp-login-form { width: min(100%, 360px); }
+.amp-login-form h2 { margin: 0 0 8px; font-size: 24px; font-weight: 500; }
+.amp-login-form p { color: var(--color-text-secondary); }
+.amp-login-form label { display: block; margin: 28px 0 6px; color: var(--color-text-secondary); font-size: 12px; font-weight: 500; }
+.amp-login-form input { width: 100%; border: 1px solid var(--color-line); border-radius: var(--radius); padding: 10px 12px; color: var(--color-text); font: inherit; }
+.amp-login-form input:focus { border-color: var(--color-primary); outline: 2px solid var(--color-primary-tint-strong); }
+.amp-login-submit { width: 100%; margin-top: 20px; border: 0; border-radius: var(--radius); padding: 10px 16px; background: var(--color-primary); color: #fff; font: 500 14px inherit; }
+.amp-login-submit:hover { background: var(--color-primary-hover); }
+.amp-login-language { position: absolute; top: 16px; right: 16px; }
+
+/* Final UI theme reconciliations */
+.status-dot { background: var(--color-primary); }
+.context-combobox-input:focus-visible { outline-color: var(--color-primary); }
+.mesh-empty button { color: var(--color-primary); }
+.mesh-feedback { border-color: var(--color-line); background: var(--color-surface-alt); color: var(--color-text); }
+.mesh-feedback.is-error { border-color: var(--color-error-tint-strong); background: var(--color-error-tint); color: var(--color-error); }
+.operations-status.is-resolved {
+  background: var(--color-primary-tint);
+  color: var(--color-primary-on-tint);
+  border: 1px solid var(--color-primary-tint-strong);
+}
+.session-console code { color: var(--color-primary); }
+.session-console li > i { background: var(--color-primary); }
+.session-console summary { color: var(--color-primary); }
+.session-console article { border-color: var(--color-line); background: var(--color-surface); color: var(--color-text); }
+.session-payload section { border-color: var(--color-line); background: var(--color-surface-alt); }
+.session-payload pre { color: var(--color-text); }
+.policy-feedback { border-color: var(--color-line); background: var(--color-surface-alt); color: var(--color-text); }
+.policy-feedback.is-error { border-color: var(--color-error-tint-strong); background: var(--color-error-tint); color: var(--color-error); }
+.channel-secret-form button, .confirmation-actions button[type="submit"] {
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 500;
+}
+.channel-secret-form button:hover, .confirmation-actions button[type="submit"]:hover {
+  background: var(--color-primary-hover);
+}
+
+@media (max-width: 1024px) {
+  .app-sidebar { width: var(--sidenav-rail-width); }
+  .app-brand strong, .app-brand small, .nav-group p, .nav-label, .sidebar-footer { display: none; }
+  .app-brand { justify-content: center; margin: 8px 0 24px; }
+  .nav-group a { justify-content: center; padding: 8px; }
+}
+
+@media (max-width: 760px) {
+  .app-shell { display: block; }
+  .app-sidebar { position: static; display: flex; width: 100%; height: auto; align-items: center; overflow: hidden; border-right: 0; border-bottom: 1px solid var(--color-line); padding: 4px 8px; }
+  .app-brand { flex: none; margin: 4px 12px 4px 4px; }
+  .app-brand strong, .app-brand small { display: none; }
+  .app-sidebar nav { display: flex; min-width: 0; flex: 1; overflow-x: auto; }
+  .nav-group { display: flex; margin: 0; }
+  .nav-group p { display: none; }
+  .nav-group a { min-height: 36px; padding: 8px 10px; }
+  .nav-label { display: none; }
+  .sidebar-footer { display: none; }
+  .context-bar { flex-wrap: wrap; padding: 8px 16px; }
+  .context-label { display: none; }
+  .context-combobox { min-width: 130px; flex: 1; }
+  .context-actions { margin-left: 0; }
+  .app-content { padding: 20px 16px; }
+  .amp-login { display: block; }
+  .amp-login-hero { display: none; }
+  .amp-login-panel { min-height: 100vh; }
+}

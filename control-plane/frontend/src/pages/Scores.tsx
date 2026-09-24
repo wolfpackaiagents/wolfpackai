@@ -119,21 +119,21 @@ export default function Scores() {
           {trend.length ? (
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={trend}>
-                <CartesianGrid stroke="#294038" vertical={false} />
-                <XAxis dataKey="label" stroke="#789087" fontSize={10} />
-                <YAxis stroke="#789087" fontSize={10} />
+                <CartesianGrid stroke="var(--color-line)" vertical={false} />
+                <XAxis dataKey="label" stroke="var(--color-text-secondary)" fontSize={10} />
+                <YAxis stroke="var(--color-text-secondary)" fontSize={10} />
                 <Tooltip
                   contentStyle={{
-                    background: "#10201c",
-                    border: "1px solid #365047",
+                    background: "var(--color-surface-alt)",
+                    border: "1px solid var(--color-line)",
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#c7f36b"
+                  stroke="var(--color-primary)"
                   strokeWidth={2}
-                  dot={{ r: 3, fill: "#ff6b35" }}
+                  dot={{ r: 3, fill: "var(--color-primary)" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -150,16 +150,16 @@ export default function Scores() {
           {overview.distribution.length ? (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={overview.distribution}>
-                <CartesianGrid stroke="#294038" vertical={false} />
-                <XAxis dataKey="name" stroke="#789087" fontSize={10} />
-                <YAxis stroke="#789087" fontSize={10} />
+                <CartesianGrid stroke="var(--color-line)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--color-text-secondary)" fontSize={10} />
+                <YAxis stroke="var(--color-text-secondary)" fontSize={10} />
                 <Tooltip
                   contentStyle={{
-                    background: "#10201c",
-                    border: "1px solid #365047",
+                    background: "var(--color-surface-alt)",
+                    border: "1px solid var(--color-line)",
                   }}
                 />
-                <Bar dataKey="count" fill="#ff6b35" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="count" fill="var(--color-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (

@@ -348,12 +348,36 @@ def test_knowledge_search_tool_factory():
             return [[1.0 if c else 0.0, 1.0, 0.5] for c in texts]
 
     kb = Knowledge(vector_db=MemoryVectorDb(), embedding_model=FakeEmb())
-    kb.add_text("El clima en Madrid es cálido y soleado.", chunk=False)
+    kb.add_text(
+        "El clima en Madrid es cálido y soleado.",
+        metadata={"source": "clima.md", "document_id": "doc-1", "heading": "Madrid"},
+        chunk=False,
+    )
     fn = create_knowledge_search_tool(kb, name="search_knowledge")
     fc = fn.get_function_call("c1", {"query": "clima Madrid"})
     res = fc.execute()
     assert res.status == "success"
     assert "Madrid" in res.result
+    assert "source=clima.md" in res.result
+    assert "document_id=doc-1" in res.result
+    assert "chunk_index=1" in res.result
+
+
+def test_knowledge_indexes_chunks_without_mutating_source_metadata():
+    from wolfpack.knowledge.knowledge import Knowledge
+    from wolfpack.vectordb.base import MemoryVectorDb
+
+    class FakeEmb:
+        def embed(self, texts):
+            return [[1.0] for _ in texts]
+
+    vector_db = MemoryVectorDb()
+    metadata = {"source": "manual.txt", "document_id": "doc-1"}
+    Knowledge(vector_db=vector_db, embedding_model=FakeEmb(), chunk_size=200).add_text("a" * 350, metadata)
+
+    assert [doc.metadata["chunk_index"] for doc in vector_db._docs] == [1, 2, 3, 4]
+    assert all(doc.metadata["document_id"] == "doc-1" for doc in vector_db._docs)
+    assert "chunk_index" not in metadata
 
 
 @pytest.mark.asyncio
