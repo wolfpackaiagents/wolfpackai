@@ -1192,6 +1192,29 @@ export const examples: Example[] = [
     "validationStatus": "passed"
   },
   {
+    "id": "22_okf-01_okf_bundle",
+    "title": "Okf Bundle",
+    "category": "OKF",
+    "description": "Runnable source example from framework/examples/22_okf/01_okf_bundle.py.",
+    "code": "\"\"\"22_okf/01_okf_bundle.py - Open Knowledge Format (OKF) bundle example.\n\nThis example demonstrates creating, storing, and querying knowledge bundles\nusing the Open Knowledge Format (OKF). It covers all three storage backends:\n\n- Local directory (filesystem)\n- Archive (.tar.gz portable bundle)\n- S3/MinIO (cloud storage)\n\nEach concept is a markdown file with YAML frontmatter. File paths = identities.\nMarkdown links between files = a navigable knowledge graph.\n\nUsage:\n    uv run python examples/22_okf/01_okf_bundle.py\n\"\"\"\n\nimport asyncio\nimport sys\nimport tempfile\nfrom pathlib import Path\n\nsys.path.insert(0, str(Path(__file__).resolve().parents[1]))\n\nfrom wolfpack.knowledge.okf import (\n    ArchiveOKFStorage,\n    Concept,\n    LocalOKFStorage,\n    OKFBundle,\n)\n\n\nasync def main() -> None:\n    with tempfile.TemporaryDirectory() as tmp:\n        storage = LocalOKFStorage(Path(tmp) / \"ecommerce_knowledge\")\n        bundle = OKFBundle(storage)\n\n        print(\"=\" * 60)\n        print(\"OKF BUNDLE EXAMPLE - E-Commerce Data Warehouse\")\n        print(\"=\" * 60)\n\n        # -- Bundle index --\n        await bundle.add(Concept(\n            path=\"index.md\", type=\"bundle\", title=\"E-Commerce Warehouse\",\n            description=\"ACME e-commerce data warehouse concepts.\",\n            tags=[\"ecommerce\", \"bigquery\", \"analytics\"],\n        ))\n\n        # -- Table: orders --\n        await bundle.add(Concept(\n            path=\"tables/orders.md\", type=\"BigQuery Table\", title=\"Orders\",\n            description=\"One row per completed customer order.\",\n            tags=[\"sales\", \"revenue\"],\n            body=(\n                \"# Schema\\n\\n\"\n                \"| Column | Type | Description |\\n\"\n                \"|--------|------|-------------|\\n\"\n                \"| order_id | STRING | Unique ID |\\n\"\n                \"| customer_id | STRING | FK to [customers](tables/customers.md) |\\n\"\n                \"| total | FLOAT | Order total in USD |\\n\\n\"\n                \"See [customers](tables/customers.md).\\n\"\n            ),\n        ))\n\n        # -- Table: customers --\n        await bundle.add(Concept(\n            path=\"tables/customers.md\", type=\"BigQuery Table\", title=\"Customers\",\n            description=\"One row per registered customer.\",\n            tags=[\"sales\", \"crm\"],\n            body=\"# Schema\\n\\n| customer_id | STRING | Unique ID |\\n| name | STRING | Full name |\\n| email | STRING | Email |\\n\\nReferenced by [orders](tables/orders.md).\\n\",\n        ))\n\n        # -- Metric: weekly_active_users --\n        await bundle.add(Concept(\n            path=\"metrics/weekly_active_users.md\", type=\"Metric\",\n            title=\"Weekly Active Users\",\n            description=\"Distinct users who ordered in the last 7 days.\",\n            tags=[\"engagement\", \"growth\"],\n            body=\"# SQL\\nSELECT COUNT(DISTINCT customer_id) FROM sales.orders\\nWHERE created_at >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 7 DAY)\\n\",\n        ))\n\n        concepts = await bundle.list()\n        print(f\"\\nBundle created. Concepts: {len(concepts)}\")\n\n        # -- Search --\n        print(\"\\n--- Search ---\")\n        for q in [\"orders\", \"revenue\", \"customer\"]:\n            results = await bundle.search(q)\n            print(f\"  '{q}': {len(results)} result(s)\")\n            for c in results:\n                print(f\"    - {c.path}: {c.title} ({c.type})\")\n\n        # -- Graph neighbours --\n        print(\"\\n--- Graph ---\")\n        n = await bundle.neighbours(\"tables/orders.md\")\n        print(f\"  Outbound: {n['outbound']}\")\n        print(f\"  Inbound:  {n['inbound']}\")\n\n        # -- Context for LLM --\n        print(\"\\n--- Prompt context (head) ---\")\n        ctx = await bundle.to_context(query=\"weekly active users\")\n        print(ctx[:500])\n\n        # -- Archive --\n        ap = Path(tmp) / \"bundle.tar.gz\"\n        await ArchiveOKFStorage.pack(storage, ap)\n        archive = ArchiveOKFStorage(ap)\n        archived = OKFBundle(archive)\n        print(f\"\\nArchive: {len(await archived.list())} concepts, {ap.stat().st_size} bytes\")\n\n        # -- Generate from docs --\n        docs = [(\"API v2\", \"# API\\nGET /users\"), (\"Deploy Guide\", \"# Deploy\\nHelm chart steps\")]\n        gen = await OKFBundle.generate(docs, LocalOKFStorage(Path(tmp) / \"gen\"))\n        print(f\"Generated: {len(await gen.list())} concepts\")\n\n        # -- S3 check --\n        from wolfpack.knowledge.okf import S3OKFStorage\n        print(\"S3OKFStorage available:\", hasattr(S3OKFStorage, \"list_concepts\"))\n\n        print(\"\\nDone.\")\n\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n",
+    "language": "python",
+    "steps": [
+      "Install dependencies with uv sync.",
+      "Run: uv run python examples/22_okf/01_okf_bundle.py"
+    ],
+    "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
+    "expectedOutput": "Execution output was not captured.",
+    "sourcePath": "framework/examples/22_okf/01_okf_bundle.py",
+    "command": "uv run python examples/22_okf/01_okf_bundle.py",
+    "prerequisites": [
+      "Python 3.10+ and uv",
+      "Run from framework/: uv run python examples/..."
+    ],
+    "verificationClass": "Deterministic",
+    "validatedAt": "2026-08-26",
+    "validationStatus": "passed"
+  },
+  {
     "id": "22_skills-01_skill_basics",
     "title": "Skill Basics",
     "category": "Skills",

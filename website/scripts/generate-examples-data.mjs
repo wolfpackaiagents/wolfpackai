@@ -28,6 +28,7 @@ const categoryByDirectory = {
   "20_team_with_knowledge": "Teams",
   "21_predictions": "AI Prediction",
   "22_skills": "Skills",
+  "22_okf": "OKF",
   "23_model_routing": "Model Routing",
 };
 
