@@ -82,11 +82,11 @@ export default function TraceDetail() {
 function FlowView({ observations, selectedId, onSelect }: ExplorerViewProps) {
   const { t } = useTranslation()
   const rows = flattenTree(observations)
-  const nodeWidth = 156
-  const nodeHeight = 52
-  const gutter = 30
-  const width = Math.max(620, Math.max(...rows.map((row) => row.depth), 0) * 190 + nodeWidth + gutter * 2)
-  const height = Math.max(240, rows.length * 82 + gutter * 2)
+  const nodeWidth = 168
+  const nodeHeight = 56
+  const gutter = 32
+  const width = Math.max(680, Math.max(...rows.map((row) => row.depth), 0) * 210 + nodeWidth + gutter * 2)
+  const height = Math.max(260, rows.length * 88 + gutter * 2)
   const byId = new Map(observations.map((observation) => [observation.id, observation]))
 
   return (
@@ -94,26 +94,35 @@ function FlowView({ observations, selectedId, onSelect }: ExplorerViewProps) {
       <ViewHeading title={t('traceDetail.flowTitle')} description={t('traceDetail.flowHint')} />
       <div className="trace-flow-scroll">
         <svg className="trace-flow" viewBox={`0 0 ${width} ${height}`} role="list" aria-label={t('traceDetail.flowTitle')}>
+          <defs>
+            <pattern id="trace-flow-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="#cbd5e1" opacity="0.6" />
+            </pattern>
+            <marker id="trace-flow-arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+              <path d="M 0 1 L 6 4 L 0 7 z" fill="#94a3b8" />
+            </marker>
+          </defs>
+          <rect width={width} height={height} fill="url(#trace-flow-grid)" rx="8" />
           {rows.map(({ observation, depth }, index) => {
             const parent = observation.parent_observation_id ? byId.get(observation.parent_observation_id) : undefined
             const parentIndex = parent ? rows.findIndex((row) => row.observation.id === parent.id) : -1
             if (parentIndex < 0) return null
-            const x1 = gutter + (depth - 1) * 190 + nodeWidth
-            const y1 = gutter + parentIndex * 82 + nodeHeight / 2
-            const x2 = gutter + depth * 190
-            const y2 = gutter + index * 82 + nodeHeight / 2
-            return <path key={`${observation.id}-edge`} d={`M ${x1} ${y1} C ${x1 + 34} ${y1}, ${x2 - 34} ${y2}, ${x2} ${y2}`} className="trace-flow-edge" />
+            const x1 = gutter + (depth - 1) * 210 + nodeWidth
+            const y1 = gutter + parentIndex * 88 + nodeHeight / 2
+            const x2 = gutter + depth * 210
+            const y2 = gutter + index * 88 + nodeHeight / 2
+            return <path key={`${observation.id}-edge`} d={`M ${x1} ${y1} C ${x1 + 36} ${y1}, ${x2 - 36} ${y2}, ${x2} ${y2}`} className="trace-flow-edge" markerEnd="url(#trace-flow-arrow)" />
           })}
           {rows.map(({ observation, depth }, index) => {
-            const x = gutter + depth * 190
-            const y = gutter + index * 82
+            const x = gutter + depth * 210
+            const y = gutter + index * 88
             const active = selectedId === observation.id
             return (
               <g key={observation.id} role="listitem" className={`trace-flow-node ${active ? 'is-active' : ''}`} onClick={() => onSelect(observation)} onKeyDown={(event) => event.key === 'Enter' && onSelect(observation)} tabIndex={0} aria-label={`${observation.name || observation.id}, ${observation.type}`}>
-                <rect x={x} y={y} width={nodeWidth} height={nodeHeight} rx="8" />
-                <circle cx={x + 14} cy={y + 17} r="4" className={statusClass(observation)} />
-                <text x={x + 25} y={y + 21} className="trace-flow-name">{truncate(observation.name || observation.id, 18)}</text>
-                <text x={x + 12} y={y + 40} className="trace-flow-type">{observation.type} {formatObservationDuration(observation)}</text>
+                <rect x={x} y={y} width={nodeWidth} height={nodeHeight} rx="10" />
+                <circle cx={x + 16} cy={y + 19} r="4.5" className={statusClass(observation)} />
+                <text x={x + 28} y={y + 23} className="trace-flow-name">{truncate(observation.name || observation.id, 18)}</text>
+                <text x={x + 16} y={y + 43} className="trace-flow-type">{observation.type} {formatObservationDuration(observation)}</text>
               </g>
             )
           })}
