@@ -122,6 +122,7 @@ const capturedOutput = {
   "21_predictions/01_ai_prediction.py": "Personas auto-geradas: 2\n  - Dra. Marcia: analista de mercado imobiliario (conservadora)\n  - Dr. Renato: especialista em licitacoes publicas (pragmatico)\nEntidades extraidas do seed: 5\nRelacoes extraidas: 5\nAcuracia: 100%\n--- RELATORIO SINTETIZADO ---\nPrevisao: Construtora Alvorada vence o leilao do Novo Horizonte.\n--- ITERACOES DO DEBATE (2 rodadas) ---",
   "22_skills/01_skill_basics.py": "=== TOOL CALLS ===\n[{'name': 'activate_skill', 'arguments': {'name': 'risk-analysis'}}]\n\n=== ANSWER ===\nRisk: high. Probability: medium. Impact: high. Mitigation: add a rollout gate.",
   "23_model_routing/01_openai_ollama_policy.py": "REASONING ROUTE: {'provider': 'openai', 'model': 'gpt-4.1-mini'}\nTASK ROUTE: {'provider': 'ollama', 'model': 'gemma4:e4b'}\nTASK SAVINGS: {'amount': 2.16e-05, 'currency': 'USD', 'method': 'equivalent_tokens'}",
+  "22_okf/01_okf_bundle.py": "Bundle created. Concepts: 4\n\n--- Search ---\n  'orders': 3 result(s)\n  'revenue': 1 result(s) - tables/orders.md: Orders\n  'customer': 3 result(s)\n\n--- Graph ---\n  Outbound: ['tables/customers.md', 'tables/customers.md']\n  Inbound: ['tables/customers.md']\n\nArchive: 4 concepts, 714 bytes\nGenerated: 3 concepts\nS3OKFStorage available: True",
 };
 
 const sourceData = {
