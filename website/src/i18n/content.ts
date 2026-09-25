@@ -107,6 +107,11 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     description: "AIPrediction coordena um painel de agentes-persona para gerar previsoes estruturadas a partir de materiais de origem. Cada persona recebe o cenario e o contexto do seed, debatendo entre si. Os resultados sao sintetizados em um relatorio com analise de convergencia, grafo social com entidades tipadas e evidencias extraidas do material de origem, e avaliacao opcional contra um resultado observado para pontuar a acuracia.",
     codeExamples: [{ title: "Preveja com personas auto-geradas e avaliacao de outcome" }],
   },
+  okf: {
+    title: "Open Knowledge Format (OKF)",
+    description: "OKF e um formato portavel e neutro para conhecimento de agentes usando arquivos markdown com frontmatter YAML. Um bundle e um diretorio de conceitos onde caminhos de arquivo = identidades e links markdown = um grafo navegaveis. Tres backends sao suportados: diretorio local, arquivo .tar.gz e S3/MinIO.",
+    codeExamples: [{ title: "Crie e consulte um bundle OKF" }],
+  },
 };
 
 const controlPlanePt: Record<string, Partial<ControlPlaneSection>> = {
@@ -133,7 +138,7 @@ const categoryPt: Record<string, string> = {
   Evals: "Avaliacoes", Privacy: "Privacidade", Resilience: "Resiliencia", Hardening: "Reforco",
   SQLToolkit: "SQLToolkit",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
-  "AI Prediction": "Predicao IA", Skills: "Skills", "Model Routing": "Roteamento de modelos",
+  "AI Prediction": "Predicao IA", Skills: "Skills", "Model Routing": "Roteamento de modelos", OKF: "OKF",
 };
 
 export function getFrameworkSections(lang: Language) {
