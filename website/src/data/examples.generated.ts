@@ -1203,7 +1203,7 @@ export const examples: Example[] = [
       "Run: uv run python examples/22_okf/01_okf_bundle.py"
     ],
     "explanation": "This page renders the canonical source file that was executed during the documentation verification run.",
-    "expectedOutput": "Execution output was not captured.",
+    "expectedOutput": "Bundle created. Concepts: 4\n\n--- Search ---\n  'orders': 3 result(s)\n  'revenue': 1 result(s) - tables/orders.md: Orders\n  'customer': 3 result(s)\n\n--- Graph ---\n  Outbound: ['tables/customers.md', 'tables/customers.md']\n  Inbound: ['tables/customers.md']\n\nArchive: 4 concepts, 714 bytes\nGenerated: 3 concepts\nS3OKFStorage available: True",
     "sourcePath": "framework/examples/22_okf/01_okf_bundle.py",
     "command": "uv run python examples/22_okf/01_okf_bundle.py",
     "prerequisites": [
