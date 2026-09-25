@@ -374,4 +374,34 @@ print(report.evaluation_reason)
 pred_id = predictor.sync_to_amp(report, "http://localhost:8000", "pk-...:secret")`,
     }],
   },
+  {
+    id: "okf",
+    title: "Open Knowledge Format (OKF)",
+    description: "OKF is a portable, vendor-neutral format for agent knowledge using markdown files with YAML frontmatter. A bundle is a directory of concepts where file paths = identities and markdown links = a navigable graph. Three backends are supported: local directory, .tar.gz archive, and S3/MinIO.",
+    codeExamples: [{
+      title: "Create and query an OKF bundle",
+      language: "python",
+      code: `from wolfpack.knowledge.okf import LocalOKFStorage, OKFBundle, Concept
+
+async def example():
+    storage = LocalOKFStorage("./bundle")
+    bundle = OKFBundle(storage)
+
+    await bundle.add(Concept(
+        path="tables/orders.md",
+        type="BigQuery Table",
+        title="Orders",
+        description="One row per completed order.",
+        tags=["sales"],
+        body="See [customers](tables/customers.md).",
+    ))
+
+    results = await bundle.search("revenue")
+    for c in results:
+        print(c.title, c.type)
+
+    ctx = await bundle.to_context(query="orders")
+    print(ctx)`,
+    }],
+  },
 ];
