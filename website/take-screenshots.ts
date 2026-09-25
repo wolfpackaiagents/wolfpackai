@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 
-const BASE = 'http://127.0.0.1:5174';
-const API_KEY = 'pk-wp-dev:dev-secret';
+const BASE = 'http://localhost:8080';
+const API_KEY = 'sk-staging-9758b97a1dad9edabac54f3b';
 const OUT = '/Users/alvarobrito/Documents/desenvolvimento/projetos/github/alvaro-brito-products/wolfpack-ai/website/public/screenshots';
 
 const pages = [
@@ -18,6 +18,8 @@ const pages = [
   { route: '/resilience', name: 'resilience', wait: 'h1' },
   { route: '/privacy', name: 'privacy', wait: 'h1' },
   { route: '/settings', name: 'settings', wait: 'h1' },
+  { route: '/predictions', name: 'predictions', wait: 'h1' },
+  { route: '/secrets', name: 'secrets', wait: 'h1' },
 ];
 
 async function main() {
@@ -32,13 +34,13 @@ async function main() {
   for (const p of pages) {
     console.log(`  Taking ${p.name}...`);
     try {
-      await page.goto(`${BASE}${p.route}`, { waitUntil: 'networkidle', timeout: 15000 });
+      await page.goto(`${BASE}${p.route}`, { waitUntil: 'networkidle', timeout: 20000 });
       await page.waitForSelector(p.wait, { timeout: 10000 }).catch(() => {});
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(1500);
       await page.screenshot({ path: `${OUT}/${p.name}.png`, fullPage: false });
       console.log(`    OK`);
     } catch (e: any) {
-      console.log(`    FAIL: ${e.message?.slice(0, 60)}`);
+      console.log(`    FAIL: ${e.message?.slice(0, 80)}`);
     }
   }
 
