@@ -282,7 +282,14 @@ export default function PredictionDetail() {
       <header className="ops-header">
         <div>
           <p><Link to="/predictions" className="text-text-secondary hover:text-text">{t('predictions.title')}</Link></p>
-          <h1 className="text-text">{prediction.name}</h1>
+          <div className="flex items-center gap-2.5 mt-1">
+            {prediction.name.toLowerCase().includes('agentforce') && (
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold bg-primary-tint border border-primary-tint-strong text-primary">
+                ⚡ AgentForce
+              </span>
+            )}
+            <h1 className="text-text">{prediction.name}</h1>
+          </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
             <span className={`text-xs px-2 py-0.5 rounded border ${STATUS_BADGE[prediction.status] ?? 'border-line text-text-secondary'}`}>
               {t(`predictions.statuses.${prediction.status}`, { defaultValue: prediction.status })}
@@ -319,6 +326,30 @@ export default function PredictionDetail() {
         {tab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-4">
+              {prediction.scenario_params && typeof prediction.scenario_params === 'object' && 'pools' in prediction.scenario_params && (
+                <div className="bg-surface border border-line rounded-lg p-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-3 flex items-center gap-1.5">
+                    <span>⚡</span>
+                    <span>Pools de Execução do AgentForce</span>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {Object.entries(prediction.scenario_params.pools as Record<string, number>).map(([poolName, count]) => (
+                      <div key={poolName} className="rounded border border-line bg-surface-alt p-3">
+                        <span className="block font-mono text-xs font-bold text-primary truncate">{poolName}</span>
+                        <span className="mt-1 block text-sm font-semibold text-text">{count} tarefas</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {prediction.report && typeof prediction.report === 'object' && 'synthesis' in prediction.report && (
+                <div className="bg-surface border border-line rounded-lg p-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Síntese Executiva do Coordenador</h3>
+                  <p className="text-sm text-text leading-relaxed bg-surface-alt p-3 rounded border border-line/60">
+                    {String(prediction.report.synthesis)}
+                  </p>
+                </div>
+              )}
               {prediction.seed_summary && (
                 <div className="bg-surface border border-line rounded-lg p-4">
                   <h3 className="text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">{t('predictions.seedMaterial')}</h3>

@@ -32,11 +32,11 @@
     "mesh": "Agents & environments",
     "schedules": "Schedules",
     "channels": "Channels",
-    "predictions": "AI Predictions"
+    "predictions": "AI Predictions & AgentForce"
   },
   "predictions": {
-    "title": "AI Predictions",
-    "subtitle": "Multi-agent prediction reports with debate and convergence analysis",
+    "title": "AI Predictions & AgentForce",
+    "subtitle": "Multi-agent predictive intelligence, mass execution simulations, and AgentForce forecasts",
     "empty": "No predictions yet. Use the AIPrediction class to generate one.",
     "name": "Name",
     "status": "Status",
