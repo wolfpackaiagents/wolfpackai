@@ -171,12 +171,13 @@ class ForceDispatcher:
         elif isinstance(task.input, dict):
             # If task input dict has a dedicated prompt/comment/message field
             text = task.input.get("message") or task.input.get("prompt") or task.input.get("comment") or task.input.get("content")
+            task_id = task.input.get("id") or task.id
             if text:
-                prompt_content = str(text)
+                prompt_content = f"[{task_id}] {text}"
             else:
-                prompt_content = f"Process item: {task.input}"
+                prompt_content = f"[{task_id}] Process item: {task.input}"
         else:
-            prompt_content = str(task.input)
+            prompt_content = f"[{task.id}] {task.input}"
 
         # If executor has metadata (such as proxy, account, credentials), format guidance
         context_extra = []

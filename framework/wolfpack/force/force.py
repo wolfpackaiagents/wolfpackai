@@ -168,6 +168,10 @@ class AgentForce:
             default_pool=default_pool,
         )
 
+        # Step 1.5: Coordinator intelligently routes unassigned tasks to pools
+        if len(self.pools) > 1 and any(t.pool == "default" or t.pool not in self.pools for t in tasks):
+            self._route_tasks_to_pools(mission, tasks)
+
         total_tasks = len(tasks)
         pool_counts = {p: sum(1 for t in tasks if t.pool == p) for p in self.pools}
 
@@ -293,6 +297,34 @@ class AgentForce:
         )
 
         yield final_result
+
+    def _route_tasks_to_pools(self, mission: str, tasks: List[TaskItem]) -> None:
+        """Uses the coordinator to intelligently classify and route unassigned tasks into pools."""
+        unassigned = [t for t in tasks if t.pool == "default" or t.pool not in self.pools]
+        if not unassigned or not self.coordinator:
+            return
+
+        available_pools = list(self.pools.keys())
+        prompt = (
+            f"You are the Force Coordinator for the mission: '{mission}'.\n"
+            f"Available execution pools: {available_pools}.\n"
+            f"Classify each of the following tasks and assign it to the most relevant pool.\n\n"
+            + "\n".join(f"Task ID: {t.id} | Content: {t.description}" for t in unassigned)
+            + "\n\nReturn ONLY a JSON dictionary mapping Task ID to pool name, e.g. {\"task_id\": \"pool_name\"}. No other text."
+        )
+
+        try:
+            import json, re
+            coord_out = self.coordinator.run(prompt)
+            content = getattr(coord_out, "content", str(coord_out))
+            m = re.search(r"\{.*\}", content, re.DOTALL)
+            if m:
+                mapping = json.loads(m.group(0))
+                for t in unassigned:
+                    if t.id in mapping and mapping[t.id] in self.pools:
+                        t.pool = mapping[t.id]
+        except Exception:
+            pass
 
     def _synthesize_with_coordinator(self, mission: str, results: List[TaskResult]) -> str:
         """Uses the coordinator agent to generate a consolidated synthesis of the batch."""

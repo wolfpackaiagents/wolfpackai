@@ -49,6 +49,7 @@ from wolfpack.evals import AmpScorePublisher, CallableEvaluator, EvalCase, EvalR
 from wolfpack.schedules import AmpScheduleClient, HttpRuntimeRunner, RuntimeContext, RuntimeDispatch, ScheduleTask, ScheduleTaskRequest, ScheduleToolkit
 from wolfpack.channels import AmpWebChatAdapter, ChannelIdentity, DeliveryReceipt, DiscordAdapter, InboundMessage, SlackAdapter, TelegramAdapter, WebChatAdapter
 from wolfpack.ai_prediction import AIPrediction, PredictionReport
+from wolfpack.knowledge import Knowledge, OKFBundle, Concept
 from wolfpack.force import AgentForce, ExecutorSpec, AgentForceResult
 from wolfpack.data import AnalyticsToolkit, AthenaToolkit, BigQueryToolkit, ClickHouseToolkit, DataAccessPolicy, DataPolicyError, DatabricksToolkit, DocumentToolkit, ElasticsearchToolkit, GraphToolkit, KeyValueToolkit, Neo4jToolkit, RedisToolkit, SnowflakeToolkit, SqlToolkit, TrinoToolkit, ingest_rows
 
@@ -64,6 +65,9 @@ __all__ = [
     "get_model",
     "get_model_from_env",
     "create_knowledge_search_tool",
+    "Knowledge",
+    "OKFBundle",
+    "Concept",
     # guardrails
     "BaseGuardrail",
     "GuardrailResult",

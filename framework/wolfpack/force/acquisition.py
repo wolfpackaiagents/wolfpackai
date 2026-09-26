@@ -41,7 +41,7 @@ def normalize_to_tasks(
                 tasks.append(item)
             elif isinstance(item, dict):
                 # Detect pool assignment if present in the data dict
-                pool = item.get("pool") or item.get("target_pool") or default_pool
+                pool = item.get("pool") or item.get("target_pool") or "default"
                 desc = item.get("description") or item.get("title") or item.get("prompt") or f"Task #{idx + 1}"
                 task_id = item.get("id") or item.get("task_id")
                 tasks.append(
