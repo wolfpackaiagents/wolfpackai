@@ -112,6 +112,11 @@ const frameworkPt: Record<string, FrameworkTranslation> = {
     description: "OKF e um formato portavel e neutro para conhecimento de agentes usando arquivos markdown com frontmatter YAML. Um bundle e um diretorio de conceitos onde caminhos de arquivo = identidades e links markdown = um grafo navegaveis. Tres backends sao suportados: diretorio local, arquivo .tar.gz e S3/MinIO.",
     codeExamples: [{ title: "Crie e consulte um bundle OKF" }],
   },
+  "agent-force": {
+    title: "AgentForce (execução paralela em massa)",
+    description: "AgentForce orquestra ações paralelas em massa combinando um Agente Coordenador com pools especializados de executores. Suporta aquisição multi-fonte de dados (SQL, Knowledge, OKF, lotes), previsão de duração, custo e gargalos por AIPrediction, e streaming de progresso em tempo real com barra de avanço e cálculo de ETA.",
+    codeExamples: [{ title: "Execução paralela em massa com pools e progresso em tempo real" }],
+  },
 };
 
 const controlPlanePt: Record<string, Partial<ControlPlaneSection>> = {
@@ -139,6 +144,7 @@ const categoryPt: Record<string, string> = {
   SQLToolkit: "SQLToolkit",
   Schedules: "Agendamentos", "Personal Agent": "Agente pessoal", "Coding Agent": "Agente de codigo", Channels: "Canais",
   "AI Prediction": "Predicao IA", Skills: "Skills", "Model Routing": "Roteamento de modelos", OKF: "OKF",
+  AgentForce: "AgentForce",
 };
 
 export function getFrameworkSections(lang: Language) {

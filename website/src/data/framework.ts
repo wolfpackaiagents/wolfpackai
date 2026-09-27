@@ -404,4 +404,40 @@ async def example():
     print(ctx)`,
     }],
   },
+  {
+    id: "agent-force",
+    title: "AgentForce",
+    description: "AgentForce orchestrates mass parallel actions with a coordinator Agent and specialized executor pools. It features multi-source data acquisition (SQL, Knowledge, OKF, batches), AIPrediction forecasting, and real-time progress streaming.",
+    parameters: [
+      { name: "coordinator", type: "Agent", required: true, description: "Lead Agent that plans task allocation and synthesizes results." },
+      { name: "max_workers", type: "int", required: false, default: "10", description: "Global maximum concurrent worker threads." },
+      { name: "prediction_enabled", type: "bool", required: false, default: "True", description: "Enables AIPrediction duration, cost, and bottleneck forecasts." },
+      { name: "name", type: "str", required: false, default: "'AgentForce'", description: "Identification name used in telemetry and events." },
+    ],
+    codeExamples: [{
+      title: "Mass parallel execution with specialized pools and streaming",
+      language: "python",
+      code: `from wolfpack import Agent, get_model_from_env
+from wolfpack.force import AgentForce
+
+coordinator = Agent(name="Lead", model=get_model_from_env())
+worker_br = Agent(name="WorkerBR", model=get_model_from_env())
+worker_us = Agent(name="WorkerUS", model=get_model_from_env())
+
+force = AgentForce(coordinator=coordinator, max_workers=8)
+force.add_executor(name="exec-br", agent=worker_br, pool="pool_brasil", max_concurrency=4)
+force.add_executor(name="exec-us", agent=worker_us, pool="pool_international", max_concurrency=4)
+
+# Stream progress with real-time ETA and AIPrediction metrics
+for event in force.run(
+    mission="Process customer queue in parallel",
+    data=incoming_batch,
+    stream=True,
+):
+    if event.event_type == "ForceProgress":
+        print(f"[{event.percent:.1f}%] Completed {event.completed}/{event.total} (ETA: {event.eta_seconds:.1f}s)")
+    elif event.event_type == "ForceCompleted":
+        print("Synthesis:", event.synthesis_preview)`,
+    }],
+  },
 ];
