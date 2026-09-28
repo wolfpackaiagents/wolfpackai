@@ -32,7 +32,7 @@
     "mesh": "Agentes e ambientes",
     "schedules": "Agendamentos",
     "channels": "Canais",
-    "predictions": "Predições de IA"
+    "predictions": "Predições de IA & AgentForce"
   },
   "layout": {
     "systemsNominal": "Sistemas nominais",
@@ -850,8 +850,8 @@
     "loadInteractionsFailed": "Não foi possível carregar evidências de interação: {{error}}"
   },
   "predictions": {
-    "title": "Predições de IA",
-    "subtitle": "Relatórios multiagente com debate e análise de convergência",
+    "title": "Predições de IA & AgentForce",
+    "subtitle": "Inteligência preditiva multiagente, simulações em massa e previsões de AgentForce",
     "empty": "Nenhuma predição ainda. Use a classe AIPrediction para gerar uma.",
     "name": "Nome",
     "status": "Status",

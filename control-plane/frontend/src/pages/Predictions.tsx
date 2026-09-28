@@ -83,9 +83,26 @@ export default function Predictions() {
               </tr>
             </thead>
             <tbody>
-              {data.map((p) => (
-                <tr key={p.id}>
-                  <td><Link to={`/predictions/${p.id}`} className="text-primary underline-offset-2 hover:underline">{p.name}</Link></td>
+              {data.map((p) => {
+                const isForce = p.name.toLowerCase().includes('agentforce') || (p.scenario_params && 'pools' in p.scenario_params)
+                return (
+                  <tr key={p.id}>
+                    <td>
+                      <div className="flex items-center gap-2">
+                        {isForce ? (
+                          <span className="inline-flex items-center gap-1 rounded bg-primary-tint border border-primary-tint-strong px-2 py-0.5 text-[11px] font-semibold text-primary">
+                            ⚡ AgentForce
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded bg-surface-alt border border-line px-2 py-0.5 text-[11px] font-medium text-text-secondary">
+                            Simulação
+                          </span>
+                        )}
+                        <Link to={`/predictions/${p.id}`} className="text-primary underline-offset-2 hover:underline font-medium">
+                          {p.name}
+                        </Link>
+                      </div>
+                    </td>
                   <td><span className={`border rounded px-2 py-0.5 text-xs ${STATUS_COLORS[p.status] || ''}`}>{STATUS_LABELS[p.status] || p.status}</span></td>
                   <td className="text-text-secondary">{p.horizon_date ? new Date(p.horizon_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : '-'}</td>
                   <td>{p.agent_count}</td>
@@ -99,7 +116,7 @@ export default function Predictions() {
                       {deleting === p.id ? '...' : t('predictions.delete')}</button>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>}
       </section>

@@ -30,6 +30,7 @@ const categoryByDirectory = {
   "22_skills": "Skills",
   "22_okf": "OKF",
   "23_model_routing": "Model Routing",
+  "24_force": "AgentForce",
 };
 
 const modelExamples = new Set([
