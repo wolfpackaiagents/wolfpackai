@@ -21,7 +21,7 @@
     "react": "^18.3",
     "react-dom": "^18.3",
     "react-i18next": "^15.0",
-    "react-router-dom": "^6.26",
+    "react-router-dom": "^7.18",
     "recharts": "^2.12",
     "zod": "^3.23",
     "zustand": "^4.5"
